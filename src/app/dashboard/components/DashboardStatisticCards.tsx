@@ -26,7 +26,7 @@ export function DashboardStatisticCards({
         </CardContent>
       </Card>
       <Card>
-        <CardContent className="pt-6">
+        <CardContent >
           <div className="text-center">
             <div className="text-2xl font-bold text-[#2d2d2d]">{thankedGifts}</div>
             <p className="text-xs text-[#2d2d2d]">Thank You Notes Sent</p>
@@ -34,7 +34,7 @@ export function DashboardStatisticCards({
         </CardContent>
       </Card>
       <Card>
-        <CardContent className="pt-6">
+        <CardContent>
           <div className="text-center">
             <div className="text-2xl font-bold text-[#2d2d2d]">
               {totalGifts - thankedGifts}
@@ -44,7 +44,7 @@ export function DashboardStatisticCards({
         </CardContent>
       </Card>
       <Card>
-        <CardContent className="pt-6">
+        <CardContent >
           <div className="text-center">
             <div className="text-2xl font-bold text-[#2d2d2d]">
               {thankYouProgress}%
