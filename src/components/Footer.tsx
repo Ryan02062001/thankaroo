@@ -23,7 +23,7 @@ export default function Footer() {
           </Link>
         </nav>
         <div className="text-sm text-muted-foreground">
-          © 2025 GratefulTrack. All rights reserved.
+          © 2025 Thankaroo. All rights reserved.
         </div>
       </div>
     </footer>

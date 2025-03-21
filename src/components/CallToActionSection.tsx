@@ -2,6 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function CallToActionSection() {
   return (
@@ -17,13 +18,12 @@ export default function CallToActionSection() {
             </p>
           </div>
           <div className="flex flex-col gap-2 min-[400px]:flex-row">
+          <Link href="/giftlist">
             <Button size="lg" className="bg-white text-[#3EB489] hover:bg-[#F0FDFB]">
-              Get Started Free
+              Get Started
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-            <Button size="lg" className="bg-white text-[#3EB489] hover:bg-[#F0FDFB]">
-            Learn More
-            </Button>
+            </Link>
           </div>
         </div>
       </div>
