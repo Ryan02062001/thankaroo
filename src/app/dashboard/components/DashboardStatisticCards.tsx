@@ -18,7 +18,7 @@ export function DashboardStatisticCards({
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
       <Card>
-        <CardContent className="pt-6">
+        <CardContent>
           <div className="text-center">
             <div className="text-2xl font-bold text-[#2d2d2d]">{totalGifts}</div>
             <p className="text-xs text-[#2d2d2d]">Total Gifts</p>

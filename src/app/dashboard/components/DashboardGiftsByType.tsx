@@ -19,7 +19,7 @@ export function DashboardGiftsByType({
 }: DashboardGiftsByTypeProps) {
   return (
     <Card>
-      <CardContent className="pt-6">
+      <CardContent>
         <h3 className="mb-4 font-semibold text-[#2d2d2d]">Gifts by Type</h3>
         <div className="space-y-4">
           <div className="space-y-2">

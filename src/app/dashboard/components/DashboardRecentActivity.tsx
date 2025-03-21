@@ -15,7 +15,7 @@ interface DashboardRecentActivityProps {
 export function DashboardRecentActivity({ gifts }: DashboardRecentActivityProps) {
   return (
     <Card>
-      <CardContent className="pt-6">
+      <CardContent>
         <h3 className="mb-4 font-semibold text-[#2d2d2d]">Recent Activity</h3>
         <div className="space-y-4">
           {gifts.slice(0, 5).map((gift) => (
