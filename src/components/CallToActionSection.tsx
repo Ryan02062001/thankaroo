@@ -11,8 +11,7 @@ export default function CallToActionSection() {
         <div className="flex flex-col items-center justify-center space-y-4 text-center text-white">
           <div className="space-y-2">
             <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-              Ready to start tracking your gifts?
-            </h2>
+            Start Tracking Your Wedding Gifts Today with Thankaroo.            </h2>
             <p className="max-w-[900px] text-[#D1F2EB] md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
               Join thousands of couples who&apos;ve simplified their thank-you process with Thankaroo.
             </p>

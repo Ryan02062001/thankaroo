@@ -10,10 +10,9 @@ export default function HowItWorksSection() {
               How It Works
             </div>
             <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-              Three simple steps to gratitude
-            </h2>
+            Manage Your Wedding Thank-Yous            </h2>
             <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-              Trackaroo makes it easy to stay on top of your thank-you notes.
+            Thankaroo makes it easy to stay on top of your thank-you notes.
             </p>
           </div>
         </div>

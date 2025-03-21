@@ -12,10 +12,10 @@ export default function FeaturesSection() {
               Features
             </div>
             <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-              Everything you need to stay organized
+            Why Thankaroo Helps You Track Gifts
             </h2>
             <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-              GratefulTrack simplifies the process of tracking gifts and sending thank-you notes.
+            Thankaroo simplifies the process of tracking gifts and sending thank-you notes.
             </p>
           </div>
         </div>
