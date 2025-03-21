@@ -17,7 +17,7 @@ export default function PrivacySection() {
                 Your data stays with you
               </h2>
               <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-               uses local storage to keep your gift information private and secure. Your data never
+               Thankaroo uses local storage to keep your gift information private and secure. Your data never
                 leaves your device unless you choose to export it.
               </p>
             </div>
