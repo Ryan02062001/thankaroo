@@ -92,9 +92,10 @@ export function EditGiftDialog({
                   <SelectValue placeholder="Select type" className="text-[#2d2d2d]" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="physical">Physical Gift</SelectItem>
+                  <SelectItem value="non registry">Non Registry Gift</SelectItem>
                   <SelectItem value="monetary">Monetary Gift</SelectItem>
                   <SelectItem value="registry">Registry Gift</SelectItem>
+                  <SelectItem value="multiple">Multiple Gifts</SelectItem>
                 </SelectContent>
               </Select>
             </div>

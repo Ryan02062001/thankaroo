@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 
-export type GiftType = "physical" | "monetary" | "registry";
+export type GiftType = "non registry" | "monetary" | "registry" | "multiple";
 
 export type GiftItem = {
   id: string;
@@ -58,7 +58,6 @@ export const GiftProvider = ({ children }: { children: React.ReactNode }) => {
     );
   };
 
-  // New updateGift function to allow editing an existing gift
   const updateGift = (id: string, updatedGift: Omit<GiftItem, "id">) => {
     setGifts(
       gifts.map((gift) =>
@@ -79,14 +78,15 @@ export const GiftProvider = ({ children }: { children: React.ReactNode }) => {
       headers.join(","),
       ...gifts.map((gift) =>
         [
-          "${gift.guestName}",
-          "${gift.description}",
+          gift.guestName,
+          gift.description,
           gift.type,
           gift.date,
           gift.thankYouSent ? "Yes" : "No",
         ].join(",")
       ),
     ].join("\n");
+    
     const blob = new Blob([csvContent], {
       type: "text/csv;charset=utf-8;",
     });

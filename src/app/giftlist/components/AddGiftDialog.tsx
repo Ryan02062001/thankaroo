@@ -38,7 +38,6 @@ export function AddGiftDialog({
 }: AddGiftDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      {/* Instead of an empty fragment, we use an empty span */}
       <DialogTrigger asChild>
         <span style={{ display: "none" }} />
       </DialogTrigger>
@@ -93,10 +92,12 @@ export function AddGiftDialog({
                   <SelectValue placeholder="Select type" className="text-[#2d2d2d]" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="physical">Physical Gift</SelectItem>
-                  <SelectItem value="monetary">Monetary Gift</SelectItem>
-                  <SelectItem value="registry">Registry Gift</SelectItem>
-                </SelectContent>
+  <SelectItem value="non registry">Non Registry Gift</SelectItem>
+  <SelectItem value="monetary">Monetary Gift</SelectItem>
+  <SelectItem value="registry">Registry Gift</SelectItem>
+  <SelectItem value="multiple">Multiple Gifts</SelectItem>
+</SelectContent>
+
               </Select>
             </div>
             <div className="grid gap-2">
@@ -131,4 +132,3 @@ export function AddGiftDialog({
     </Dialog>
   );
 }
-

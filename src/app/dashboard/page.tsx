@@ -18,21 +18,23 @@ export default function DashboardPage() {
   const thankYouProgress =
     totalGifts > 0 ? Math.round((thankedGifts / totalGifts) * 100) : 0;
   const giftsByType = {
-    physical: gifts.filter((gift) => gift.type === "physical").length,
+    nonRegistry: gifts.filter((gift) => gift.type === "non registry").length,
     monetary: gifts.filter((gift) => gift.type === "monetary").length,
     registry: gifts.filter((gift) => gift.type === "registry").length,
+    multiple: gifts.filter((gift) => gift.type === "multiple").length, // new
+
   };
 
   return (
     <div className="min-h-screen bg-[#fefefe] pt-20">
       <main className="max-w-7xl mx-auto py-6 px-4">
-      <div className="flex items-center space-x-7 mb-5">
-        <h1 className="text-4xl font-bold text-[#2d2d2d]">Dashboard</h1>
-        <Link href="/giftlist">
-          <Button size="sm" variant="ghost" className=" text-[#2d2d2d]">
-            View Gift List
-          </Button>
-        </Link>
+        <div className="flex items-center space-x-7 mb-5">
+          <h1 className="text-4xl font-bold text-[#2d2d2d]">Dashboard</h1>
+          <Link href="/giftlist">
+            <Button size="sm" variant="ghost" className=" text-[#2d2d2d]">
+              View Gift List
+            </Button>
+          </Link>
         </div>
         <DashboardStatisticCards
           totalGifts={totalGifts}

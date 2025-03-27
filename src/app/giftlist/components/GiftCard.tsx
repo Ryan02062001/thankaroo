@@ -8,7 +8,7 @@ import {
   CheckCircle,
   X,
   Calendar,
-  Edit, // import the edit icon
+  Edit,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,27 +29,27 @@ export function GiftCard({
 }: GiftCardProps) {
   return (
     <Card
-  className={`overflow-hidden transition-all ${
-    gift.thankYouSent ? "border-[#A8E6CF]" : ""
-  }`}
->
-
+      className={`overflow-hidden transition-all ${
+        gift.thankYouSent ? "border-[#A8E6CF]" : ""
+      }`}
+    >
       <CardContent className="p-2">
         <div className="flex items-center justify-between border-b p-4">
           <div className="flex items-center gap-2">
-            {gift.type === "physical" ? (
-              <Package className="h-4 w-4 text-[#2d2d2d]" />
-            ) : gift.type === "monetary" ? (
-              <DollarSign className="h-4 w-4 text-[#2d2d2d]" />
-            ) : (
-              <Gift className="h-4 w-4 text-[#2d2d2d]" />
-            )}
+          {gift.type === "non registry" ? (
+  <Package className="h-4 w-4 text-[#2d2d2d]" />
+) : gift.type === "monetary" ? (
+  <DollarSign className="h-4 w-4 text-[#2d2d2d]" />
+) : gift.type === "registry" ? (
+  <Gift className="h-4 w-4 text-[#2d2d2d]" />
+) : (
+  <Gift className="h-4 w-4 text-[#2d2d2d]" /> // fallback or custom icon
+)}
             <span className="font-medium text-[#2d2d2d]">
               {gift.guestName}
             </span>
           </div>
           <div className="flex items-center gap-1">
-            {/* Edit button */}
             <Button
               variant="ghost"
               size="icon"

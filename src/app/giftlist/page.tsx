@@ -29,7 +29,7 @@ export default function GiftListPage() {
   const [newGift, setNewGift] = useState<Omit<GiftItem, "id">>({
     guestName: "",
     description: "",
-    type: "physical",
+    type: "non registry",
     date: new Date().toISOString().split("T")[0],
     thankYouSent: false,
   });
@@ -69,7 +69,7 @@ export default function GiftListPage() {
     setNewGift({
       guestName: "",
       description: "",
-      type: "physical",
+      type: "non registry",
       date: new Date().toISOString().split("T")[0],
       thankYouSent: false,
     });
@@ -136,7 +136,7 @@ export default function GiftListPage() {
           gifts={sortedGifts}
           onDeleteGift={deleteGift}
           onToggleThankYou={toggleThankYou}
-          onEditGift={handleEditGift} // pass the edit callback
+          onEditGift={handleEditGift}
           onAddGift={openAddGift}
         />
         <AddGiftDialog

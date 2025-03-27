@@ -65,20 +65,22 @@ export function GiftListControls({
       </div>
       <div className="flex flex-wrap items-center gap-2">
         {filterType && (
-          <Badge
-            variant="outline"
-            className="flex items-center gap-1 text-[#2d2d2d] border-[#A8E6CF]"
-          >
-            {filterType === "physical"
-              ? "Physical"
-              : filterType === "monetary"
-              ? "Monetary"
-              : "Registry"}
-            <X
-              className="h-3 w-3 cursor-pointer"
-              onClick={() => setFilterType(null)}
-            />
-          </Badge>
+           <Badge
+           variant="outline"
+           className="flex items-center gap-1 text-[#2d2d2d] border-[#A8E6CF]"
+         >
+           {filterType === "non registry"
+             ? "Non Registry"
+             : filterType === "monetary"
+             ? "Monetary"
+             : filterType === "registry"
+             ? "Registry"
+             : "Multiple"}
+           <X
+             className="h-3 w-3 cursor-pointer"
+             onClick={() => setFilterType(null)}
+           />
+         </Badge>
         )}
         {filterThankYou !== null && (
           <Badge
@@ -106,9 +108,9 @@ export function GiftListControls({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-[200px]">
-            <DropdownMenuItem onSelect={() => setFilterType("physical")}>
+            <DropdownMenuItem onSelect={() => setFilterType("non registry")}>
               <Package className="mr-2 h-4 w-4 text-[#2d2d2d]" />
-              Physical Gifts
+              Non Registry Gifts
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => setFilterType("monetary")}>
               <DollarSign className="mr-2 h-4 w-4 text-[#2d2d2d]" />
@@ -118,6 +120,10 @@ export function GiftListControls({
               <Gift className="mr-2 h-4 w-4 text-[#2d2d2d]" />
               Registry Gifts
             </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setFilterType("multiple")}>
+  <Gift className="mr-2 h-4 w-4 text-[#2d2d2d]" />
+  Multiple Gifts
+</DropdownMenuItem>
             <DropdownMenuItem onSelect={() => setFilterThankYou(true)}>
               <CheckCircle className="mr-2 h-4 w-4 text-[#2d2d2d]" />
               Thanked

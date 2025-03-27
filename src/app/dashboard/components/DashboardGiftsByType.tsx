@@ -6,9 +6,10 @@ import { Package, DollarSign, Gift } from "lucide-react";
 
 interface DashboardGiftsByTypeProps {
   giftsByType: {
-    physical: number;
+    nonRegistry: number;
     monetary: number;
     registry: number;
+    multiple: number; // new
   };
   totalGifts: number;
 }
@@ -27,15 +28,15 @@ export function DashboardGiftsByType({
               <div className="flex items-center gap-2">
                 <Package className="h-4 w-4 text-[#2d2d2d]" />
                 <span className="text-sm font-medium text-[#2d2d2d]">
-                  Physical Gifts
+                  None Registry
                 </span>
               </div>
               <span className="text-sm text-[#2d2d2d]">
-                {giftsByType.physical}
+                {giftsByType.nonRegistry}
               </span>
             </div>
             <Progress
-              value={(giftsByType.physical / totalGifts) * 100 || 0}
+              value={(giftsByType.nonRegistry / totalGifts) * 100 || 0}
               className="h-2"
             />
           </div>
@@ -73,6 +74,24 @@ export function DashboardGiftsByType({
               className="h-2"
             />
           </div>
+          <div className="space-y-2">
+  <div className="flex items-center justify-between">
+    <div className="flex items-center gap-2">
+      <Gift className="h-4 w-4 text-[#2d2d2d]" />
+      <span className="text-sm font-medium text-[#2d2d2d]">
+        Multiple Gifts
+      </span>
+    </div>
+    <span className="text-sm text-[#2d2d2d]">
+      {giftsByType.multiple}
+    </span>
+  </div>
+  <Progress
+    value={(giftsByType.multiple / totalGifts) * 100 || 0}
+    className="h-2"
+  />
+</div>
+
         </div>
       </CardContent>
     </Card>
