@@ -9,6 +9,7 @@ interface GiftListProps {
   gifts: GiftItem[];
   onDeleteGift: (id: string) => void;
   onToggleThankYou: (id: string) => void;
+  onEditGift: (gift: GiftItem) => void;
   onAddGift?: () => void;
 }
 
@@ -16,6 +17,7 @@ export function GiftList({
   gifts,
   onDeleteGift,
   onToggleThankYou,
+  onEditGift,
   onAddGift,
 }: GiftListProps) {
   return gifts.length > 0 ? (
@@ -26,6 +28,7 @@ export function GiftList({
           gift={gift}
           onDelete={onDeleteGift}
           onToggleThankYou={onToggleThankYou}
+          onEdit={onEditGift}
         />
       ))}
     </div>
@@ -45,7 +48,7 @@ export function GiftList({
           className="mt-4 bg-[#A8E6CF] hover:bg-[#98CFBA] text-[#2d2d2d]"
           onClick={onAddGift}
         >
-          <Plus className="mr-2 h-4 w-4" />
+          <Plus className="mr-2 h-4 w-4 text-[#2d2d2d]" />
           Add Your First Gift
         </Button>
       )}

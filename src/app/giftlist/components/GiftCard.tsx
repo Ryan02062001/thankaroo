@@ -8,6 +8,7 @@ import {
   CheckCircle,
   X,
   Calendar,
+  Edit, // import the edit icon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,15 +18,22 @@ interface GiftCardProps {
   gift: GiftItem;
   onDelete: (id: string) => void;
   onToggleThankYou: (id: string) => void;
+  onEdit: (gift: GiftItem) => void;
 }
 
-export function GiftCard({ gift, onDelete, onToggleThankYou }: GiftCardProps) {
+export function GiftCard({
+  gift,
+  onDelete,
+  onToggleThankYou,
+  onEdit,
+}: GiftCardProps) {
   return (
     <Card
-      className={`overflow-hidden transition-all ${
-        gift.thankYouSent ? "border-[#A8E6CF]" : ""
-      }`}
-    >
+  className={`overflow-hidden transition-all ${
+    gift.thankYouSent ? "border-[#A8E6CF]" : ""
+  }`}
+>
+
       <CardContent className="p-2">
         <div className="flex items-center justify-between border-b p-4">
           <div className="flex items-center gap-2">
@@ -41,6 +49,15 @@ export function GiftCard({ gift, onDelete, onToggleThankYou }: GiftCardProps) {
             </span>
           </div>
           <div className="flex items-center gap-1">
+            {/* Edit button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-[#A8E6CF] hover:text-[#A8E6CF]"
+              onClick={() => onEdit(gift)}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
@@ -52,9 +69,7 @@ export function GiftCard({ gift, onDelete, onToggleThankYou }: GiftCardProps) {
           </div>
         </div>
         <div className="p-4">
-          <p className="text-sm text-[#2d2d2d] mb-2">
-            {gift.description}
-          </p>
+          <p className="text-sm text-[#2d2d2d] mb-2">{gift.description}</p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1 text-xs text-[#2d2d2d]">
               <Calendar className="h-3 w-3" />
@@ -65,8 +80,8 @@ export function GiftCard({ gift, onDelete, onToggleThankYou }: GiftCardProps) {
               size="sm"
               className={
                 gift.thankYouSent
-                  ? "border-[#A8E6CF]  text-[#2d2d2d] hover:bg-[#A8E6CF]/20 bg-[#A8E6CF]"
-                  : "border-[#A8E6CF] border text-[#2d2d2d]  hover:bg-[#A8E6CF]/20 bg-[#fefefe]"
+                  ? "border-[#A8E6CF] text-[#2d2d2d] hover:bg-[#A8E6CF]/20 bg-[#A8E6CF]"
+                  : "border-[#A8E6CF] border text-[#2d2d2d] hover:bg-[#A8E6CF]/20 bg-[#fefefe]"
               }
               onClick={() => onToggleThankYou(gift.id)}
             >

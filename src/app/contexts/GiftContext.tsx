@@ -19,6 +19,7 @@ interface GiftContextType {
   deleteGift: (id: string) => void;
   toggleThankYou: (id: string) => void;
   exportAsCSV: () => void;
+  updateGift: (id: string, updatedGift: Omit<GiftItem, "id">) => void;
 }
 
 const GiftContext = createContext<GiftContextType | undefined>(undefined);
@@ -57,6 +58,15 @@ export const GiftProvider = ({ children }: { children: React.ReactNode }) => {
     );
   };
 
+  // New updateGift function to allow editing an existing gift
+  const updateGift = (id: string, updatedGift: Omit<GiftItem, "id">) => {
+    setGifts(
+      gifts.map((gift) =>
+        gift.id === id ? { ...gift, ...updatedGift } : gift
+      )
+    );
+  };
+
   const exportAsCSV = () => {
     const headers = [
       "Guest Name",
@@ -69,8 +79,8 @@ export const GiftProvider = ({ children }: { children: React.ReactNode }) => {
       headers.join(","),
       ...gifts.map((gift) =>
         [
-          `"${gift.guestName}"`,
-          `"${gift.description}"`,
+          "${gift.guestName}",
+          "${gift.description}",
           gift.type,
           gift.date,
           gift.thankYouSent ? "Yes" : "No",
@@ -90,7 +100,7 @@ export const GiftProvider = ({ children }: { children: React.ReactNode }) => {
     document.body.removeChild(link);
   };
 
-  const value = { gifts, addGift, deleteGift, toggleThankYou, exportAsCSV };
+  const value = { gifts, addGift, deleteGift, toggleThankYou, exportAsCSV, updateGift };
 
   return <GiftContext.Provider value={value}>{children}</GiftContext.Provider>;
 };

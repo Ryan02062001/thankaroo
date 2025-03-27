@@ -4,12 +4,20 @@ import { useState } from "react";
 import { GiftListControls } from "./components/GiftListControls";
 import { AddGiftDialog } from "./components/AddGiftDialog";
 import { GiftList } from "./components/GiftList";
+import { EditGiftDialog } from "./components/EditGiftDialog";
 import { useGifts, GiftItem } from "../contexts/GiftContext";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export default function GiftListPage() {
-  const { gifts, addGift, deleteGift, toggleThankYou, exportAsCSV } = useGifts();
+  const {
+    gifts,
+    addGift,
+    deleteGift,
+    toggleThankYou,
+    exportAsCSV,
+    updateGift,
+  } = useGifts();
 
   // UI state for search, filtering, and sorting
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,6 +34,10 @@ export default function GiftListPage() {
     thankYouSent: false,
   });
   const [isAddGiftOpen, setIsAddGiftOpen] = useState(false);
+
+  // State for editing a gift
+  const [editingGift, setEditingGift] = useState<GiftItem | null>(null);
+  const [isEditGiftOpen, setIsEditGiftOpen] = useState(false);
 
   // Apply search and filter to the gifts from context
   const filteredGifts = gifts.filter((gift) => {
@@ -64,6 +76,27 @@ export default function GiftListPage() {
     setIsAddGiftOpen(false);
   };
 
+  // Called when the edit button is clicked on a gift card
+  const handleEditGift = (gift: GiftItem) => {
+    setEditingGift(gift);
+    setIsEditGiftOpen(true);
+  };
+
+  // Update the gift using the context updateGift method
+  const handleUpdateGift = () => {
+    if (editingGift) {
+      updateGift(editingGift.id, {
+        guestName: editingGift.guestName,
+        description: editingGift.description,
+        type: editingGift.type,
+        date: editingGift.date,
+        thankYouSent: editingGift.thankYouSent,
+      });
+      setIsEditGiftOpen(false);
+      setEditingGift(null);
+    }
+  };
+
   const resetFilters = () => {
     setSearchTerm("");
     setFilterType(null);
@@ -78,12 +111,12 @@ export default function GiftListPage() {
     <div className="min-h-screen bg-[#fefefe] pt-20">
       <main className="max-w-7xl mx-auto py-6 px-4">
         <div className="flex items-center space-x-7 mb-5">
-        <h1 className="text-4xl font-bold text-[#2d2d2d]">Gift List</h1>
-        <Link href="/dashboard">
-          <Button size="sm" variant="ghost" className=" text-[#2d2d2d]">
-            View Dashboard
-          </Button>
-        </Link>
+          <h1 className="text-4xl font-bold text-[#2d2d2d]">Gift List</h1>
+          <Link href="/dashboard">
+            <Button size="sm" variant="ghost" className=" text-[#2d2d2d]">
+              View Dashboard
+            </Button>
+          </Link>
         </div>
         <GiftListControls
           searchTerm={searchTerm}
@@ -103,6 +136,7 @@ export default function GiftListPage() {
           gifts={sortedGifts}
           onDeleteGift={deleteGift}
           onToggleThankYou={toggleThankYou}
+          onEditGift={handleEditGift} // pass the edit callback
           onAddGift={openAddGift}
         />
         <AddGiftDialog
@@ -112,9 +146,16 @@ export default function GiftListPage() {
           setIsOpen={setIsAddGiftOpen}
           handleAddGift={handleAddGift}
         />
+        {editingGift && (
+          <EditGiftDialog
+            gift={editingGift}
+            setGift={setEditingGift as (gift: GiftItem) => void}
+            isOpen={isEditGiftOpen}
+            setIsOpen={setIsEditGiftOpen}
+            handleUpdateGift={handleUpdateGift}
+          />
+        )}
       </main>
     </div>
   );
 }
-
-
