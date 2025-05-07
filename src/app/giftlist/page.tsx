@@ -8,6 +8,7 @@ import { EditGiftDialog } from "./components/EditGiftDialog";
 import { useGifts, GiftItem } from "../contexts/GiftContext";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ListSelector } from "@/components/ui/list-selector";
 
 export default function GiftListPage() {
   const {
@@ -118,6 +119,9 @@ export default function GiftListPage() {
             </Button>
           </Link>
         </div>
+
+        {/* ← LIST SWITCHER HERE */}
+        <ListSelector />
         <GiftListControls
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}

@@ -1,4 +1,3 @@
-// src/app/dashboard/components/DashboardStatisticCards.tsx
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,7 +8,6 @@ interface DashboardStatisticCardsProps {
   thankYouProgress: number;
 }
 
-// Use a named export
 export function DashboardStatisticCards({
   totalGifts,
   thankedGifts,
@@ -26,7 +24,7 @@ export function DashboardStatisticCards({
         </CardContent>
       </Card>
       <Card>
-        <CardContent >
+        <CardContent>
           <div className="text-center">
             <div className="text-2xl font-bold text-[#2d2d2d]">{thankedGifts}</div>
             <p className="text-xs text-[#2d2d2d]">Thank You Notes Sent</p>
@@ -44,7 +42,7 @@ export function DashboardStatisticCards({
         </CardContent>
       </Card>
       <Card>
-        <CardContent >
+        <CardContent>
           <div className="text-center">
             <div className="text-2xl font-bold text-[#2d2d2d]">
               {thankYouProgress}%

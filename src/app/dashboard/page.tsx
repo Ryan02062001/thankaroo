@@ -8,6 +8,7 @@ import { DashboardRecentActivity } from "./components/DashboardRecentActivity";
 import { DashboardExportButton } from "./components/DashboardExportButton";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ListSelector } from "@/components/ui/list-selector";
 
 export default function DashboardPage() {
   const { gifts, exportAsCSV } = useGifts();
@@ -36,6 +37,9 @@ export default function DashboardPage() {
             </Button>
           </Link>
         </div>
+
+        {/* ← LIST SWITCHER HERE */}
+        <ListSelector />
         <DashboardStatisticCards
           totalGifts={totalGifts}
           thankedGifts={thankedGifts}
