@@ -1,5 +1,9 @@
+// src/components/GiftListControls.tsx
 "use client";
 
+import { useRef } from "react";
+import Papa from "papaparse";
+import { useGifts, GiftItem, GiftType } from "@/app/contexts/GiftContext";
 import {
   Gift,
   Plus,
@@ -13,15 +17,16 @@ import {
   Package,
   CheckCircle,
   Download,
+  Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
+  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 interface GiftListControlsProps {
@@ -51,6 +56,38 @@ export function GiftListControls({
   exportAsCSV,
   openAddGift,
 }: GiftListControlsProps) {
+  const { importGifts } = useGifts();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Parse with PapaParse to guarantee correct columns
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    Papa.parse<Record<string, string>>(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        const items: Omit<GiftItem, "id">[] = results.data.map((row) => {
+          const G = row["Guest Name"]?.trim() || "";
+          const D = row["Gift Description"]?.trim() || "";
+          const T = (row["Type"]?.trim() as GiftType) || "non registry";
+          const Dt = row["Date Received"]?.trim() || "";
+          const Y = row["Thank You Sent"]?.trim().toLowerCase().startsWith("y");
+
+          const type: GiftType = ["non registry", "monetary", "registry", "multiple"].includes(T)
+            ? T
+            : "non registry";
+
+          const date = /^\d{4}-\d{2}-\d{2}$/.test(Dt) ? Dt : new Date().toISOString().split("T")[0];
+
+          return { guestName: G, description: D, type, date, thankYouSent: Y };
+        });
+        importGifts(items);
+      },
+    });
+    e.target.value = "";
+  };
+
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
       <div className="relative w-full md:w-96">
@@ -63,35 +100,24 @@ export function GiftListControls({
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
+
       <div className="flex flex-wrap items-center gap-2">
         {filterType && (
-           <Badge
-           variant="outline"
-           className="flex items-center gap-1 text-[#2d2d2d] border-[#A8E6CF]"
-         >
-           {filterType === "non registry"
-             ? "Non Registry"
-             : filterType === "monetary"
-             ? "Monetary"
-             : filterType === "registry"
-             ? "Registry"
-             : "Multiple"}
-           <X
-             className="h-3 w-3 cursor-pointer"
-             onClick={() => setFilterType(null)}
-           />
-         </Badge>
+          <Badge variant="outline" className="flex items-center gap-1 border-[#A8E6CF] text-[#2d2d2d]">
+            {filterType === "non registry"
+              ? "Non Registry"
+              : filterType === "monetary"
+              ? "Monetary"
+              : filterType === "registry"
+              ? "Registry"
+              : "Multiple"}
+            <X className="h-3 w-3 cursor-pointer" onClick={() => setFilterType(null)} />
+          </Badge>
         )}
         {filterThankYou !== null && (
-          <Badge
-            variant="outline"
-            className="flex items-center gap-1 text-[#2d2d2d] border-[#A8E6CF]"
-          >
+          <Badge variant="outline" className="flex items-center gap-1 border-[#A8E6CF] text-[#2d2d2d]">
             {filterThankYou ? "Thanked" : "Not Thanked"}
-            <X
-              className="h-3 w-3 cursor-pointer"
-              onClick={() => setFilterThankYou(null)}
-            />
+            <X className="h-3 w-3 cursor-pointer" onClick={() => setFilterThankYou(null)} />
           </Badge>
         )}
         {(filterType || filterThankYou !== null) && (
@@ -99,9 +125,10 @@ export function GiftListControls({
             Clear All
           </Button>
         )}
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="ml-auto">
+            <Button variant="outline" size="sm">
               <Filter className="mr-2 h-4 w-4 text-[#2d2d2d]" />
               Filter
               <ChevronDown className="ml-2 h-4 w-4 text-[#2d2d2d]" />
@@ -121,9 +148,9 @@ export function GiftListControls({
               Registry Gifts
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => setFilterType("multiple")}>
-  <Gift className="mr-2 h-4 w-4 text-[#2d2d2d]" />
-  Multiple Gifts
-</DropdownMenuItem>
+              <Gift className="mr-2 h-4 w-4 text-[#2d2d2d]" />
+              Multiple Gifts
+            </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => setFilterThankYou(true)}>
               <CheckCircle className="mr-2 h-4 w-4 text-[#2d2d2d]" />
               Thanked
@@ -134,6 +161,7 @@ export function GiftListControls({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm">
@@ -143,24 +171,33 @@ export function GiftListControls({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-[200px]">
-            <DropdownMenuItem onSelect={() => setSortMethod("name-asc")}>
-              Name (A-Z)
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setSortMethod("name-desc")}>
-              Name (Z-A)
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setSortMethod("newest")}>
-              Newest First
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setSortMethod("oldest")}>
-              Oldest First
-            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setSortMethod("name-asc")}>Name (A-Z)</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setSortMethod("name-desc")}>Name (Z-A)</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setSortMethod("newest")}>Newest First</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setSortMethod("oldest")}>Oldest First</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        {/* Import button */}
+        <input
+          type="file"
+          accept=".csv"
+          hidden
+          ref={fileInputRef}
+          onChange={handleFile}
+        />
+        <Button variant="ghost" size="sm" onClick={() => fileInputRef.current?.click()}>
+          <Upload className="mr-2 h-4 w-4 text-[#A4D9C9]" />
+          Import
+        </Button>
+
+        {/* Export button */}
         <Button variant="ghost" size="sm" onClick={exportAsCSV}>
-          <Download className="mr-2 h-4 w-4 text-[#A8E6CF]" />
+          <Download className="mr-2 h-4 w-4 text-[#A4D9C9]" />
           Export
         </Button>
+
+        {/* Add Gift button */}
         <Button size="sm" className="bg-[#A8E6CF] hover:bg-[#98CFBA] text-[#2d2d2d]" onClick={openAddGift}>
           <Plus className="mr-1 h-4 w-4 text-[#2d2d2d]" />
           Add Gift

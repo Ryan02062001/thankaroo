@@ -1,3 +1,4 @@
+// src/app/dashboard/page.tsx
 "use client";
 
 import { useGifts } from "../contexts/GiftContext";
@@ -5,25 +6,23 @@ import { DashboardStatisticCards } from "./components/DashboardStatisticCards";
 import { DashboardThankYouProgress } from "./components/DashboardThankYouProgress";
 import { DashboardGiftsByType } from "./components/DashboardGiftsByType";
 import { DashboardRecentActivity } from "./components/DashboardRecentActivity";
-import { DashboardExportButton } from "./components/DashboardExportButton";
+import { DashboardExportButton } from "./components/DashboardExportButton"; // no props now
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ListSelector } from "@/components/ui/list-selector";
 
 export default function DashboardPage() {
-  const { gifts, exportAsCSV } = useGifts();
+  const { gifts } = useGifts();
 
-  // Calculate statistics from the context data
   const totalGifts = gifts.length;
-  const thankedGifts = gifts.filter((gift) => gift.thankYouSent).length;
+  const thankedGifts = gifts.filter((g) => g.thankYouSent).length;
   const thankYouProgress =
     totalGifts > 0 ? Math.round((thankedGifts / totalGifts) * 100) : 0;
   const giftsByType = {
-    nonRegistry: gifts.filter((gift) => gift.type === "non registry").length,
-    monetary: gifts.filter((gift) => gift.type === "monetary").length,
-    registry: gifts.filter((gift) => gift.type === "registry").length,
-    multiple: gifts.filter((gift) => gift.type === "multiple").length, // new
-
+    nonRegistry: gifts.filter((g) => g.type === "non registry").length,
+    monetary: gifts.filter((g) => g.type === "monetary").length,
+    registry: gifts.filter((g) => g.type === "registry").length,
+    multiple: gifts.filter((g) => g.type === "multiple").length,
   };
 
   return (
@@ -32,14 +31,14 @@ export default function DashboardPage() {
         <div className="flex items-center space-x-7 mb-5">
           <h1 className="text-4xl font-bold text-[#2d2d2d]">Dashboard</h1>
           <Link href="/giftlist">
-            <Button size="sm" variant="ghost" className=" text-[#2d2d2d]">
+            <Button size="sm" variant="ghost" className="text-[#2d2d2d]">
               View Gift List
             </Button>
           </Link>
         </div>
 
-        {/* ← LIST SWITCHER HERE */}
         <ListSelector />
+
         <DashboardStatisticCards
           totalGifts={totalGifts}
           thankedGifts={thankedGifts}
@@ -57,7 +56,9 @@ export default function DashboardPage() {
           />
           <DashboardRecentActivity gifts={gifts} />
         </div>
-        <DashboardExportButton exportAsCSV={exportAsCSV} />
+
+        {/* no props passed here */}
+        <DashboardExportButton />
       </main>
     </div>
   );
