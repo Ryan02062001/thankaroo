@@ -2,19 +2,17 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 
-interface DashboardStatisticCardsProps {
-  totalGifts: number;
-  thankedGifts: number;
-  thankYouProgress: number;
-}
-
 export function DashboardStatisticCards({
   totalGifts,
   thankedGifts,
   thankYouProgress,
-}: DashboardStatisticCardsProps) {
+}: {
+  totalGifts: number;
+  thankedGifts: number;
+  thankYouProgress: number;
+}) {
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
+    <div className="mb-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       <Card>
         <CardContent>
           <div className="text-center">
@@ -35,7 +33,7 @@ export function DashboardStatisticCards({
         <CardContent>
           <div className="text-center">
             <div className="text-2xl font-bold text-[#2d2d2d]">
-              {totalGifts - thankedGifts}
+              {Math.max(0, totalGifts - thankedGifts)}
             </div>
             <p className="text-xs text-[#2d2d2d]">Thank You Notes Pending</p>
           </div>
@@ -44,9 +42,7 @@ export function DashboardStatisticCards({
       <Card>
         <CardContent>
           <div className="text-center">
-            <div className="text-2xl font-bold text-[#2d2d2d]">
-              {thankYouProgress}%
-            </div>
+            <div className="text-2xl font-bold text-[#2d2d2d]">{thankYouProgress}%</div>
             <p className="text-xs text-[#2d2d2d]">Completion Rate</p>
           </div>
         </CardContent>

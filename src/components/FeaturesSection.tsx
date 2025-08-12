@@ -1,54 +1,102 @@
-"use client";
+"use client"
 
-import { Gift, Mail, Calendar } from "lucide-react";
+import { Gift, Mail, Calendar, Heart, Users, Shield } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 
 export default function FeaturesSection() {
+  const features = [
+    {
+      icon: Gift,
+      title: "Smart Gift Tracking",
+      description: "Effortlessly log gifts from your registry and surprise presents with our intuitive interface.",
+      color: "from-[#3EB489] to-[#A8E6CF]",
+    },
+    {
+      icon: Mail,
+      title: "Thank-You Management",
+      description: "Never miss sending a thank-you note with our elegant tracking and reminder system.",
+      color: "from-[#A8E6CF] to-[#E0FFF4]",
+    },
+    {
+      icon: Calendar,
+      title: "Timeline Organization",
+      description: "Organize gifts by event date and priority to stay on top of your thank-you schedule.",
+      color: "from-[#E0FFF4] to-[#3EB489]",
+    },
+    {
+      icon: Users,
+      title: "Guest Management",
+      description: "Keep track of all your wedding guests and their generous gifts in one beautiful place.",
+      color: "from-[#3EB489] to-[#A8E6CF]",
+    },
+    {
+      icon: Heart,
+      title: "Personal Touch",
+      description: "Add personal notes and memories to make each thank-you note truly heartfelt.",
+      color: "from-[#A8E6CF] to-[#E0FFF4]",
+    },
+    {
+      icon: Shield,
+      title: "Privacy First",
+      description: "Your special moments stay private with our secure, privacy-focused platform.",
+      color: "from-[#E0FFF4] to-[#3EB489]",
+    },
+  ]
+
   return (
-    <section id="features" className="bg-[#F0FDFB] py-12 md:py-24 lg:py-32">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="flex flex-col items-center justify-center space-y-4 text-center">
-          <div className="space-y-2">
-            <div className="inline-block rounded-lg bg-[#E0FFF4] px-3 py-1 text-sm text-[#3EB489]">
-              Features
-            </div>
-            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-            How Thankaroo Helps You Track Gifts
-            </h2>
-            <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-            Thankaroo simplifies the process of tracking gifts and sending thank-you notes.
-            </p>
-          </div>
+    <section className="py-20 md:py-32 bg-gradient-to-b from-white to-[#F0FDFB]">
+      <div className="container mx-auto px-4">
+        {/* Header */}
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <Badge
+            variant="secondary"
+            className="bg-[#E0FFF4] text-[#3EB489] hover:bg-[#E0FFF4] border-[#A8E6CF]/50 mb-6"
+          >
+            ✨ Features
+          </Badge>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+            Everything you need for
+            <span className="block text-[#3EB489]">perfect thank-you notes</span>
+          </h2>
+          <p className="text-xl text-gray-600 leading-relaxed">
+            Thankaroo combines elegant design with powerful features to make gift tracking and thank-you management
+            effortless.
+          </p>
         </div>
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 py-12 md:grid-cols-3">
-          <div className="flex flex-col items-center space-y-4 rounded-lg border bg-background p-6 shadow-sm">
-            <div className="rounded-full bg-[#E0FFF4] p-3">
-              <Gift className="h-6 w-6 text-[#3EB489]" />
-            </div>
-            <h3 className="text-xl font-semibold">Centralized Tracking</h3>
-            <p className="text-center text-muted-foreground">
-              Track all gifts in one place—registry and non-registry, monetary and physical.
-            </p>
-          </div>
-          <div className="flex flex-col items-center space-y-4 rounded-lg border bg-background p-6 shadow-sm">
-            <div className="rounded-full bg-[#E0FFF4] p-3">
-              <Mail className="h-6 w-6 text-[#3EB489]" />
-            </div>
-            <h3 className="text-xl font-semibold">Thank-You Management</h3>
-            <p className="text-center text-muted-foreground">
-              Easily mark which guests have received thank-you notes to avoid missing anyone.
-            </p>
-          </div>
-          <div className="flex flex-col items-center space-y-4 rounded-lg border bg-background p-6 shadow-sm">
-            <div className="rounded-full bg-[#E0FFF4] p-3">
-              <Calendar className="h-6 w-6 text-[#3EB489]" />
-            </div>
-            <h3 className="text-xl font-semibold">Simple Organization</h3>
-            <p className="text-center text-muted-foreground">
-              Minimalist, intuitive interface optimized for quick entries during busy events.
-            </p>
+
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          {features.map((feature, index) => (
+            <Card
+              key={index}
+              className="group border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-white/80 backdrop-blur-sm"
+            >
+              <CardContent className="p-8">
+                <div
+                  className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}
+                >
+                  <feature.icon className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-4 text-gray-900 group-hover:text-[#3EB489] transition-colors duration-300">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="text-center mt-16">
+          <p className="text-lg text-gray-600 mb-6">Ready to make thank-you notes effortless?</p>
+          <div className="flex items-center justify-center gap-2 text-[#3EB489]">
+            <Heart className="w-5 h-5 fill-current animate-pulse" />
+            <span className="font-semibold">Join thousands of happy couples</span>
+            <Heart className="w-5 h-5 fill-current animate-pulse" />
           </div>
         </div>
       </div>
     </section>
-  );
+  )
 }

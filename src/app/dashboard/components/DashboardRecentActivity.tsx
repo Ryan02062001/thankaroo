@@ -3,16 +3,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-interface DashboardRecentActivityProps {
-  gifts: {
-    id: string;
-    guestName: string;
-    description: string;
-    thankYouSent: boolean;
-  }[];
-}
-
-export function DashboardRecentActivity({ gifts }: DashboardRecentActivityProps) {
+export function DashboardRecentActivity({
+  gifts,
+}: {
+  gifts: { id: string; guestName: string; description: string; thankYouSent: boolean }[];
+}) {
   return (
     <Card>
       <CardContent>
@@ -24,9 +19,7 @@ export function DashboardRecentActivity({ gifts }: DashboardRecentActivityProps)
               className="flex items-center justify-between border-b pb-2 last:border-0"
             >
               <div>
-                <p className="text-sm font-medium text-[#2d2d2d]">
-                  {gift.guestName}
-                </p>
+                <p className="text-sm font-medium text-[#2d2d2d]">{gift.guestName}</p>
                 <p className="text-xs text-[#2d2d2d]">{gift.description}</p>
               </div>
               <Badge

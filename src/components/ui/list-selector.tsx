@@ -1,11 +1,12 @@
-// src/components/ListSelector.tsx
 "use client";
 
-import { useState } from "react";
-import { useGifts } from "@/app/contexts/GiftContext";
+import * as React from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { createList, renameList } from "@/app/actions/lists";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectTrigger,
@@ -13,29 +14,64 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
-export function ListSelector() {
-  const {
-    lists,
-    currentListId,
-    setCurrentList,
-    createList,
-    renameList,
-  } = useGifts();
+type List = { id: string; name: string };
 
-  const [newName, setNewName] = useState("");
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isRenameOpen, setIsRenameOpen] = useState(false);
+export function ListSelector({
+  lists,
+  currentListId,
+}: {
+  lists: List[];
+  currentListId: string | null;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const search = useSearchParams();
 
-  // prefill rename dialog with the current list’s name
-  const current = lists.find((l) => l.id === currentListId);
-  const [renameInput, setRenameInput] = useState(current?.name || "");
+  // UI state for dialogs
+  const [isCreateOpen, setIsCreateOpen] = React.useState(false);
+  const [isRenameOpen, setIsRenameOpen] = React.useState(false);
+
+  // Local inputs (uncontrolled would also work, but this keeps the button disabled state snappy)
+  const [createName, setCreateName] = React.useState("");
+  const [renameName, setRenameName] = React.useState(
+    lists.find((l) => l.id === currentListId)?.name ?? ""
+  );
+
+  React.useEffect(() => {
+    // Keep rename input in sync when list changes
+    setRenameName(lists.find((l) => l.id === currentListId)?.name ?? "");
+  }, [currentListId, lists]);
+
+  const onChangeList = (id: string) => {
+    const params = new URLSearchParams(search.toString());
+    params.set("list", id);
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const hasLists = lists.length > 0;
 
   return (
-    <div className="flex items-center gap-2 mb-4">
-      <Select value={currentListId} onValueChange={(v) => setCurrentList(v)}>
-        <SelectTrigger className="w-40">
-          <SelectValue placeholder="Select list…" />
+    <div className="mb-6 flex flex-wrap items-center gap-3">
+      {/* Shadcn Select for a nicer dropdown */}
+      <Select
+        value={currentListId ?? ""}
+        onValueChange={onChangeList}
+        disabled={!hasLists}
+      >
+        <SelectTrigger className="w-64 text-[#2d2d2d]">
+          <SelectValue
+            placeholder={hasLists ? "Select a list" : "No lists yet"}
+          />
         </SelectTrigger>
         <SelectContent>
           {lists.map((l) => (
@@ -46,77 +82,106 @@ export function ListSelector() {
         </SelectContent>
       </Select>
 
-      <Button size="sm" variant="outline" onClick={() => setIsCreateOpen(true)}>
-        New List
-      </Button>
-      <Button size="sm" variant="outline" onClick={() => {
-        setRenameInput(current?.name || "");
-        setIsRenameOpen(true);
-      }}>
-        Rename
-      </Button>
-
-      {/* Create */}
+      {/* NEW LIST */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="sm:max-w-[400px]">
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm">New List</Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Create New List</DialogTitle>
+            <DialogTitle className="text-[#2d2d2d]">Create New List</DialogTitle>
+            <DialogDescription className="text-[#2d2d2d]">
+              Name your list and we’ll create it under your account.
+            </DialogDescription>
           </DialogHeader>
-          <div className="py-2">
-            <Input
-              placeholder="List name"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                createList(newName.trim());
-                setNewName("");
-                setIsCreateOpen(false);
-              }}
-              disabled={!newName.trim()}
-            >
-              Create
-            </Button>
-          </DialogFooter>
+
+          {/* Use a Server Action form so Supabase can set cookies + redirect */}
+          <form action={createList} className="space-y-4">
+            <input type="hidden" name="redirect_to" value={pathname} />
+            <div className="grid gap-2">
+              <Label htmlFor="list_name" className="text-[#2d2d2d]">
+                List name
+              </Label>
+              <Input
+                id="list_name"
+                name="name"
+                value={createName}
+                onChange={(e) => setCreateName(e.target.value)}
+                placeholder="e.g., Wedding, Baby Shower"
+                required
+                className="text-[#2d2d2d]"
+              />
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsCreateOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="bg-[#A8E6CF] text-[#2d2d2d] hover:bg-[#98CFBA]"
+                disabled={!createName.trim()}
+              >
+                Create
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
 
-      {/* Rename */}
+      {/* RENAME LIST */}
       <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
-        <DialogContent className="sm:max-w-[400px]">
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm" disabled={!currentListId}>
+            Rename
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Rename List</DialogTitle>
+            <DialogTitle className="text-[#2d2d2d]">Rename List</DialogTitle>
+            <DialogDescription className="text-[#2d2d2d]">
+              Update the name of your selected list.
+            </DialogDescription>
           </DialogHeader>
-          <div className="py-2">
-            <Input
-              placeholder="New name"
-              value={renameInput}
-              onChange={(e) => setRenameInput(e.target.value)}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsRenameOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                renameList(currentListId, renameInput.trim());
-                setIsRenameOpen(false);
-              }}
-              disabled={!renameInput.trim()}
-            >
-              Save
-            </Button>
-          </DialogFooter>
+
+          <form action={renameList} className="space-y-4">
+            <input type="hidden" name="id" value={currentListId ?? ""} />
+            <input type="hidden" name="redirect_to" value={pathname} />
+            <div className="grid gap-2">
+              <Label htmlFor="rename_list_name" className="text-[#2d2d2d]">
+                New name
+              </Label>
+              <Input
+                id="rename_list_name"
+                name="name"
+                value={renameName}
+                onChange={(e) => setRenameName(e.target.value)}
+                required
+                className="text-[#2d2d2d]"
+              />
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsRenameOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="bg-[#A8E6CF] text-[#2d2d2d] hover:bg-[#98CFBA]"
+                disabled={!renameName.trim()}
+              >
+                Save
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>
   );
 }
-

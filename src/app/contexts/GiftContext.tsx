@@ -1,7 +1,6 @@
-// src/app/contexts/GiftContext.tsx
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 export type GiftType = "non registry" | "monetary" | "registry" | "multiple";
 
@@ -10,7 +9,7 @@ export type GiftItem = {
   guestName: string;
   description: string;
   type: GiftType;
-  date: string;
+  date: string; // YYYY-MM-DD
   thankYouSent: boolean;
 };
 
@@ -36,7 +35,17 @@ interface GiftContextType {
   exportAsCSV: () => void;
 }
 
+const STORAGE_KEY = "thankarooGiftLists";
+
 const GiftContext = createContext<GiftContextType | undefined>(undefined);
+
+const genId = () =>
+  typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : Math.random().toString(36).slice(2, 9);
+
+const sanitizeFilename = (name: string) =>
+  name.replace(/[<>:"/\\|?*\u0000-\u001F]/g, "_").slice(0, 80);
 
 export const GiftProvider = ({ children }: { children: React.ReactNode }) => {
   const [lists, setLists] = useState<GiftList[]>([]);
@@ -44,16 +53,26 @@ export const GiftProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Load or initialize
   useEffect(() => {
-    const saved = localStorage.getItem("thankarooGiftLists");
-    if (saved) {
-      try {
-        const { lists: L, currentListId: C } = JSON.parse(saved);
-        setLists(L);
-        setCurrentListId(C);
-        return;
-      } catch {}
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved) as {
+          lists: GiftList[];
+          currentListId: string;
+        };
+
+        if (Array.isArray(parsed?.lists) && parsed.lists.length > 0) {
+          setLists(parsed.lists);
+          const exists = parsed.lists.some((l) => l.id === parsed.currentListId);
+          setCurrentListId(exists ? parsed.currentListId : parsed.lists[0].id);
+          return;
+        }
+      }
+    } catch {
+      // ignore corrupted storage and fall through to init
     }
-    const defaultId = Math.random().toString(36).slice(2, 9);
+
+    const defaultId = genId();
     setLists([{ id: defaultId, name: "Default", gifts: [] }]);
     setCurrentListId(defaultId);
   }, []);
@@ -61,39 +80,47 @@ export const GiftProvider = ({ children }: { children: React.ReactNode }) => {
   // Persist on change
   useEffect(() => {
     if (!currentListId) return;
-    localStorage.setItem(
-      "thankarooGiftLists",
-      JSON.stringify({ lists, currentListId })
-    );
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ lists, currentListId })
+      );
+    } catch {
+      // storage may be full or blocked; ignore
+    }
   }, [lists, currentListId]);
 
+  // Helpers
   const updateCurrent = (fn: (l: GiftList) => GiftList) =>
-    setLists(lists.map((l) => (l.id === currentListId ? fn(l) : l)));
+    setLists((prev) =>
+      prev.map((l) => (l.id === currentListId ? fn(l) : l))
+    );
 
   // List management
   const createList = (name: string) => {
-    const id = Math.random().toString(36).slice(2, 9);
-    setLists([...lists, { id, name, gifts: [] }]);
+    const id = genId();
+    setLists((prev) => [...prev, { id, name, gifts: [] }]);
     setCurrentListId(id);
   };
+
   const renameList = (id: string, newName: string) => {
-    setLists(lists.map((l) => (l.id === id ? { ...l, name: newName } : l)));
+    setLists((prev) => prev.map((l) => (l.id === id ? { ...l, name: newName } : l)));
   };
+
   const importGifts = (items: Omit<GiftItem, "id">[]) => {
-    const withIds = items.map((g) => ({
-      ...g,
-      id: Math.random().toString(36).slice(2, 9),
-    }));
+    const withIds: GiftItem[] = items.map((g) => ({ ...g, id: genId() }));
     updateCurrent((l) => ({ ...l, gifts: [...l.gifts, ...withIds] }));
   };
 
   // Gift CRUD
   const addGift = (gift: Omit<GiftItem, "id">) => {
-    const id = Math.random().toString(36).slice(2, 9);
+    const id = genId();
     updateCurrent((l) => ({ ...l, gifts: [...l.gifts, { ...gift, id }] }));
   };
+
   const deleteGift = (id: string) =>
     updateCurrent((l) => ({ ...l, gifts: l.gifts.filter((g) => g.id !== id) }));
+
   const toggleThankYou = (id: string) =>
     updateCurrent((l) => ({
       ...l,
@@ -101,19 +128,19 @@ export const GiftProvider = ({ children }: { children: React.ReactNode }) => {
         g.id === id ? { ...g, thankYouSent: !g.thankYouSent } : g
       ),
     }));
+
   const updateGift = (id: string, updated: Omit<GiftItem, "id">) =>
     updateCurrent((l) => ({
       ...l,
       gifts: l.gifts.map((g) => (g.id === id ? { ...g, ...updated } : g)),
     }));
 
-  // Helper to CSV-quote a field (double up any quotes, wrap in quotes)
+  // CSV quoting (wrap in quotes and escape inner quotes by doubling)
   const quote = (val: string) => {
-    const escaped = val.replace(/"/g, '""');
+    const escaped = (val ?? "").replace(/"/g, '""');
     return `"${escaped}"`;
   };
 
-  // Export to CSV with N/A defaults and proper quoting
   const exportAsCSV = () => {
     const cur = lists.find((l) => l.id === currentListId);
     if (!cur) return;
@@ -126,7 +153,6 @@ export const GiftProvider = ({ children }: { children: React.ReactNode }) => {
       "Thank You Sent",
     ];
 
-    // Build each row, defaulting missing to "N/A"
     const rows = cur.gifts.map((g) => {
       const values = [
         g.guestName || "N/A",
@@ -138,26 +164,28 @@ export const GiftProvider = ({ children }: { children: React.ReactNode }) => {
       return values.map(quote).join(",");
     });
 
-    // Prepend header row (also quoted)
-    const csvContent = [
-      headers.map(quote).join(","),
-      ...rows,
-    ].join("\r\n");
+    const csvContent = [headers.map(quote).join(","), ...rows].join("\r\n");
 
-    const blob = new Blob([csvContent], {
+    // Prepend BOM for Excel compatibility
+    const blob = new Blob(["\uFEFF" + csvContent], {
       type: "text/csv;charset=utf-8;",
     });
+
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${cur.name}-gifts.csv`;
+    a.download = `${sanitizeFilename(cur.name)}-gifts.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+    // Avoid URL leaks
+    setTimeout(() => URL.revokeObjectURL(url), 0);
   };
 
-  const current = lists.find((l) => l.id === currentListId)!;
-  const currentGifts = current ? current.gifts : [];
+  const currentGifts = useMemo(
+    () => lists.find((l) => l.id === currentListId)?.gifts ?? [],
+    [lists, currentListId]
+  );
 
   return (
     <GiftContext.Provider

@@ -1,7 +1,7 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { Heart } from "lucide-react";
+import Link from "next/link"
+import { Heart } from "lucide-react"
 
 export default function Footer() {
   return (
@@ -22,10 +22,8 @@ export default function Footer() {
             Contact
           </Link>
         </nav>
-        <div className="text-sm text-muted-foreground">
-          © 2025 Thankaroo. All rights reserved.
-        </div>
+        <div className="text-sm text-muted-foreground">© 2025 Thankaroo. All rights reserved.</div>
       </div>
     </footer>
-  );
+  )
 }
