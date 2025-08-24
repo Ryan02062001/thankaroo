@@ -36,7 +36,7 @@ export async function generateThankYouDraft(input: {
 
 		const model = process.env.OPENAI_CHAT_MODEL || "gpt-5-nano";
 		const apiBase = process.env.OPENAI_API_BASE || "https://api.openai.com/v1";
-		const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 15000);
+		const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 8000);
 
 		console.log("API key found, length:", apiKey.length);
 		console.log("API key starts with:", apiKey.substring(0, 10));
@@ -88,6 +88,7 @@ Guidelines:
 
 		const greetingNeeded = channel !== "text";
 		const signoffNeeded = channel !== "text";
+		const maxTokens = channel === "text" ? 100 : channel === "card" ? 160 : 220;
 
         const body = {
 			model,
@@ -108,6 +109,8 @@ Guidelines:
 						.join("\n"),
 				},
 			],
+			temperature: 0.7,
+			max_tokens: maxTokens,
 		};
 
 		console.log("Calling OpenAI Chat Completions API with model:", model);
