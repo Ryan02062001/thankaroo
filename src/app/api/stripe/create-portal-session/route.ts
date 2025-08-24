@@ -10,9 +10,11 @@ export const dynamic = 'force-dynamic';
 type UserMetadata = { stripe_customer_id?: string } & Record<string, unknown>;
 
 async function createPortalForCustomer(customerId: string, origin: string) {
+	const configuration = process.env.STRIPE_BILLING_PORTAL_CONFIGURATION_ID || undefined;
 	const portal = await stripe.billingPortal.sessions.create({
 		customer: customerId,
 		return_url: origin,
+		...(configuration ? { configuration } : {}),
 	});
 	return NextResponse.redirect(portal.url, { status: 303 });
 }
