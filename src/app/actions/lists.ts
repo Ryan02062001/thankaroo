@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import { getCurrentPlanForUser } from "@/lib/plans";
 
 export async function createList(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
@@ -15,6 +16,22 @@ export async function createList(formData: FormData) {
   const supabase = await createClient();
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) redirect(`/signin?next=${encodeURIComponent(redirectTo)}`);
+
+  // Enforce plan limit: number of lists
+  const { limits } = await getCurrentPlanForUser();
+  if (typeof limits.maxLists === "number") {
+    const { count } = await supabase
+      .from("gift_lists")
+      .select("id", { count: "exact", head: true })
+      .eq("owner_id", auth.user.id);
+    if ((count ?? 0) >= limits.maxLists) {
+      redirect(
+        `${redirectTo}?error=${encodeURIComponent(
+          "List limit reached for your plan. Upgrade on the Pricing page to add more."
+        )}`
+      );
+    }
+  }
 
   const { data, error } = await supabase
     .from("gift_lists")
@@ -43,12 +60,11 @@ export async function renameList(formData: FormData) {
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) redirect('/signin');
   
-  // ✅ Verify ownership before allowing updates
   const { error } = await supabase
     .from("gift_lists")
     .update({ name })
     .eq("id", id)
-    .eq("owner_id", auth.user.id); // Critical: Only update if user owns it
+    .eq("owner_id", auth.user.id);
 
   if (error) {
     redirect(`${redirectTo}?error=${encodeURIComponent(error.message)}`);
@@ -67,7 +83,15 @@ export async function deleteList(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.from("gift_lists").delete().eq("id", id);
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) redirect(`/signin?next=${encodeURIComponent(redirectTo)}`);
+
+  const { error } = await supabase
+    .from("gift_lists")
+    .delete()
+    .eq("id", id)
+    .eq("owner_id", auth.user.id);
+
   if (error) {
     redirect(`${redirectTo}?error=${encodeURIComponent(error.message)}`);
   }

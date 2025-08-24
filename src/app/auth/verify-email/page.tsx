@@ -12,8 +12,8 @@ export default async function VerifyEmailPage({
     "Check your inbox and click the link to finish creating your account.";
 
   return (
-    <div className="min-h-screen bg-[#fefefe] pt-20">
-      <main className="mx-auto max-w-lg px-4 py-10">
+    <div className="min-h-screen bg-[#fefefe] pt-10">
+      <main className="mx-auto max-w-lg px-35 py-10">
         <div className="rounded-lg border bg-white p-6">
           <h1 className="mb-3 text-2xl font-bold text-[#2d2d2d]">Verify your email</h1>
           <p className="text-[#2d2d2d]">{decodeURIComponent(notice)}</p>

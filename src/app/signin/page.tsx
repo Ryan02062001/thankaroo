@@ -8,17 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { signInSchema } from "@/lib/auth-schemas";
 import { ZodError } from "zod";
+import { safeNextPath } from "@/lib/utils";
 
 type SearchParams = { next?: string; error?: string };
-
-function safeNext(next?: string) {
-  if (!next) return "/dashboard";
-  try {
-    const url = new URL(next, "http://localhost");
-    if (url.origin === "http://localhost" && next.startsWith("/")) return next;
-  } catch {}
-  return "/dashboard";
-}
 
 export default async function SignInPage({
   searchParams,
@@ -30,7 +22,7 @@ export default async function SignInPage({
   if (data.user) redirect("/dashboard");
 
   const params = await searchParams;
-  const next = safeNext(params?.next);
+  const next = safeNextPath(params?.next);
   const error = params?.error;
 
   async function signIn(formData: FormData) {
@@ -43,7 +35,7 @@ export default async function SignInPage({
       };
 
       const validatedData = signInSchema.parse(formEntries);
-      const nextFromForm = safeNext(String(formData.get("next") ?? ""));
+      const nextFromForm = safeNextPath(String(formData.get("next") ?? ""));
 
       const supabase = await createClient();
       const { error } = await supabase.auth.signInWithPassword(validatedData);
@@ -66,13 +58,10 @@ export default async function SignInPage({
 
       redirect(nextFromForm);
     } catch (error) {
-      const nextFromForm = safeNext(String(formData.get("next") ?? ""));
-      
-      // Don't catch redirect errors - let them bubble up
-      if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+      const nextFromForm = safeNextPath(String(formData.get("next") ?? ""));
+      if (error instanceof Error && error.message === "NEXT_REDIRECT") {
         throw error;
       }
-      
       if (error instanceof ZodError) {
         const fieldErrors = error.issues.map((i) => i.message).join(", ");
         redirect(
@@ -82,9 +71,9 @@ export default async function SignInPage({
         );
       }
       redirect(
-        `/signin?error=${encodeURIComponent(
-          "An unexpected error occurred"
-        )}&next=${encodeURIComponent(nextFromForm)}`
+        `/signin?error=${encodeURIComponent("An unexpected error occurred")}&next=${encodeURIComponent(
+          nextFromForm
+        )}`
       );
     }
   }
@@ -97,9 +86,7 @@ export default async function SignInPage({
             <CardContent className="p-8 md:p-10">
               <div className="mb-8">
                 <h1 className="text-2xl font-bold text-[#2d2d2d]">Welcome back</h1>
-                <p className="mt-1 text-sm text-[#2d2d2d]">
-                  Login to your Thankaroo account
-                </p>
+                <p className="mt-1 text-sm text-[#2d2d2d]">Login to your Thankaroo account</p>
               </div>
 
               {error ? (
@@ -137,29 +124,17 @@ export default async function SignInPage({
                       Forgot your password?
                     </Link>
                   </div>
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    className="text-[#2d2d2d]"
-                  />
+                  <Input id="password" name="password" type="password" required className="text-[#2d2d2d]" />
                 </div>
 
-                <Button
-                  className="mt-6 w-full bg-[#A8E6CF] text-[#2d2d2d] hover:bg-[#98CFBA]"
-                  formAction={signIn}
-                >
+                <Button className="mt-6 w-full bg-[#A8E6CF] text-[#2d2d2d] hover:bg-[#98CFBA]" formAction={signIn}>
                   Login
                 </Button>
               </form>
 
               <p className="mt-6 text-center text-sm text-[#2d2d2d]">
                 Don&apos;t have an account?{" "}
-                <Link
-                  className="font-medium underline underline-offset-4"
-                  href={`/signup?next=${encodeURIComponent(next)}`}
-                >
+                <Link className="font-medium underline underline-offset-4" href={`/signup?next=${encodeURIComponent(next)}`}>
                   Sign up
                 </Link>
               </p>
