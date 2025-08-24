@@ -40,7 +40,8 @@ export async function POST() {
     for (const s of subs.data) {
       const item = s.items.data[0];
       const lookupKey = (item?.price?.lookup_key ?? null) as string | null;
-      const currentPeriodEnd = s.current_period_end ? new Date(s.current_period_end * 1000).toISOString() : null;
+      const cpe = (s as unknown as { current_period_end?: number }).current_period_end;
+      const currentPeriodEnd = cpe ? new Date(cpe * 1000).toISOString() : null;
       await admin.from('billing_subscriptions').upsert(
         {
           id: s.id,
