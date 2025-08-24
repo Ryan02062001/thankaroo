@@ -27,7 +27,7 @@ export default function DashboardClient() {
   return (
     <div className="min-h-screen bg-[#fefefe] pt-20">
       <main className="max-w-7xl mx-auto py-6 px-4">
-        <div className="flex items-center space-x-7 mb-5">
+        <div className="flex flex-col md:flex-row md:items-center md:space-x-7 gap-3 mb-5">
           <h1 className="text-4xl font-bold text-[#2d2d2d]">Dashboard</h1>
           <Link href="/giftlist">
             <Button size="sm" variant="ghost" className="text-[#2d2d2d]">

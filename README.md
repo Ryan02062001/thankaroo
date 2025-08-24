@@ -35,3 +35,54 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 # thankaroo
+
+## Stripe setup
+
+Set these environment variables (server-only secrets must not be exposed to the client):
+
+```
+# Stripe
+STRIPE_SECRET_KEY=sk_live_or_test_...
+# Optional: pin Stripe API version to ensure stability
+STRIPE_API_VERSION=2024-12-18
+# Webhook signing secret (from Stripe CLI or Dashboard > Webhooks)
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# App URL
+NEXT_PUBLIC_APP_URL=https://your-app.example.com
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+```
+
+Recommended: add a `.env.example` with the keys above.
+
+### Webhooks (Next.js route handler)
+
+- Endpoint: `POST /api/stripe/webhook`
+- In Stripe Dashboard, add your deployed URL; in local dev, use Stripe CLI:
+
+```bash
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+```
+
+If you use the CLI, export the provided signing secret to `STRIPE_WEBHOOK_SECRET`.
+
+### Checkout and Billing Portal
+
+- Checkout: `POST /api/stripe/create-checkout-session`
+  - Links session to authenticated Supabase user via `client_reference_id`
+  - Reuses `stripe_customer_id` from user metadata if present, otherwise uses `customer_email`
+  - Uses idempotency for safety
+
+- Billing portal: `GET/POST /api/stripe/create-portal-session`
+  - Prefers `stripe_customer_id` from Supabase user metadata
+  - Falls back to email-based customer lookup
+
+### Webhook behavior
+
+- On `checkout.session.completed`, when `client_reference_id` is present, stores `stripe_customer_id` on the Supabase user. Otherwise invites by email and attaches the ID to metadata.
+
+Ensure your Stripe Prices use the lookup keys referenced in `src/app/pricing/page.tsx` (e.g., `wedding_pass`, `thank_you_pro_monthly`, `thank_you_pro_yearly`).

@@ -10,16 +10,24 @@ export function GiftList({
   gifts,
   onEditGift,
   onAddGift,
+  onRemindGift,
 }: {
   listId: string;
   gifts: UIGift[];
   onEditGift: (g: UIGift) => void;
   onAddGift: () => void;
+  onRemindGift: (g: UIGift) => void;
 }) {
   return gifts.length > 0 ? (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       {gifts.map((gift) => (
-        <GiftCard key={gift.id} listId={listId} gift={gift} onEdit={onEditGift} />
+        <GiftCard
+          key={gift.id}
+          listId={listId}
+          gift={gift}
+          onEdit={onEditGift}
+          onRemind={onRemindGift}
+        />
       ))}
     </div>
   ) : (
