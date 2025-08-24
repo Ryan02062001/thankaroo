@@ -94,7 +94,10 @@ export async function POST(req: Request) {
 				const item = sub.items.data[0];
 				const lookupKey = (item?.price?.lookup_key ?? '') as string;
 				const status = sub.status;
-				const currentPeriodEnd = sub.current_period_end ? new Date(sub.current_period_end * 1000).toISOString() : null;
+				// current_period_end exists on many API versions but may be omitted in typings depending on the pinned version.
+				// Read it defensively to satisfy TypeScript across versions.
+				const currentPeriodEndUnix = (sub as unknown as { current_period_end?: number }).current_period_end;
+				const currentPeriodEnd = typeof currentPeriodEndUnix === 'number' ? new Date(currentPeriodEndUnix * 1000).toISOString() : null;
 
 				await admin.from('billing_subscriptions').upsert(
 					{
