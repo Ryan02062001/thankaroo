@@ -19,7 +19,7 @@ export async function GET() {
       supabase.from("gift_lists").select("id", { count: "exact", head: true }).eq("owner_id", user.id),
     ]);
 
-    const listsCount = (listsCountRes as any).count ?? 0;
+    const listsCount = (listsCountRes as { count: number | null } | null)?.count ?? 0;
 
     return NextResponse.json(
       {

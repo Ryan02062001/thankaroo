@@ -18,7 +18,7 @@ export default async function SettingsPage() {
     );
   }
 
-  const { plan, limits } = await getCurrentPlanForUser();
+  const { plan } = await getCurrentPlanForUser();
 
   return (
     <div className="min-h-screen bg-[#fefefe] pt-20">

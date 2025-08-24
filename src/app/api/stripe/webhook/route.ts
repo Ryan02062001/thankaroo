@@ -19,7 +19,7 @@ async function findUserIdByCustomer(admin: ReturnType<typeof getSupabaseAdmin>, 
     .select('user_id')
     .eq('stripe_customer_id', customerId)
     .maybeSingle();
-  return (data as any)?.user_id as string | undefined;
+  return (data as { user_id: string } | null)?.user_id as string | undefined;
 }
 
 export async function POST(req: Request) {

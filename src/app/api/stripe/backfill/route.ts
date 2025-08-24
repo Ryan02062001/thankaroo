@@ -65,7 +65,7 @@ export async function POST() {
     for (const session of sessions.data) {
       if (session.mode !== 'payment' || session.status !== 'complete') continue;
       const metaLookup = session.metadata?.price_lookup_key || '';
-      const linePrice = (session as any).line_items?.data?.[0]?.price;
+      const linePrice = (session as unknown as { line_items?: { data?: Array<{ price?: { lookup_key?: string } }> } }).line_items?.data?.[0]?.price;
       const liLookup = (linePrice?.lookup_key ?? '') as string;
       const lookup = metaLookup || liLookup;
       if (lookup === 'wedding_pass') {

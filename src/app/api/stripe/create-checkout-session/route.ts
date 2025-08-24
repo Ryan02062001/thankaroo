@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 			success_url: `${origin}/pricing?success=true&session_id={CHECKOUT_SESSION_ID}`,
 			cancel_url: `${origin}/pricing?canceled=true`,
 			metadata: {
-				price_lookup_key: String((lookup_key ?? (price as any)?.lookup_key) || ''),
+				price_lookup_key: String((lookup_key ?? (price as unknown as { lookup_key?: string })?.lookup_key) || ''),
 			},
 		};
 
