@@ -206,5 +206,3 @@ export async function deleteThankYouNoteAction(formData: FormData) {
   await deleteThankYouNote({ id, listId });
   revalidatePath(`/thankyou?list=${listId}`);
 }
-
-
