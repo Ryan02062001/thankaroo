@@ -90,20 +90,17 @@ export default async function Header() {
                                 </div>
                               </Link>
                             </NavigationMenuLink>
-                            <NavigationMenuLink asChild>
-                              <Link
-                                href="/thankyou"
-                                className="flex items-start gap-3 p-3 rounded-md hover:bg-slate-50 transition-colors group"
-                              >
-                                <div className="p-1.5 rounded bg-[#EAFBF3] text-[#1f4d3d] group-hover:bg-[#A8E6CF]">
-                                  <Heart className="w-4 h-4" />
-                                </div>
-                                <div>
-                                  <div className="font-medium text-sm">Thank You Notes</div>
-                                  <div className="text-xs text-muted-foreground">Write and manage notes</div>
-                                </div>
-                              </Link>
-                            </NavigationMenuLink>
+                            <DropdownMenuItem asChild>
+                      <Link href="/thankyou" className="flex items-center py-3 px-3 rounded-md hover:bg-slate-50 transition-colors col-span-1">
+                        <div className="p-2 rounded bg-[#EAFBF3] mr-3">
+                          <Heart className="w-4 h-4 text-[#1f4d3d]" />
+                        </div>
+                        <div>
+                          <div className="font-medium text-sm">Thank You</div>
+                          <div className="text-xs text-slate-500">Manage notes</div>
+                        </div>
+                      </Link>
+                    </DropdownMenuItem>
                             <NavigationMenuLink asChild>
                               <Link
                                 href="/giftlist"
@@ -216,11 +213,11 @@ export default async function Header() {
                   </div>
                   <DropdownMenuSeparator className="my-2" />
                   <DropdownMenuItem asChild>
-                    <form action="/api/auth/sign-out" className="w-full">
-                      <button
-                        type="submit"
-                        className="flex items-center w-full py-3 px-3 rounded-md hover:bg-red-50 transition-colors text-left text-red-600 hover:text-red-700"
-                      >
+                  <form method="POST" action="/api/auth/signout" className="w-full">
+    <button
+      type="submit"
+      className="flex items-center w-full py-3 px-3 rounded-md hover:bg-red-50 transition-colors text-left text-red-600 hover:text-red-700"
+    >
                         <div className="p-2 rounded bg-red-100 mr-3">
                           <LogOut className="w-4 h-4" />
                         </div>
