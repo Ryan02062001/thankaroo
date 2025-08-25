@@ -1,4 +1,3 @@
-"use server";
 
 import {
   Heart,
@@ -13,7 +12,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
-import { signOut } from "@/lib/auth";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -218,7 +216,7 @@ export default async function Header() {
                   </div>
                   <DropdownMenuSeparator className="my-2" />
                   <DropdownMenuItem asChild>
-                    <form action={signOut} className="w-full">
+                    <form action="/api/auth/sign-out" className="w-full">
                       <button
                         type="submit"
                         className="flex items-center w-full py-3 px-3 rounded-md hover:bg-red-50 transition-colors text-left text-red-600 hover:text-red-700"
@@ -366,11 +364,11 @@ export default async function Header() {
                   </div>
                   <DropdownMenuSeparator className="my-2" />
                   <DropdownMenuItem asChild>
-                    <form action={signOut} className="w-full">
-                      <button
-                        type="submit"
-                        className="flex items-center w-full py-3 px-3 rounded-md hover:bg-red-50 transition-colors text-left text-red-600 hover:text-red-700"
-                      >
+  <form method="POST" action="/api/auth/signout" className="w-full">
+    <button
+      type="submit"
+      className="flex items-center w-full py-3 px-3 rounded-md hover:bg-red-50 transition-colors text-left text-red-600 hover:text-red-700"
+    >
                         <div className="p-2 rounded bg-red-100 mr-3">
                           <LogOut className="w-4 h-4" />
                         </div>
