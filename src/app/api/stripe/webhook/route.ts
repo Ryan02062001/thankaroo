@@ -12,10 +12,20 @@ const allowedEvents = new Set<Stripe.Event.Type>([
 	'customer.subscription.created',
 	'customer.subscription.updated',
 	'customer.subscription.deleted',
+	'customer.subscription.paused',
+	'customer.subscription.resumed',
+	'customer.subscription.pending_update_applied',
+	'customer.subscription.pending_update_expired',
 	'customer.subscription.trial_will_end',
 	'invoice.paid',
-	'invoice.payment_succeeded',
 	'invoice.payment_failed',
+	'invoice.payment_action_required',
+	'invoice.upcoming',
+	'invoice.marked_uncollectible',
+	'invoice.payment_succeeded',
+	'payment_intent.succeeded',
+	'payment_intent.payment_failed',
+	'payment_intent.canceled',
 ]);
 
 function extractCustomerHints(event: Stripe.Event): { customerId?: string; userIdHint?: string; emailHint?: string } {
@@ -31,16 +41,32 @@ function extractCustomerHints(event: Stripe.Event): { customerId?: string; userI
 		case 'customer.subscription.created':
 		case 'customer.subscription.updated':
 		case 'customer.subscription.deleted':
-		case 'customer.subscription.trial_will_end': {
+		case 'customer.subscription.trial_will_end':
+		case 'customer.subscription.paused':
+		case 'customer.subscription.resumed':
+		case 'customer.subscription.pending_update_applied':
+		case 'customer.subscription.pending_update_expired': {
 			const sub = event.data.object as Stripe.Subscription;
-			return { customerId: String(sub.customer) };
+			return { customerId: typeof sub.customer === 'string' ? sub.customer : String(sub.customer) };
 		}
 		case 'invoice.paid':
-		case 'invoice.payment_succeeded':
-		case 'invoice.payment_failed': {
+		case 'invoice.payment_failed':
+		case 'invoice.payment_action_required':
+		case 'invoice.upcoming':
+		case 'invoice.marked_uncollectible':
+		case 'invoice.payment_succeeded': {
 			const inv = event.data.object as Stripe.Invoice;
 			const customer = inv.customer;
-			return { customerId: typeof customer === 'string' ? customer : undefined };
+			return {
+				customerId: typeof customer === 'string' ? customer : undefined,
+				emailHint: inv.customer_email || undefined,
+			};
+		}
+		case 'payment_intent.succeeded':
+		case 'payment_intent.payment_failed':
+		case 'payment_intent.canceled': {
+			const pi = event.data.object as Stripe.PaymentIntent;
+			return { customerId: typeof pi.customer === 'string' ? pi.customer : undefined };
 		}
 		default:
 			return {};
