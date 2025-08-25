@@ -27,6 +27,34 @@ function firstDayOfMonthISO(d = new Date()) {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1)).toISOString().slice(0, 10);
 }
 
+// Fast, DB-only plan lookup (no Stripe fallback). Use this for latency-sensitive paths (like AI calls).
+export async function getCurrentPlanForUserFast(): Promise<{ plan: PlanId; limits: Limits }> {
+  const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getUser();
+  const userId = auth.user?.id;
+  if (!userId) return { plan: "free", limits: PLAN_LIMITS.free };
+
+  const { data: subs } = await supabase
+    .from("billing_subscriptions")
+    .select("price_lookup_key, status")
+    .eq("user_id", userId)
+    .in("status", ["active", "trialing"]) as unknown as { data: { price_lookup_key: string | null; status: string }[] | null };
+
+  const subPlan = subs?.[0]?.price_lookup_key ? LOOKUP_KEY_TO_PLAN[subs[0].price_lookup_key] : undefined;
+  if (subPlan) return { plan: subPlan, limits: PLAN_LIMITS[subPlan] };
+
+  const { data: ents } = await supabase
+    .from("billing_entitlements")
+    .select("product_lookup_key")
+    .eq("user_id", userId)
+    .eq("active", true) as unknown as { data: { product_lookup_key: string }[] | null };
+
+  const entPlan = ents?.[0]?.product_lookup_key ? LOOKUP_KEY_TO_PLAN[ents[0].product_lookup_key] : undefined;
+  if (entPlan) return { plan: entPlan, limits: PLAN_LIMITS[entPlan] };
+
+  return { plan: "free", limits: PLAN_LIMITS.free };
+}
+
 export async function getCurrentPlanForUser(): Promise<{ plan: PlanId; limits: Limits }> {
   const supabase = await createClient();
   const { data: auth } = await supabase.auth.getUser();
@@ -126,5 +154,3 @@ export async function incrementAiDraftsThisMonth(delta = 1): Promise<void> {
       .insert({ user_id: userId, period_month: period, ai_drafts: delta });
   }
 }
-
-

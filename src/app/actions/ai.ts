@@ -1,7 +1,9 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { getAiDraftsThisMonth, getCurrentPlanForUser, incrementAiDraftsThisMonth } from "@/lib/plans";
+import { getAiDraftsThisMonth, getCurrentPlanForUserFast, incrementAiDraftsThisMonth } from "@/lib/plans";
+import { openai } from "@/lib/openai";
+import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
 type Channel = "email" | "text" | "card";
 type Relationship = "friend" | "family" | "coworker" | "other";
@@ -20,22 +22,15 @@ export async function generateThankYouDraft(input: {
 		const { data: auth } = await supabase.auth.getUser();
 		if (!auth.user) return "";
 
-		const { limits } = await getCurrentPlanForUser();
-		if (typeof limits.maxAiDraftsPerMonth === "number") {
-			const used = await getAiDraftsThisMonth();
-			if (used >= limits.maxAiDraftsPerMonth) {
-				return "";
-			}
-		}
+		// Parallelize plan + usage checks, and avoid Stripe fallback
+		const [{ limits }, used] = await Promise.all([
+			getCurrentPlanForUserFast(),
+			getAiDraftsThisMonth(),
+		]);
 
-		const apiKey = process.env.OPENAI_API_KEY;
-		if (!apiKey) {
-			console.log("OPENAI_API_KEY is missing");
+		if (typeof limits.maxAiDraftsPerMonth === "number" && used >= limits.maxAiDraftsPerMonth) {
 			return "";
 		}
-
-		console.log("API key found, length:", apiKey.length);
-		console.log("API key starts with:", apiKey.substring(0, 10));
 
 		const { channel, relationship, tone, occasion, personalTouch, gift } = input;
 
@@ -85,53 +80,32 @@ Guidelines:
 		const greetingNeeded = channel !== "text";
 		const signoffNeeded = channel !== "text";
 
-        const body = {
-			model: "gpt-5-nano",
-			messages: [
-				{ role: "system", content: system },
-				{
-					role: "user",
-					content: [
-						greetingNeeded ? `Recipient: ${gift.guestName}` : "",
-						`Gift: ${gift.description}`,
-						`Channel: ${channel}`,
-						`Relationship: ${relationship}`,
-						`Tone: ${tone}`,
-						greetingNeeded ? "Include a greeting." : "No greeting line.",
-						signoffNeeded ? "Include a short sign-off." : "No signature.",
-					]
-						.filter(Boolean)
-						.join("\n"),
-				},
-			],
-		};
-
-		console.log("Calling GPT-5 with Chat Completions API");
-
-		const resp = await fetch("https://api.openai.com/v1/chat/completions", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${apiKey}`,
+		const messages = [
+			{ role: "system", content: system as string },
+			{
+				role: "user",
+				content: [
+					greetingNeeded ? `Recipient: ${gift.guestName}` : "",
+					`Gift: ${gift.description}`,
+					`Channel: ${channel}`,
+					`Relationship: ${relationship}`,
+					`Tone: ${tone}`,
+					greetingNeeded ? "Include a greeting." : "No greeting line.",
+					signoffNeeded ? "Include a short sign-off." : "No signature.",
+				]
+					.filter(Boolean)
+					.join("\n"),
 			},
-			body: JSON.stringify(body),
-			cache: "no-store",
+		];
+
+		const completion = await openai.chat.completions.create({
+			model: "gpt-5-nano",
+			messages: messages as ChatCompletionMessageParam[],
+			max_tokens: channel === "text" ? 80 : 200,
+			temperature: 0.7,
 		});
 
-		if (!resp.ok) {
-			const errText = await resp.text().catch(() => "");
-			console.error("OpenAI API error:", {
-				status: resp.status,
-				statusText: resp.statusText,
-				body: errText,
-			});
-			return "";
-		}
-
-		const data = await resp.json();
-		console.log("GPT-5 response received:", !!data?.choices?.[0]?.message?.content);
-
-		let text: string = data?.choices?.[0]?.message?.content?.toString().trim() ?? "";
+		let text: string = completion.choices?.[0]?.message?.content?.toString().trim() ?? "";
 
 		// SMS: one paragraph
 		if (channel === "text") {
