@@ -3,7 +3,7 @@
 import HeroSection from "@/components/HeroSection"
 import FeaturesSection from "@/components/FeaturesSection"
 import HowItWorksSection from "@/components/HowItWorksSection"
-import PrivacySection from "@/components/PrivacySection"
+// import PrivacySection from "@/components/PrivacySection"
 import FAQSection from "@/components/FAQSection"
 import CallToActionSection from "@/components/CallToActionSection"
 import Footer from "@/components/Footer"
@@ -15,7 +15,7 @@ export default function Home() {
         <HeroSection />
         <FeaturesSection />
         <HowItWorksSection />
-        <PrivacySection />
+        {/* <PrivacySection /> */}
         <FAQSection />
         <CallToActionSection />
       </main>

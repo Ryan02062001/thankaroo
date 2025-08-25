@@ -13,7 +13,6 @@ import {
   Shield,
   CheckCircle,
   ArrowRight,
-  Play,
 } from "lucide-react"
 
 export default function FeaturesSection() {
@@ -115,7 +114,7 @@ export default function FeaturesSection() {
         {/* Bottom CTA */}
         <div className="mt-14 flex flex-col items-center gap-3">
           <div className="text-sm text-gray-500">
-            Start free today — it only takes 5 minutes.
+            Start free today — it only takes a few seconds.
           </div>
           <div className="flex items-center gap-3">
             <Link href="/signup" aria-label="Start free trial">
@@ -124,10 +123,6 @@ export default function FeaturesSection() {
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
-            <Button variant="outline" className="border-[#A8E6CF] text-[#3EB489] hover:bg-[#E0FFF4]">
-              <Play className="mr-2 h-4 w-4" />
-              Watch 2‑min Demo
-            </Button>
           </div>
         </div>
       </div>

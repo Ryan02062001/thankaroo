@@ -64,7 +64,7 @@ export default function HeroSection() {
 
           <div className="space-y-3">
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center max-w-lg w-full mx-auto">
-              <Link href="/signup" aria-label="Start free trial" className="w-full sm:w-auto">
+              <Link href="/signup" aria-label="Start free trial" className="w-full sm:w-1/2">
                 <Button
                   size="lg"
                   className="h-12 px-6 bg-[#2f9c79] hover:bg-[#258868] text-white shadow-lg hover:shadow-xl transition-all w-full"
@@ -73,15 +73,18 @@ export default function HeroSection() {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Button
-                size="lg"
-                variant="outline"
-                className="h-12 px-6 border-[#A8E6CF] text-[#2f9c79] hover:bg-[#E0FFF4] hover:border-[#2f9c79] w-full sm:w-auto"
-                aria-label="Watch a 2-minute demo"
-              >
-                <Play className="mr-2 h-5 w-5" />
-                Watch 2‑min Demo
-              </Button>
+
+              <div className="w-full sm:w-1/2">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="h-12 px-6 border-[#A8E6CF] text-[#2f9c79] hover:bg-[#E0FFF4] hover:border-[#2f9c79] w-full"
+                  aria-label="Watch a 2-minute demo"
+                >
+                  <Play className="mr-2 h-5 w-5" />
+                  Watch 2‑min Demo
+                </Button>
+              </div>
             </div>
             <p className="text-sm text-gray-500">30‑day free trial. No credit card required. Cancel anytime.</p>
           </div>
