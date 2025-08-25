@@ -232,7 +232,7 @@ export default function HeaderNav({ isAuthed }: Props) {
                   aria-expanded={userOpen}
                   aria-label="Open user menu"
                 >
-                  <User className="h-10 w-10" />
+                  <User className="h-5 w-5" />
                 </button>
 
                 {userOpen && (
