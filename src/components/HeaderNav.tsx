@@ -28,6 +28,20 @@ export default function HeaderNav({ isAuthed }: Props) {
   const userRef = React.useRef<HTMLDivElement | null>(null);
   const mobileRef = React.useRef<HTMLDivElement | null>(null);
 
+  // Close-delay timer for smoother hover hand-off between trigger and panel
+  const featuresCloseTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const openFeatures = () => {
+    if (featuresCloseTimer.current) {
+      clearTimeout(featuresCloseTimer.current);
+      featuresCloseTimer.current = null;
+    }
+    setFeaturesOpen(true);
+  };
+  const scheduleCloseFeatures = (delay = 140) => {
+    if (featuresCloseTimer.current) clearTimeout(featuresCloseTimer.current);
+    featuresCloseTimer.current = setTimeout(() => setFeaturesOpen(false), delay);
+  };
+
   React.useEffect(() => {
     function onDocClick(e: MouseEvent) {
       const t = e.target as Node;
@@ -85,78 +99,98 @@ export default function HeaderNav({ isAuthed }: Props) {
 
                   {/* Features Dropdown */}
                   <li>
-                    <div
-                      className="relative"
-                      ref={featuresRef}
-                      onMouseEnter={() => setFeaturesOpen(true)}
-                      onMouseLeave={() => setFeaturesOpen(false)}
-                    >
+                    <div className="relative" ref={featuresRef}>
                       <button
+                        id="features-menu-button"
                         type="button"
+                        aria-haspopup="menu"
                         aria-expanded={featuresOpen}
+                        aria-controls="features-menu-panel"
                         className={`${baseTrigger} ${featuresOpen ? "bg-slate-50" : ""}`}
+                        onMouseEnter={openFeatures}
+                        onMouseLeave={() => scheduleCloseFeatures()}
+                        onFocus={openFeatures}
+                        onBlur={() => scheduleCloseFeatures()}
                         onClick={() => setFeaturesOpen((v) => !v)}
                       >
                         Features
                       </button>
 
-                      {featuresOpen && (
-                        <div className="absolute left-0 top-full mt-2 w-[30rem] p-2 bg-white rounded-md shadow-lg ring-1 ring-slate-200">
-                          <div className="space-y-1 grid grid-cols-2 gap-2">
-                            <Link
-                              href="/thankyou/notes"
-                              className="flex items-start gap-3 p-3 rounded-md hover:bg-slate-50 transition-colors group"
-                            >
-                              <div className="p-1.5 rounded bg-[#EAFBF3] text-[#1f4d3d] group-hover:bg-[#A8E6CF]">
-                                <FileText className="w-4 h-4" />
-                              </div>
-                              <div>
-                                <div className="font-medium text-sm">My Notes</div>
-                                <div className="text-xs text-slate-500">View all notes</div>
-                              </div>
-                            </Link>
+                      {/* Hover bridge to prevent flicker between button and panel */}
+                      <div
+                        className="absolute left-0 top-full w-full h-2"
+                        onMouseEnter={openFeatures}
+                      />
 
-                            <Link
-                              href="/thankyou"
-                              className="flex items-start gap-3 p-3 rounded-md hover:bg-slate-50 transition-colors group"
-                            >
-                              <div className="p-1.5 rounded bg-[#EAFBF3] text-[#1f4d3d] group-hover:bg-[#A8E6CF]">
-                                <Heart className="w-4 h-4" />
-                              </div>
-                              <div>
-                                <div className="font-medium text-sm">Thank You Generator</div>
-                                <div className="text-xs text-slate-500">Write and manage notes</div>
-                              </div>
-                            </Link>
+                      {/* Keep mounted for smooth transition; hide via CSS when closed */}
+                      <div
+                        id="features-menu-panel"
+                        role="menu"
+                        aria-hidden={!featuresOpen}
+                        className={[
+                          "absolute left-0 top-full mt-2 w-[30rem] p-2 bg-white rounded-md shadow-lg ring-1 ring-slate-200",
+                          "origin-top transition ease-out duration-150",
+                          featuresOpen
+                            ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
+                            : "opacity-0 scale-95 -translate-y-1 pointer-events-none",
+                        ].join(" ")}
+                        onMouseEnter={openFeatures}
+                        onMouseLeave={() => scheduleCloseFeatures()}
+                      >
+                        <div className="space-y-1 grid grid-cols-2 gap-2">
+                          <Link
+                            href="/thankyou/notes"
+                            className="flex items-start gap-3 p-3 rounded-md hover:bg-slate-50 transition-colors group"
+                          >
+                            <div className="p-1.5 rounded bg-[#EAFBF3] text-[#1f4d3d] group-hover:bg-[#A8E6CF]">
+                              <FileText className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <div className="font-medium text-sm">My Notes</div>
+                              <div className="text-xs text-slate-500">View all notes</div>
+                            </div>
+                          </Link>
 
-                            <Link
-                              href="/giftlist"
-                              className="flex items-start gap-3 p-3 rounded-md hover:bg-slate-50 transition-colors group"
-                            >
-                              <div className="p-1.5 rounded bg-[#FFF2E0] text-[#5a3a1a] group-hover:bg-[#FFD8A8]">
-                                <GiftIcon className="w-4 h-4" />
-                              </div>
-                              <div>
-                                <div className="font-medium text-sm">Gift List</div>
-                                <div className="text-xs text-slate-500">Track gifts and occasions</div>
-                              </div>
-                            </Link>
+                          <Link
+                            href="/thankyou"
+                            className="flex items-start gap-3 p-3 rounded-md hover:bg-slate-50 transition-colors group"
+                          >
+                            <div className="p-1.5 rounded bg-[#EAFBF3] text-[#1f4d3d] group-hover:bg-[#A8E6CF]">
+                              <Heart className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <div className="font-medium text-sm">Thank You Generator</div>
+                              <div className="text-xs text-slate-500">Write and manage notes</div>
+                            </div>
+                          </Link>
 
-                            <Link
-                              href="/reminders"
-                              className="flex items-start gap-3 p-3 rounded-md hover:bg-slate-50 transition-colors group"
-                            >
-                              <div className="p-1.5 rounded bg-[#E6F0FF] text-[#1d3b6a] group-hover:bg-[#B7D0FF]">
-                                <Bell className="w-4 h-4" />
-                              </div>
-                              <div>
-                                <div className="font-medium text-sm">Reminders</div>
-                                <div className="text-xs text-slate-500">Set up reminder schedules</div>
-                              </div>
-                            </Link>
-                          </div>
+                          <Link
+                            href="/giftlist"
+                            className="flex items-start gap-3 p-3 rounded-md hover:bg-slate-50 transition-colors group"
+                          >
+                            <div className="p-1.5 rounded bg-[#FFF2E0] text-[#5a3a1a] group-hover:bg-[#FFD8A8]">
+                              <GiftIcon className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <div className="font-medium text-sm">Gift List</div>
+                              <div className="text-xs text-slate-500">Track gifts and occasions</div>
+                            </div>
+                          </Link>
+
+                          <Link
+                            href="/reminders"
+                            className="flex items-start gap-3 p-3 rounded-md hover:bg-slate-50 transition-colors group"
+                          >
+                            <div className="p-1.5 rounded bg-[#E6F0FF] text-[#1d3b6a] group-hover:bg-[#B7D0FF]">
+                              <Bell className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <div className="font-medium text-sm">Reminders</div>
+                              <div className="text-xs text-slate-500">Set up reminder schedules</div>
+                            </div>
+                          </Link>
                         </div>
-                      )}
+                      </div>
                     </div>
                   </li>
 
