@@ -26,9 +26,19 @@ async function findUserIdByEmail(admin: ReturnType<typeof getSupabaseAdmin>, ema
   try {
     // Supabase Admin API does not support direct email lookup, so we scan a few pages.
     // This is acceptable for small projects; adjust per scale if needed.
+    type AdminLike = {
+      auth: {
+        admin: {
+          listUsers: (args: { page: number; perPage: number }) => Promise<{
+            data?: { users?: Array<{ id: string; email?: string | null }> };
+            users?: Array<{ id: string; email?: string | null }>;
+          }>
+        }
+      }
+    };
+    const adminLike = admin as unknown as AdminLike;
     for (let page = 1; page <= 3; page++) {
-      // @ts-expect-error: admin.listUsers typing is permissive in supabase-js
-      const res = await (admin as any).auth.admin.listUsers({ page, perPage: 200 });
+      const res = await adminLike.auth.admin.listUsers({ page, perPage: 200 });
       const users: Array<{ id: string; email?: string | null }> = res?.data?.users || res?.users || [];
       const match = users.find((u) => (u.email || '').toLowerCase() === email.toLowerCase());
       if (match?.id) return match.id;
