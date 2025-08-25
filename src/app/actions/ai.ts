@@ -90,72 +90,82 @@ Guidelines:
 		const signoffNeeded = channel !== "text";
 		const maxTokens = channel === "text" ? 100 : channel === "card" ? 160 : 220;
 
-        const body = {
-			model,
-			messages: [
-				{ role: "system", content: system },
-				{
-					role: "user",
-					content: [
-						greetingNeeded ? `Recipient: ${gift.guestName}` : "",
-						`Gift: ${gift.description}`,
-						`Channel: ${channel}`,
-						`Relationship: ${relationship}`,
-						`Tone: ${tone}`,
-						greetingNeeded ? "Include a greeting." : "No greeting line.",
-						signoffNeeded ? "Include a short sign-off." : "No signature.",
-					]
-						.filter(Boolean)
-						.join("\n"),
-				},
-			],
-			temperature: 0.7,
-			max_tokens: maxTokens,
-		};
+        const isGpt5 = model.startsWith("gpt-5");
+        const body: Record<string, unknown> = {
+            model,
+            messages: [
+                { role: "system", content: system },
+                {
+                    role: "user",
+                    content: [
+                        greetingNeeded ? `Recipient: ${gift.guestName}` : "",
+                        `Gift: ${gift.description}`,
+                        `Channel: ${channel}`,
+                        `Relationship: ${relationship}`,
+                        `Tone: ${tone}`,
+                        greetingNeeded ? "Include a greeting." : "No greeting line.",
+                        signoffNeeded ? "Include a short sign-off." : "No signature.",
+                    ]
+                        .filter(Boolean)
+                        .join("\n"),
+                },
+            ],
+            temperature: 0.7,
+        };
+        if (isGpt5) (body as Record<string, unknown>)['max_completion_tokens'] = maxTokens; else (body as Record<string, unknown>)['max_tokens'] = maxTokens;
 
-		console.log("Calling OpenAI Chat Completions API with model:", model);
+        console.log("Calling OpenAI Chat Completions API with model:", model);
 
-		const controller = new AbortController();
-		const timer = setTimeout(() => controller.abort(), timeoutMs);
-		let resp = await fetch(`${apiBase}/chat/completions`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${apiKey}`,
-			},
-			body: JSON.stringify(body),
-			cache: "no-store",
-			signal: controller.signal,
-		});
-		clearTimeout(timer);
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
+        let resp = await fetch(`${apiBase}/chat/completions`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify(body),
+            cache: "no-store",
+            signal: controller.signal,
+        });
+        clearTimeout(timer);
 
-		if (!resp.ok) {
-			let payload: unknown = null;
-			try { payload = await resp.json(); } catch {}
-			const errText = (payload as unknown) || (await resp.text().catch(() => ""));
-			console.error("OpenAI API error:", { status: resp.status, statusText: resp.statusText, body: errText });
-			const p = (payload as { error?: { code?: string; type?: string } } | null) || null;
-			const code = p?.error?.code || p?.error?.type || "";
-			const fallbackModel = process.env.OPENAI_FALLBACK_MODEL || "gpt-4o-mini";
-			if ((resp.status === 404 || String(code).includes("model")) && model !== fallbackModel) {
-				console.warn("Retrying with fallback model:", fallbackModel);
-				const c2 = new AbortController();
-				const t2 = setTimeout(() => c2.abort(), timeoutMs);
-				resp = await fetch(`${apiBase}/chat/completions`, {
-					method: "POST",
-					headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-					body: JSON.stringify({ ...body, model: fallbackModel }),
-					cache: "no-store",
-					signal: c2.signal,
-				});
-				clearTimeout(t2);
-				if (!resp.ok) {
-					return "";
-				}
-			} else {
-				return "";
-			}
-		}
+        if (!resp.ok) {
+            let payload: unknown = null;
+            try { payload = await resp.json(); } catch {}
+            const errText = (payload as unknown) || (await resp.text().catch(() => ""));
+            console.error("OpenAI API error:", { status: resp.status, statusText: resp.statusText, body: errText });
+            const p = (payload as { error?: { code?: string; type?: string } } | null) || null;
+            const code = p?.error?.code || p?.error?.type || "";
+            const fallbackModel = process.env.OPENAI_FALLBACK_MODEL || "gpt-4o-mini";
+            if ((resp.status === 404 || String(code).includes("model")) && model !== fallbackModel) {
+                console.warn("Retrying with fallback model:", fallbackModel);
+                const c2 = new AbortController();
+                const t2 = setTimeout(() => c2.abort(), timeoutMs);
+                const fbIsGpt5 = fallbackModel.startsWith("gpt-5");
+                const fbBody: Record<string, unknown> = { ...body, model: fallbackModel };
+                if (fbIsGpt5) {
+                    delete (fbBody as Record<string, unknown>)['max_tokens'];
+                    (fbBody as Record<string, unknown>)['max_completion_tokens'] = maxTokens;
+                } else {
+                    delete (fbBody as Record<string, unknown>)['max_completion_tokens'];
+                    (fbBody as Record<string, unknown>)['max_tokens'] = maxTokens;
+                }
+                resp = await fetch(`${apiBase}/chat/completions`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+                    body: JSON.stringify(fbBody),
+                    cache: "no-store",
+                    signal: c2.signal,
+                });
+                clearTimeout(t2);
+                if (!resp.ok) {
+                    return "";
+                }
+            } else {
+                return "";
+            }
+        }
 
 		const data = await resp.json();
 		console.log("GPT response received:", !!data?.choices?.[0]?.message?.content);
