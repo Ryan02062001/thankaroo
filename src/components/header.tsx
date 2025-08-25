@@ -54,7 +54,7 @@ export default async function Header() {
             {data.user ? (
               <>
                 {/* Primary Navigation */}
-                <NavigationMenu viewport={false}>
+                <NavigationMenu>
                   <NavigationMenuList className="space-x-1">
                     {/* Dashboard - Primary Action */}
                     <NavigationMenuItem>
