@@ -53,29 +53,41 @@ export async function POST(req: Request) {
 				const email = session.customer_details?.email || '';
 				const customerId = session.customer ? String(session.customer) : '';
 				const refUserId = session.client_reference_id || '';
-				const lookupKey = session.metadata?.price_lookup_key || '';
+				let lookupKey = session.metadata?.price_lookup_key || '';
+				if (!lookupKey) {
+					try {
+						const items = await stripe.checkout.sessions.listLineItems(String(session.id), { limit: 5, expand: ['data.price'] });
+						const price = items.data[0]?.price as Stripe.Price | undefined;
+						lookupKey = price?.lookup_key || '';
+					} catch (e) {
+						console.warn('Unable to derive lookup_key from session line items:', e);
+					}
+				}
 
-				if (customerId && refUserId) {
-					await upsertBillingCustomer(admin, refUserId, customerId);
-					// Grant one-time entitlement for Wedding Pass purchases
+				let userId = refUserId;
+				if (!userId && customerId) {
+					userId = (await findUserIdByCustomer(admin, customerId)) || '';
+				}
+
+				if (customerId && userId) {
+					await upsertBillingCustomer(admin, userId, customerId);
 					if (session.mode === 'payment' && lookupKey === 'wedding_pass') {
 						await admin
 							.from('billing_entitlements')
-							.upsert({ user_id: refUserId, product_lookup_key: 'wedding_pass', active: true }, { onConflict: 'user_id,product_lookup_key' });
+							.upsert({ user_id: userId, product_lookup_key: 'wedding_pass', active: true }, { onConflict: 'user_id,product_lookup_key' });
 					}
 				} else if (email && customerId) {
-					// No user id available — store mapping by inviting user and ask sign-in
 					await admin.auth.admin.inviteUserByEmail(email, {
 						data: { stripe_customer_id: customerId },
 						redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/signin`,
 					});
 				}
 
-				console.log(`Checkout completed: ${session.id} customer=${customerId} email=${email}`);
+				console.log(`Checkout completed: ${session.id} customer=${customerId} email=${email} lookup=${lookupKey}`);
 				break;
 			}
 			case 'invoice.paid': {
-				console.log('Invoice paid (good time to provision access)');
+				console.log('Invoice paid (provision access if needed)');
 				break;
 			}
 			case 'customer.subscription.trial_will_end':
@@ -94,8 +106,6 @@ export async function POST(req: Request) {
 				const item = sub.items.data[0];
 				const lookupKey = (item?.price?.lookup_key ?? '') as string;
 				const status = sub.status;
-				// current_period_end exists on many API versions but may be omitted in typings depending on the pinned version.
-				// Read it defensively to satisfy TypeScript across versions.
 				const currentPeriodEndUnix = (sub as unknown as { current_period_end?: number }).current_period_end;
 				const currentPeriodEnd = typeof currentPeriodEndUnix === 'number' ? new Date(currentPeriodEndUnix * 1000).toISOString() : null;
 
