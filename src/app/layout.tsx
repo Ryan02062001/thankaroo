@@ -4,6 +4,9 @@ import "./globals.css";
 import Header from "@/components/header";
 import { ReminderProvider } from "@/app/contexts/ReminderContext";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
