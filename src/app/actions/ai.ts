@@ -34,10 +34,6 @@ export async function generateThankYouDraft(input: {
 			return "";
 		}
 
-		const model = process.env.OPENAI_CHAT_MODEL || "gpt-5-nano"; // default per user preference
-		const apiBase = process.env.OPENAI_API_BASE || "https://api.openai.com/v1";
-		const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 8000);
-
 		console.log("API key found, length:", apiKey.length);
 		console.log("API key starts with:", apiKey.substring(0, 10));
 
@@ -88,11 +84,9 @@ Guidelines:
 
 		const greetingNeeded = channel !== "text";
 		const signoffNeeded = channel !== "text";
-		const maxTokens = channel === "text" ? 100 : channel === "card" ? 160 : 220;
 
-		const isGpt5 = model.startsWith("gpt-5");
-		const body: Record<string, unknown> = {
-			model,
+        const body = {
+			model: "gpt-5-nano",
 			messages: [
 				{ role: "system", content: system },
 				{
@@ -111,18 +105,10 @@ Guidelines:
 				},
 			],
 		};
-		if (!isGpt5) body["temperature"] = 0.7;
-		if (isGpt5) {
-			body["max_completion_tokens"] = maxTokens;
-		} else {
-			body["max_tokens"] = maxTokens;
-		}
 
-		console.log("Calling OpenAI Chat Completions API with model:", model);
+		console.log("Calling GPT-5 with Chat Completions API");
 
-		const controller = new AbortController();
-		const timer = setTimeout(() => controller.abort(), timeoutMs);
-		let resp = await fetch(`${apiBase}/chat/completions`, {
+		const resp = await fetch("https://api.openai.com/v1/chat/completions", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -130,51 +116,20 @@ Guidelines:
 			},
 			body: JSON.stringify(body),
 			cache: "no-store",
-			signal: controller.signal,
 		});
-		clearTimeout(timer);
 
 		if (!resp.ok) {
-			let payload: unknown = null;
-			try { payload = await resp.json(); } catch {}
-			const errText = (payload as unknown) || (await resp.text().catch(() => ""));
-			console.error("OpenAI API error:", { status: resp.status, statusText: resp.statusText, body: errText });
-			const p = (payload as { error?: { code?: string; type?: string } } | null) || null;
-			const code = p?.error?.code || p?.error?.type || "";
-			const fallbackModel = process.env.OPENAI_FALLBACK_MODEL || "gpt-4o-mini";
-			if ((resp.status === 404 || String(code).includes("model")) && model !== fallbackModel) {
-				console.warn("Retrying with fallback model:", fallbackModel);
-				const c2 = new AbortController();
-				const t2 = setTimeout(() => c2.abort(), timeoutMs);
-				const fbIsGpt5 = fallbackModel.startsWith("gpt-5");
-				const fbBody: Record<string, unknown> = { ...body, model: fallbackModel };
-				if (fbIsGpt5) {
-					delete fbBody["max_tokens"];
-					fbBody["max_completion_tokens"] = maxTokens;
-					delete fbBody["temperature"]; // gpt-5 uses default only
-				} else {
-					delete fbBody["max_completion_tokens"];
-					fbBody["max_tokens"] = maxTokens;
-					fbBody["temperature"] = 0.7;
-				}
-				resp = await fetch(`${apiBase}/chat/completions`, {
-					method: "POST",
-					headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-					body: JSON.stringify(fbBody),
-					cache: "no-store",
-					signal: c2.signal,
-				});
-				clearTimeout(t2);
-				if (!resp.ok) {
-					return "";
-				}
-			} else {
-				return "";
-			}
+			const errText = await resp.text().catch(() => "");
+			console.error("OpenAI API error:", {
+				status: resp.status,
+				statusText: resp.statusText,
+				body: errText,
+			});
+			return "";
 		}
 
 		const data = await resp.json();
-		console.log("GPT response received:", !!data?.choices?.[0]?.message?.content);
+		console.log("GPT-5 response received:", !!data?.choices?.[0]?.message?.content);
 
 		let text: string = data?.choices?.[0]?.message?.content?.toString().trim() ?? "";
 
