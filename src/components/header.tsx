@@ -1,4 +1,3 @@
-
 import {
   Heart,
   LayoutDashboard,
@@ -55,7 +54,7 @@ export default async function Header() {
             {data.user ? (
               <>
                 {/* Primary Navigation */}
-                <NavigationMenu>
+                <NavigationMenu viewport={false}>
                   <NavigationMenuList className="space-x-1">
                     {/* Dashboard - Primary Action */}
                     <NavigationMenuItem>
@@ -90,17 +89,20 @@ export default async function Header() {
                                 </div>
                               </Link>
                             </NavigationMenuLink>
-                            <DropdownMenuItem asChild>
-                      <Link href="/thankyou" className="flex items-center py-3 px-3 rounded-md hover:bg-slate-50 transition-colors col-span-1">
-                        <div className="p-2 rounded bg-[#EAFBF3] mr-3">
-                          <Heart className="w-4 h-4 text-[#1f4d3d]" />
-                        </div>
-                        <div>
-                          <div className="font-medium text-sm">Thank You</div>
-                          <div className="text-xs text-slate-500">Manage notes</div>
-                        </div>
-                      </Link>
-                    </DropdownMenuItem>
+                            <NavigationMenuLink asChild>
+                              <Link
+                                href="/thankyou"
+                                className="flex items-start gap-3 p-3 rounded-md hover:bg-slate-50 transition-colors group"
+                              >
+                                <div className="p-1.5 rounded bg-[#EAFBF3] text-[#1f4d3d] group-hover:bg-[#A8E6CF]">
+                                  <Heart className="w-4 h-4" />
+                                </div>
+                                <div>
+                                  <div className="font-medium text-sm">Thank You Notes</div>
+                                  <div className="text-xs text-muted-foreground">Write and manage notes</div>
+                                </div>
+                              </Link>
+                            </NavigationMenuLink>
                             <NavigationMenuLink asChild>
                               <Link
                                 href="/giftlist"
@@ -181,7 +183,7 @@ export default async function Header() {
                     <User className="h-10 w-10" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-80 p-3 shadow-lg border-0 bg-white/95 backdrop-blur-lg">
+                <DropdownMenuContent align="end" className="w-80 p-3 shadow-lg border-0 bg-white/95 backdrop-blur-lg max-h-[80vh]">
                   <div className="px-2 py-1.5 mb-3">
                     <div className="text-xs font-medium text-slate-500 uppercase tracking-wider">Account</div>
                   </div>
@@ -213,11 +215,11 @@ export default async function Header() {
                   </div>
                   <DropdownMenuSeparator className="my-2" />
                   <DropdownMenuItem asChild>
-                  <form method="POST" action="/api/auth/signout" className="w-full">
-    <button
-      type="submit"
-      className="flex items-center w-full py-3 px-3 rounded-md hover:bg-red-50 transition-colors text-left text-red-600 hover:text-red-700"
-    >
+                    <form method="POST" action="/auth/sign-out" className="w-full">
+                      <button
+                        type="submit"
+                        className="flex items-center w-full py-3 px-3 rounded-md hover:bg-red-50 transition-colors text-left text-red-600 hover:text-red-700"
+                      >
                         <div className="p-2 rounded bg-red-100 mr-3">
                           <LogOut className="w-4 h-4" />
                         </div>
@@ -257,7 +259,7 @@ export default async function Header() {
                     <Menu className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-80 p-3 shadow-lg border-0 bg-white/95 backdrop-blur-lg">
+                <DropdownMenuContent align="end" className="w-80 p-3 shadow-lg border-0 bg-white/95 backdrop-blur-lg max-h-[80vh]">
                   <div className="px-2 py-1.5 mb-3">
                     <div className="text-xs font-medium text-slate-500 uppercase tracking-wider">Navigation</div>
                   </div>
@@ -361,11 +363,11 @@ export default async function Header() {
                   </div>
                   <DropdownMenuSeparator className="my-2" />
                   <DropdownMenuItem asChild>
-  <form method="POST" action="/api/auth/signout" className="w-full">
-    <button
-      type="submit"
-      className="flex items-center w-full py-3 px-3 rounded-md hover:bg-red-50 transition-colors text-left text-red-600 hover:text-red-700"
-    >
+                    <form method="POST" action="/auth/sign-out" className="w-full">
+                      <button
+                        type="submit"
+                        className="flex items-center w-full py-3 px-3 rounded-md hover:bg-red-50 transition-colors text-left text-red-600 hover:text-red-700"
+                      >
                         <div className="p-2 rounded bg-red-100 mr-3">
                           <LogOut className="w-4 h-4" />
                         </div>
