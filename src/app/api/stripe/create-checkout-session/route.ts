@@ -35,23 +35,56 @@ export async function POST(req: Request) {
 			},
 		};
 
+		// Associate the session with the signed-in user
 		if (user?.id) {
 			params.client_reference_id = user.id;
 		}
-		const metadata = (user?.user_metadata ?? {}) as UserMetadata;
-		const existingCustomerId = metadata.stripe_customer_id;
-		if (existingCustomerId) {
-			params.customer = existingCustomerId;
+
+		// Always ensure a Stripe Customer exists before starting checkout (recommended)
+		let customerId: string | undefined;
+		if (user?.id) {
+			// 1) Try DB mapping first
+			const { data: bc } = await supabase
+				.from('billing_customers')
+				.select('stripe_customer_id')
+				.eq('user_id', user.id)
+				.maybeSingle();
+			customerId = (bc as { stripe_customer_id?: string } | null)?.stripe_customer_id;
+
+			// 2) Try user metadata next
+			if (!customerId) {
+				const metadata = (user.user_metadata ?? {}) as UserMetadata;
+				customerId = metadata.stripe_customer_id;
+			}
+
+			// 3) Create the customer if still missing
+			if (!customerId && user.email) {
+				const created = await stripe.customers.create({
+					email: user.email,
+					metadata: { userId: user.id },
+				});
+				customerId = created.id;
+				// Upsert mapping with admin key (RLS-safe)
+				try {
+					const admin = getSupabaseAdmin();
+					await admin
+						.from('billing_customers')
+						.upsert({ user_id: user.id, stripe_customer_id: customerId }, { onConflict: 'user_id' });
+				} catch {}
+			}
+		}
+
+		// Prefer passing an explicit customer to avoid ephemeral customers
+		if (customerId) {
+			params.customer = customerId;
 		} else if (user?.email) {
+			// Guest or no user mapping available: fall back to email
 			params.customer_email = user.email;
 		}
 
-		// Ensure Checkout creates a Customer for one-time payments if we didn't supply one,
-		// and also create an Invoice so it shows up in the Billing Portal history.
-		if (mode === 'payment') {
-			if (!params.customer) {
-				params.customer_creation = 'always';
-			}
+		// For one-time payments, if we still don't have a customer, let Stripe create one and create an invoice
+		if (mode === 'payment' && !params.customer) {
+			params.customer_creation = 'always';
 			params.invoice_creation = { enabled: true };
 		}
 
@@ -59,7 +92,9 @@ export async function POST(req: Request) {
 		if (user?.id && params.customer) {
 			try {
 				const admin = getSupabaseAdmin();
-				await admin.from('billing_customers').upsert({ user_id: user.id, stripe_customer_id: String(params.customer) }, { onConflict: 'user_id' });
+				await admin
+					.from('billing_customers')
+					.upsert({ user_id: user.id, stripe_customer_id: String(params.customer) }, { onConflict: 'user_id' });
 			} catch {}
 		}
 

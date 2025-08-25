@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Suspense } from "react"
+import { Suspense, useEffect } from "react"
 
 type Plan = {
   name: string
@@ -85,6 +85,13 @@ function PricingContent() {
   const success = searchParams.get("success") === "true"
   const canceled = searchParams.get("canceled") === "true"
   const sessionId = searchParams.get("session_id") || ""
+
+  // Trigger a server-side sync immediately after returning from Stripe success
+  useEffect(() => {
+    if (success) {
+      fetch("/api/stripe/backfill", { method: "POST" }).catch(() => {})
+    }
+  }, [success])
 
   async function startCheckout(payload: { lookup_key?: string; price_id?: string }) {
     const res = await fetch("/api/stripe/create-checkout-session", {

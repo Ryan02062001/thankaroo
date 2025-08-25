@@ -2,54 +2,52 @@
 import Stripe from 'stripe';
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
-import { getSupabaseAdmin } from '@/lib/admin';
+import { syncStripeStateForCustomer } from '@/lib/billing-sync';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-async function upsertBillingCustomer(admin: ReturnType<typeof getSupabaseAdmin>, userId: string, customerId: string) {
-  await admin
-    .from('billing_customers')
-    .upsert({ user_id: userId, stripe_customer_id: customerId }, { onConflict: 'user_id' });
-}
+const allowedEvents = new Set<Stripe.Event.Type>([
+	'checkout.session.completed',
+	'customer.subscription.created',
+	'customer.subscription.updated',
+	'customer.subscription.deleted',
+	'customer.subscription.trial_will_end',
+	'invoice.paid',
+	'invoice.payment_succeeded',
+	'invoice.payment_failed',
+]);
 
-async function findUserIdByCustomer(admin: ReturnType<typeof getSupabaseAdmin>, customerId: string) {
-  const { data } = await admin
-    .from('billing_customers')
-    .select('user_id')
-    .eq('stripe_customer_id', customerId)
-    .maybeSingle();
-  return (data as { user_id: string } | null)?.user_id as string | undefined;
-}
-
-async function findUserIdByEmail(admin: ReturnType<typeof getSupabaseAdmin>, email: string) {
-  try {
-    // Supabase Admin API does not support direct email lookup, so we scan a few pages.
-    // This is acceptable for small projects; adjust per scale if needed.
-    type AdminLike = {
-      auth: {
-        admin: {
-          listUsers: (args: { page: number; perPage: number }) => Promise<{
-            data?: { users?: Array<{ id: string; email?: string | null }> };
-            users?: Array<{ id: string; email?: string | null }>;
-          }>
-        }
-      }
-    };
-    const adminLike = admin as unknown as AdminLike;
-    for (let page = 1; page <= 3; page++) {
-      const res = await adminLike.auth.admin.listUsers({ page, perPage: 200 });
-      const users: Array<{ id: string; email?: string | null }> = res?.data?.users || res?.users || [];
-      const match = users.find((u) => (u.email || '').toLowerCase() === email.toLowerCase());
-      if (match?.id) return match.id;
-      if (!users.length) break;
-    }
-  } catch {}
-  return undefined;
+function extractCustomerHints(event: Stripe.Event): { customerId?: string; userIdHint?: string; emailHint?: string } {
+	switch (event.type) {
+		case 'checkout.session.completed': {
+			const s = event.data.object as Stripe.Checkout.Session;
+			return {
+				customerId: s.customer ? String(s.customer) : undefined,
+				userIdHint: s.client_reference_id || undefined,
+				emailHint: s.customer_details?.email || s.customer_email || undefined,
+			};
+		}
+		case 'customer.subscription.created':
+		case 'customer.subscription.updated':
+		case 'customer.subscription.deleted':
+		case 'customer.subscription.trial_will_end': {
+			const sub = event.data.object as Stripe.Subscription;
+			return { customerId: String(sub.customer) };
+		}
+		case 'invoice.paid':
+		case 'invoice.payment_succeeded':
+		case 'invoice.payment_failed': {
+			const inv = event.data.object as Stripe.Invoice;
+			const customer = inv.customer;
+			return { customerId: typeof customer === 'string' ? customer : undefined };
+		}
+		default:
+			return {};
+	}
 }
 
 export async function POST(req: Request) {
-	console.log('Stripe webhook POST /api/stripe/webhook invoked');
 	const sig = req.headers.get('stripe-signature');
 	const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 	const rawBody = await req.text();
@@ -58,9 +56,7 @@ export async function POST(req: Request) {
 
 	try {
 		if (endpointSecret) {
-			if (!sig) {
-				return new NextResponse('Missing Stripe signature', { status: 400 });
-			}
+			if (!sig) return new NextResponse('Missing Stripe signature', { status: 400 });
 			event = stripe.webhooks.constructEvent(rawBody, sig, endpointSecret);
 		} else {
 			event = JSON.parse(rawBody) as Stripe.Event;
@@ -72,107 +68,15 @@ export async function POST(req: Request) {
 	}
 
 	try {
-		switch (event.type) {
-			case 'checkout.session.completed': {
-				const admin = getSupabaseAdmin();
-				const session = event.data.object as Stripe.Checkout.Session;
-				const email = session.customer_details?.email || session.customer_email || '';
-				const customerId = session.customer ? String(session.customer) : '';
-				const refUserId = session.client_reference_id || '';
-				let lookupKey = session.metadata?.price_lookup_key || '';
-				if (!lookupKey) {
-					try {
-						const items = await stripe.checkout.sessions.listLineItems(String(session.id), { limit: 5, expand: ['data.price'] });
-						const price = items.data[0]?.price as Stripe.Price | undefined;
-						lookupKey = price?.lookup_key || '';
-					} catch (e) {
-						console.warn('Unable to derive lookup_key from session line items:', e);
-					}
-				}
-
-				let userId = refUserId;
-				if (!userId && customerId) {
-					userId = (await findUserIdByCustomer(admin, customerId)) || '';
-				}
-				if (!userId && email) {
-					userId = (await findUserIdByEmail(admin, email)) || '';
-					if (userId) {
-						await upsertBillingCustomer(admin, userId, customerId);
-					}
-				}
-
-				if (customerId && userId) {
-					await upsertBillingCustomer(admin, userId, customerId);
-					if (session.mode === 'payment' && lookupKey === 'wedding_pass') {
-						await admin
-							.from('billing_entitlements')
-							.upsert({ user_id: userId, product_lookup_key: 'wedding_pass', active: true }, { onConflict: 'user_id,product_lookup_key' });
-					}
-				} else if (email && customerId) {
-					await admin.auth.admin.inviteUserByEmail(email, {
-						data: { stripe_customer_id: customerId },
-						redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/signin`,
-					});
-				}
-
-				console.log(`Checkout completed: ${session.id} customer=${customerId} email=${email} lookup=${lookupKey}`);
-				break;
+		if (allowedEvents.has(event.type)) {
+			const { customerId, userIdHint, emailHint } = extractCustomerHints(event);
+			if (customerId) {
+				await syncStripeStateForCustomer(customerId, { userId: userIdHint, email: emailHint });
+			} else {
+				console.warn('Allowed event without customerId:', event.type);
 			}
-			case 'invoice.paid': {
-				console.log('Invoice paid (provision access if needed)');
-				break;
-			}
-			case 'customer.subscription.trial_will_end':
-			case 'customer.subscription.deleted':
-			case 'customer.subscription.created':
-			case 'customer.subscription.updated': {
-				const admin = getSupabaseAdmin();
-				const sub = event.data.object as Stripe.Subscription;
-				const customerId = String(sub.customer);
-				let userId = await findUserIdByCustomer(admin, customerId);
-				if (!userId) {
-					try {
-						const customer = await stripe.customers.retrieve(customerId);
-						const email = (customer as Stripe.Customer).email || '';
-						if (email) {
-							userId = (await findUserIdByEmail(admin, email)) || undefined;
-							if (userId) {
-								await upsertBillingCustomer(admin, userId, customerId);
-							}
-						}
-					} catch {}
-				}
-				if (!userId) {
-					console.warn('No user mapping for Stripe customer:', customerId);
-					break;
-				}
-
-				const item = sub.items.data[0];
-				const lookupKey = (item?.price?.lookup_key ?? '') as string;
-				const status = sub.status;
-				const currentPeriodEndUnix = (sub as unknown as { current_period_end?: number }).current_period_end;
-				const currentPeriodEnd = typeof currentPeriodEndUnix === 'number' ? new Date(currentPeriodEndUnix * 1000).toISOString() : null;
-
-				await admin.from('billing_subscriptions').upsert(
-					{
-						id: sub.id,
-						user_id: userId,
-						price_lookup_key: lookupKey || null,
-						status,
-						current_period_end: currentPeriodEnd,
-						cancel_at_period_end: !!sub.cancel_at_period_end,
-					},
-					{ onConflict: 'id' },
-				);
-
-				break;
-			}
-			case 'entitlements.active_entitlement_summary.updated': {
-				console.log('Entitlements updated');
-				break;
-			}
-			default:
-				console.log(`Unhandled event type ${event.type}`);
+		} else {
+			console.log(`Unhandled event type ${event.type}`);
 		}
 		return new NextResponse(null, { status: 200 });
 	} catch (e: unknown) {
