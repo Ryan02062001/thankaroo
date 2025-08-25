@@ -3,7 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { getAiDraftsThisMonth, getCurrentPlanForUserFast, incrementAiDraftsThisMonth } from "@/lib/plans";
 import { openai } from "@/lib/openai";
-import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
+import { ChatCompletionMessageParam } from "openai/resources/chat/completions.mjs";
 
 type Channel = "email" | "text" | "card";
 type Relationship = "friend" | "family" | "coworker" | "other";
@@ -101,8 +101,6 @@ Guidelines:
 		const completion = await openai.chat.completions.create({
 			model: "gpt-5-nano",
 			messages: messages as ChatCompletionMessageParam[],
-			max_tokens: channel === "text" ? 80 : 200,
-			temperature: 0.7,
 		});
 
 		let text: string = completion.choices?.[0]?.message?.content?.toString().trim() ?? "";
