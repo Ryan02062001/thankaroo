@@ -89,6 +89,7 @@ export default async function Header() {
                                 </div>
                               </Link>
                             </NavigationMenuLink>
+                          
                             <NavigationMenuLink asChild>
                               <Link
                                 href="/thankyou"
@@ -98,21 +99,7 @@ export default async function Header() {
                                   <Heart className="w-4 h-4" />
                                 </div>
                                 <div>
-                                  <div className="font-medium text-sm">Thank You Notes</div>
-                                  <div className="text-xs text-muted-foreground">Write and manage notes</div>
-                                </div>
-                              </Link>
-                            </NavigationMenuLink>
-                            <NavigationMenuLink asChild>
-                              <Link
-                                href="/thankyou"
-                                className="flex items-start gap-3 p-3 rounded-md hover:bg-slate-50 transition-colors group"
-                              >
-                                <div className="p-1.5 rounded bg-[#EAFBF3] text-[#1f4d3d] group-hover:bg-[#A8E6CF]">
-                                  <Heart className="w-4 h-4" />
-                                </div>
-                                <div>
-                                  <div className="font-medium text-sm">blah</div>
+                                  <div className="font-medium text-sm">Thank You Generator</div>
                                   <div className="text-xs text-muted-foreground">Write and manage notes</div>
                                 </div>
                               </Link>
@@ -146,20 +133,7 @@ export default async function Header() {
                                 </div>
                               </Link>
                             </NavigationMenuLink>
-                            <NavigationMenuLink asChild>
-                              <Link
-                                href="/reminders"
-                                className="flex items-start gap-3 p-3 rounded-md hover:bg-slate-50 transition-colors group"
-                              >
-                                <div className="p-1.5 rounded bg-[#E6F0FF] text-[#1d3b6a] group-hover:bg-[#B7D0FF]">
-                                  <Bell className="w-4 h-4" />
-                                </div>
-                                <div>
-                                  <div className="font-medium text-sm">Blah</div>
-                                  <div className="text-xs text-muted-foreground">blah</div>
-                                </div>
-                              </Link>
-                            </NavigationMenuLink>
+                        
                           </div>
                         </div>
                       </NavigationMenuContent>
