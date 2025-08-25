@@ -110,8 +110,8 @@ Guidelines:
 						.join("\n"),
 				},
 			],
-			temperature: 0.7,
 		};
+		if (!isGpt5) body["temperature"] = 0.7;
 		if (isGpt5) {
 			body["max_completion_tokens"] = maxTokens;
 		} else {
@@ -151,9 +151,11 @@ Guidelines:
 				if (fbIsGpt5) {
 					delete fbBody["max_tokens"];
 					fbBody["max_completion_tokens"] = maxTokens;
+					delete fbBody["temperature"]; // gpt-5 uses default only
 				} else {
 					delete fbBody["max_completion_tokens"];
 					fbBody["max_tokens"] = maxTokens;
+					fbBody["temperature"] = 0.7;
 				}
 				resp = await fetch(`${apiBase}/chat/completions`, {
 					method: "POST",
