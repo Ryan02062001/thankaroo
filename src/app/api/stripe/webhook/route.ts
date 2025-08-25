@@ -22,6 +22,22 @@ async function findUserIdByCustomer(admin: ReturnType<typeof getSupabaseAdmin>, 
   return (data as { user_id: string } | null)?.user_id as string | undefined;
 }
 
+async function findUserIdByEmail(admin: ReturnType<typeof getSupabaseAdmin>, email: string) {
+  try {
+    // Supabase Admin API does not support direct email lookup, so we scan a few pages.
+    // This is acceptable for small projects; adjust per scale if needed.
+    for (let page = 1; page <= 3; page++) {
+      // @ts-expect-error: admin.listUsers typing is permissive in supabase-js
+      const res = await (admin as any).auth.admin.listUsers({ page, perPage: 200 });
+      const users: Array<{ id: string; email?: string | null }> = res?.data?.users || res?.users || [];
+      const match = users.find((u) => (u.email || '').toLowerCase() === email.toLowerCase());
+      if (match?.id) return match.id;
+      if (!users.length) break;
+    }
+  } catch {}
+  return undefined;
+}
+
 export async function POST(req: Request) {
 	console.log('Stripe webhook POST /api/stripe/webhook invoked');
 	const sig = req.headers.get('stripe-signature');
@@ -50,7 +66,7 @@ export async function POST(req: Request) {
 			case 'checkout.session.completed': {
 				const admin = getSupabaseAdmin();
 				const session = event.data.object as Stripe.Checkout.Session;
-				const email = session.customer_details?.email || '';
+				const email = session.customer_details?.email || session.customer_email || '';
 				const customerId = session.customer ? String(session.customer) : '';
 				const refUserId = session.client_reference_id || '';
 				let lookupKey = session.metadata?.price_lookup_key || '';
@@ -67,6 +83,12 @@ export async function POST(req: Request) {
 				let userId = refUserId;
 				if (!userId && customerId) {
 					userId = (await findUserIdByCustomer(admin, customerId)) || '';
+				}
+				if (!userId && email) {
+					userId = (await findUserIdByEmail(admin, email)) || '';
+					if (userId) {
+						await upsertBillingCustomer(admin, userId, customerId);
+					}
 				}
 
 				if (customerId && userId) {
@@ -97,7 +119,19 @@ export async function POST(req: Request) {
 				const admin = getSupabaseAdmin();
 				const sub = event.data.object as Stripe.Subscription;
 				const customerId = String(sub.customer);
-				const userId = await findUserIdByCustomer(admin, customerId);
+				let userId = await findUserIdByCustomer(admin, customerId);
+				if (!userId) {
+					try {
+						const customer = await stripe.customers.retrieve(customerId);
+						const email = (customer as Stripe.Customer).email || '';
+						if (email) {
+							userId = (await findUserIdByEmail(admin, email)) || undefined;
+							if (userId) {
+								await upsertBillingCustomer(admin, userId, customerId);
+							}
+						}
+					} catch {}
+				}
 				if (!userId) {
 					console.warn('No user mapping for Stripe customer:', customerId);
 					break;
