@@ -3,7 +3,7 @@ import { Poppins, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/header";
 import { ReminderProvider } from "@/app/contexts/ReminderContext";
-
+import Footer from "@/components/Footer";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -28,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ReminderProvider>
           {children}
         </ReminderProvider>
+        <Footer />
       </body>
     </html>
   );

@@ -139,7 +139,7 @@ export default function HeaderNav({ isAuthed }: Props) {
                       >
                         <div className="space-y-1 grid grid-cols-2 gap-2">
                           <Link
-                            href="/thankyou/notes"
+                            href="/notes"
                             className="flex items-start gap-3 p-3 rounded-md hover:bg-slate-50 transition-colors group"
                           >
                             <div className="p-1.5 rounded bg-[#EAFBF3] text-[#1f4d3d] group-hover:bg-[#A8E6CF]">
@@ -340,7 +340,7 @@ export default function HeaderNav({ isAuthed }: Props) {
                       </Link>
 
                       <Link
-                        href="/thankyou/notes"
+                        href="/notes"
                         className="flex items-center py-3 px-3 rounded-md hover:bg-slate-50 transition-colors col-span-1"
                       >
                         <div className="p-2 rounded bg-[#EAFBF3] mr-3">

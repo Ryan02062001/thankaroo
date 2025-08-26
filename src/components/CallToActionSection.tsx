@@ -4,12 +4,8 @@ import Link from "next/link"
 
 export default function FinalCTASection() {
   return (
-    <section className="relative overflow-hidden py-24 bg-gradient-to-b from-[#F0FDFB] via-white to-[#E0FFF4]/60">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-32 w-80 h-80 bg-[#A8E6CF]/30 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-[#E0FFF4]/40 rounded-full blur-3xl"></div>
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[36rem] h-[36rem] bg-gradient-to-tr from-[#A8E6CF]/10 to-[#E0FFF4]/10 rounded-full blur-3xl"></div>
-      </div>
+    <section className="relative overflow-hidden py-24  bg-white">
+    
 
       <div className="container relative mx-auto px-4">
         <div className="mx-auto max-w-5xl">
@@ -31,7 +27,7 @@ export default function FinalCTASection() {
                 <Sparkles className="w-6 h-6 text-[#3EB489]" />
               </div>
 
-              <h2 className="text-3xl md:text-5xl font-bold tracking-tight bg-gradient-to-b from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight bg-gradient-to-b from-gray-900 to-gray-700 bg-clip-text text-transparent p-2">
                 Ready to never miss a thank‑you note again?
               </h2>
               <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">

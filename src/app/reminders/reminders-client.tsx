@@ -203,7 +203,7 @@ export default function RemindersClient({ listId, lists }: { listId: string; lis
         <div className="flex items-center gap-3 text-base overflow-x-auto whitespace-nowrap">
           <span className="text-[#2d2d2d] mr-1 inline-flex items-center h-11">Channel:</span>
           <Tabs value={channelFilter} onValueChange={(v) => setChannelFilter(v as typeof channelFilter)} className="gap-0">
-            <TabsList className="rounded-lg h-11 p-1.5 bg-white border border-slate-200 shadow-sm">
+            <TabsList className="rounded-lg h-11 p-1.5  bg-white border border-slate-200 shadow-sm">
               {CHANNELS.map((c) => (
                 <TabsTrigger key={c.key} value={c.key} className="rounded-md px-4 text-base h-9">
                   {c.label}

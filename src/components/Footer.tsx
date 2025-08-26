@@ -1,28 +1,40 @@
-"use client"
-
 import Link from "next/link"
 import { Heart } from "lucide-react"
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear()
+
   return (
-    <footer className="border-t bg-background w-full">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-10 2xl:px-35 flex flex-col gap-6 py-8 md:flex-row md:items-center md:justify-between md:py-12">
-        <div className="flex items-center gap-2">
-          <Heart className="h-6 w-6 text-[#2d2d2d]" />
-          <span className="text-xl font-semibold tracking-tight">Thankaroo</span>
+    <footer className="border-t bg-background">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+          <div className="flex items-center gap-2">
+            <Heart className="h-6 w-6 text-[#2d2d2d]" />
+            <span className="text-xl font-semibold tracking-tight">Thankaroo</span>
+          </div>
+
+          <nav className="flex items-center gap-6">
+            <Link href="/dashboard" className="text-sm hover:underline">
+              Dashboard
+            </Link>
+            <Link href="/thankyou" className="text-sm hover:underline">
+              Thank Yous
+            </Link>
+            <Link href="/giftlist" className="text-sm hover:underline">
+              Gift List
+            </Link>
+            <Link href="/reminders" className="text-sm hover:underline">
+              Reminders
+            </Link>
+            <Link href="/pricing" className="text-sm hover:underline">
+              Pricing
+            </Link>
+          </nav>
+
+          <div className="text-sm text-muted-foreground">
+            © {currentYear} Thankaroo. All rights reserved.
+          </div>
         </div>
-        <nav className="flex gap-4 md:gap-6">
-          <Link href="#" className="text-sm font-medium hover:underline">
-            Privacy
-          </Link>
-          <Link href="#" className="text-sm font-medium hover:underline">
-            Terms
-          </Link>
-          <Link href="#" className="text-sm font-medium hover:underline">
-            Contact
-          </Link>
-        </nav>
-        <div className="text-sm text-muted-foreground">© 2025 Thankaroo. All rights reserved.</div>
       </div>
     </footer>
   )

@@ -6,7 +6,6 @@ import HowItWorksSection from "@/components/HowItWorksSection"
 // import PrivacySection from "@/components/PrivacySection"
 import FAQSection from "@/components/FAQSection"
 import CallToActionSection from "@/components/CallToActionSection"
-import Footer from "@/components/Footer"
 
 export default function Home() {
   return (
@@ -19,7 +18,6 @@ export default function Home() {
         <FAQSection />
         <CallToActionSection />
       </main>
-      <Footer />
     </div>
   )
 }
