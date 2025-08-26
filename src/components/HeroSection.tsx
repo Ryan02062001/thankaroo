@@ -30,13 +30,13 @@ export default function HeroSection() {
               className="bg-[#E0FFF4] text-[#3EB489] hover:bg-[#E0FFF4] border-[#A8E6CF]/50 px-4 py-2"
             >
               <Sparkles className="w-3 h-3 mr-1" />
-              Wedding Gift Tracker
+              Gift Tracker
             </Badge>
             <Badge
               variant="secondary"
               className="bg-orange-100 text-orange-600 hover:bg-orange-100 border-orange-200 px-3 py-1 text-sm"
             >
-              🔥 10,000+ couples trust us
+              Join the couples who trust us
             </Badge>
           </div>
 
@@ -86,7 +86,7 @@ export default function HeroSection() {
                 </Button>
               </div>
             </div>
-            <p className="text-sm text-gray-500">30‑day free trial. No credit card required. Cancel anytime.</p>
+            <p className="text-sm text-gray-500">100% free trial. No credit card required.</p>
           </div>
 
           <ul className="mt-2 grid gap-4 md:grid-cols-2 lg:grid-cols-4 text-gray-700 max-w-6xl mx-auto">
@@ -96,7 +96,7 @@ export default function HeroSection() {
             </li>
             <li className="flex items-start gap-2 text-center">
               <CheckCircle className="mt-0.5 h-5 w-5 text-[#2f9c79] flex-shrink-0" aria-hidden />
-              <span>AI‑assisted thank‑you notes and templates</span>
+              <span>AI‑assisted thank‑you notes</span>
             </li>
             <li className="flex items-start gap-2 text-center">
               <CheckCircle className="mt-0.5 h-5 w-5 text-[#2f9c79] flex-shrink-0" aria-hidden />
@@ -104,7 +104,7 @@ export default function HeroSection() {
             </li>
             <li className="flex items-start gap-2 text-center">
               <CheckCircle className="mt-0.5 h-5 w-5 text-[#2f9c79] flex-shrink-0" aria-hidden />
-              <span>Invite your partner to collaborate</span>
+              <span>Everything in one easy to manage place</span>
             </li>
           </ul>
         </div>

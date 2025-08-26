@@ -1,58 +1,90 @@
-import { ArrowRight, Heart, Sparkles } from "lucide-react"
+import { ArrowRight, Heart, Play, Sparkles, Star, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
 export default function FinalCTASection() {
   return (
-    <section className="py-20 bg-gradient-to-br from-[#3EB489] to-[#2d9970] relative overflow-hidden">
-      {/* Background decorative elements */}
+    <section className="relative overflow-hidden py-24 bg-gradient-to-b from-[#F0FDFB] via-white to-[#E0FFF4]/60">
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -right-32 w-80 h-80 bg-[#A8E6CF]/30 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-[#E0FFF4]/40 rounded-full blur-3xl"></div>
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[36rem] h-[36rem] bg-gradient-to-tr from-[#A8E6CF]/10 to-[#E0FFF4]/10 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="container mx-auto px-4 relative">
-        <div className="text-center max-w-4xl mx-auto">
-          <div className="flex items-center justify-center mb-6">
-            <Sparkles className="w-8 h-8 text-white mr-3" />
-            <Heart className="w-8 h-8 text-white fill-current" />
-            <Sparkles className="w-8 h-8 text-white ml-3" />
-          </div>
-
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Ready to Never Miss a Thank You Note Again?
-          </h2>
-
-          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Join thousands of couples who&apos;ve made their wedding thank you process stress-free with Thankaroo. Start your
-            free trial today and experience the difference.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-            <Link href="/signup">
-              <Button
-                size="lg"
-                className="bg-white text-[#3EB489] hover:bg-gray-100 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 px-12 py-6 text-lg font-semibold"
-              >
-                Start Your Free Trial
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <p className="text-white/80 text-sm">No credit card required • 30-day free trial • Cancel anytime</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 text-center">
-            <div>
-              <div className="text-3xl font-bold text-white mb-2">30 Days</div>
-              <div className="text-white/80">Free Trial</div>
+      <div className="container relative mx-auto px-4">
+        <div className="mx-auto max-w-5xl">
+          <div className="relative rounded-3xl border border-[#A8E6CF]/40 bg-white/70 backdrop-blur-xl shadow-xl">
+            <div className="absolute inset-0 rounded-3xl pointer-events-none [mask-image:radial-gradient(ellipse_at_center,white,transparent_70%)]">
+              <div className="absolute -top-10 -left-10 w-40 h-40 bg-[#A8E6CF]/30 blur-2xl rounded-full"></div>
+              <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-[#E0FFF4]/40 blur-3xl rounded-full"></div>
             </div>
-            <div>
-              <div className="text-3xl font-bold text-white mb-2">10,000+</div>
-              <div className="text-white/80">Happy Couples</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-white mb-2">4.9★</div>
-              <div className="text-white/80">Average Rating</div>
+
+            <div className="px-6 py-12 md:px-12 md:py-16 text-center">
+              <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-[#A8E6CF]/60 bg-[#E0FFF4]/60 px-4 py-1.5 text-sm text-[#2f9c79]">
+                <Sparkles className="h-4 w-4" />
+                <span>Finish your thank‑you list in days, not weeks</span>
+              </div>
+
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <Sparkles className="w-6 h-6 text-[#3EB489]" />
+                <Heart className="w-6 h-6 text-[#8ed0be]" />
+                <Sparkles className="w-6 h-6 text-[#3EB489]" />
+              </div>
+
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight bg-gradient-to-b from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                Ready to never miss a thank‑you note again?
+              </h2>
+              <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+                Join thousands of couples using Thankaroo to track gifts, draft heartfelt notes, and stay on top of gentle reminders — all in one place.
+              </p>
+
+              <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
+                <Link href="/signup" className="w-full sm:w-auto" aria-label="Start your free trial">
+                  <Button
+                    size="lg"
+                    className="h-12 px-6 bg-[#2f9c79] text-white hover:bg-[#39b184] shadow-md hover:shadow-lg transition-all w-full"
+                  >
+                    Start Free Trial
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="h-12 px-6 border-[#A8E6CF] text-[#2f9c79] hover:bg-[#E0FFF4] hover:border-[#2f9c79] w-full sm:w-auto"
+                  aria-label="See how it works"
+                >
+                  <Play className="mr-2 h-5 w-5" />
+                  See how it works
+                </Button>
+              </div>
+
+              <div className="mt-4 text-xs text-gray-500">
+                30‑day free trial. No credit card required. Cancel anytime.
+              </div>
+
+              <div className="mt-10 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#A8E6CF]/40">
+                <div className="px-6 py-4">
+                  <div className="flex items-center justify-center gap-2 text-gray-900">
+                    <Star className="h-5 w-5 text-[#3EB489]" />
+                    <span className="text-2xl font-semibold">4.9</span>
+                    <span className="text-gray-500">/ 5</span>
+                  </div>
+                  <div className="mt-1 text-sm text-gray-600">Average rating</div>
+                </div>
+                <div className="px-6 py-4">
+                  <div className="text-2xl font-semibold text-gray-900">10,000+</div>
+                  <div className="mt-1 text-sm text-gray-600">Couples getting it done</div>
+                </div>
+                <div className="px-6 py-4">
+                  <div className="flex items-center justify-center gap-2 text-gray-900">
+                    <ShieldCheck className="h-5 w-5 text-[#3EB489]" />
+                    <span className="text-2xl font-semibold">30 days</span>
+                  </div>
+                  <div className="mt-1 text-sm text-gray-600">Free trial — risk‑free</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

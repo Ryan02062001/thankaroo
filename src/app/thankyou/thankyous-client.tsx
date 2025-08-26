@@ -24,6 +24,8 @@ import {
 	Search,
 	Settings2,
 	ChevronDown,
+	Eye,
+	Pencil,
 } from "lucide-react";
 import { useReminders, type Channel, type Relationship, type Tone } from "@/app/contexts/ReminderContext";
 import { generateDraft } from "@/lib/draft-templates";
@@ -159,6 +161,8 @@ export default function ThankYousClient({
 	const [personalTouch, setPersonalTouch] = React.useState<string>("");
 	const [content, setContent] = React.useState("");
 	const [isGenerating, setIsGenerating] = React.useState(false);
+	const [mode, setMode] = React.useState<"edit" | "preview">("preview");
+	const [showEditHint, setShowEditHint] = React.useState(false);
 
 	// Advanced toggle
 	const [showAdvanced, setShowAdvanced] = React.useState(false);
@@ -249,6 +253,8 @@ export default function ThankYousClient({
 
 			if (aiDraft && aiDraft.trim()) {
 				setContent(aiDraft);
+				setMode("edit");
+				setShowEditHint(true);
 			} else {
 				const fallback = generateDraft({
 					channel,
@@ -260,6 +266,8 @@ export default function ThankYousClient({
 					tone,
 				});
 				setContent(appendMeta(fallback, personalTouch, occasion));
+				setMode("edit");
+				setShowEditHint(true);
 			}
 		} catch {
 			const fallback = generateDraft({
@@ -272,6 +280,8 @@ export default function ThankYousClient({
 				tone,
 			});
 			setContent(appendMeta(fallback, personalTouch, occasion));
+			setMode("edit");
+			setShowEditHint(true);
 		} finally {
 			setIsGenerating(false);
 		}
@@ -658,31 +668,61 @@ pre{white-space:pre-wrap;word-break:break-word}
 									)}
 								</div>
 
-								{/* Preview with gradient frame */}
-								<div className="p-[2px] rounded-2xl bg-gradient-to-r from-[#A8E6CF] via-[#98CFBA] to-[#A8E6CF]">
-									<div className={`rounded-xl border overflow-hidden transition-all duration-300 ${isGenerating ? "border-[#A8E6CF]/60 bg-[#A8E6CF]/10" : "border-gray-200 bg-white/80"}`}>
-										<div className="p-6 max-h-[50vh] overflow-y-auto overscroll-contain">
-											{isGenerating ? (
-												<div className="flex flex-col items-center justify-center py-8 text-center">
-													<div className="animate-spin mb-4">
-														<Sparkles className="h-8 w-8 text-[#A8E6CF]" />
-													</div>
-													<div className="text-lg font-semibold text-[#2d2d2d] mb-2">Crafting your note...</div>
-													<div className="text-gray-600">AI is writing a heartfelt message just for you</div>
-												</div>
-											) : content ? (
-												<div className="prose prose-sm max-w-none break-words">
-													<div className="whitespace-pre-wrap break-words break-all text-[#2d2d2d] leading-relaxed overflow-x-auto font-serif text-[15px]">
-														{content}
-													</div>
-												</div>
+								{/* Mode toggle + Preview/Editor */}
+							<div className="flex items-center justify-between mb-2 px-1">
+								<div className="text-sm font-medium text-[#2d2d2d]">Your message</div>
+							</div>
+
+							{/* Preview/Editor clean card */}
+							<div className="rounded-xl border border-gray-200 bg-white/90 shadow-sm">
+								<div className="relative p-5 sm:p-6 max-h-[50vh] overflow-y-auto overscroll-contain">
+									{content && (
+										<button
+											type="button"
+											onClick={() => setMode((m) => (m === "edit" ? "preview" : "edit"))}
+											className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white/90 text-gray-700 hover:bg-gray-50 shadow-xs"
+											title={mode === "edit" ? "Preview" : "Edit"}
+										>
+											{mode === "edit" ? (
+												<Eye className="h-4 w-4" />
 											) : (
-												<div className="flex flex-col items-center justify-center py-8 text-center text-gray-500">
-													<Sparkles className="h-8 w-8 mb-4" />
-													<div>Click &quot;Generate Note&quot; to create your message</div>
-												</div>
+												<Pencil className="h-4 w-4" />
 											)}
-										</div>
+										</button>
+									)}
+										{isGenerating ? (
+											<div className="flex flex-col items-center justify-center py-8 text-center">
+												<div className="animate-spin mb-4">
+													<Sparkles className="h-8 w-8 text-[#A8E6CF]" />
+												</div>
+												<div className="text-lg font-semibold text-[#2d2d2d] mb-2">Crafting your note...</div>
+												<div className="text-gray-600">AI is writing a heartfelt message just for you</div>
+											</div>
+										) : mode === "edit" ? (
+											<Textarea
+												value={content}
+												onChange={(e) => setContent(e.target.value)}
+												placeholder="Type or edit your message here..."
+												className="min-h-[220px] w-full max-h-[50vh] resize-y overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-words bg-white/90 font-serif text-[15px]"
+												disabled={isGenerating || !selectedGift}
+											/>
+										) : content ? (
+											<div className="prose prose-sm max-w-none break-words">
+												<div className="whitespace-pre-wrap break-words break-all text-[#2d2d2d] leading-relaxed overflow-x-auto font-serif text-[16px] sm:text-[15px]">
+													{content}
+												</div>
+											</div>
+										) : (
+											<div className="flex flex-col items-center justify-center py-8 text-center text-gray-500">
+												<Sparkles className="h-8 w-8 mb-4" />
+												<div>Click &quot;Generate Note&quot; to create your message</div>
+												{showEditHint ? (
+													<div className="mt-2 text-xs text-gray-500">
+														Tip: You can edit the note after it is generated.
+													</div>
+												) : null}
+											</div>
+										)}
 									</div>
 								</div>
 
@@ -691,7 +731,7 @@ pre{white-space:pre-wrap;word-break:break-word}
 									<Button
 										onClick={generateNote}
 										disabled={isGenerating || !selectedGift}
-										className="flex-1 bg-gradient-to-br from-[#A8E6CF] to-[#98CFBA] text-[#2d2d2d] hover:opacity-90 min-w-0 active:scale-[0.99] transition-transform"
+										className="flex-1 bg-gradient-to-br from-[#A8E6CF] to-[#98CFBA] text-[#2d2d2d] hover:opacity-90 min-w-0 active:scale-[0.99] transition-transform shadow-sm"
 									>
 										{isGenerating ? (
 											<>
@@ -712,7 +752,7 @@ pre{white-space:pre-wrap;word-break:break-word}
 										onClick={saveDraft}
 										variant="outline"
 										disabled={!content || isGenerating || !selectedGift}
-										className="border-gray-300 hover:bg-gray-50 min-w-0 active:scale-[0.99] transition-transform"
+										className="border-gray-300 hover:bg-gray-50 min-w-0 active:scale-[0.99] transition-transform shadow-sm"
 									>
 										{saved ? (
 											<>
@@ -734,24 +774,24 @@ pre{white-space:pre-wrap;word-break:break-word}
 										onClick={copyToClipboard}
 										variant="outline"
 										disabled={!content || isGenerating || !selectedGift}
-										className="border-gray-300 hover:bg-gray-50 min-w-0 active:scale-[0.99] transition-transform"
+										className="border-gray-300 hover:bg-gray-50 min-w-0 active:scale-[0.99] transition-transform shadow-sm"
 									>
 										{copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
 										<span className="truncate">{copied ? "Copied" : "Copy"}</span>
 									</Button>
 
 									{content && channel === "email" && (
-										<Button asChild className="min-w-0 bg-gradient-to-br from-[#38b2ac] to-[#A8E6CF] text-[#2d2d2d] hover:opacity-90 active:scale-[0.99] transition-transform">
+										<Button asChild className="min-w-0 bg-gradient-to-br from-[#38b2ac] to-[#A8E6CF] text-[#2d2d2d] hover:opacity-90 active:scale-[0.99] transition-transform shadow-sm">
 											<a href={buildMailtoUrl("Thank you!", content)} target="_blank" rel="noopener noreferrer">Compose Email</a>
 										</Button>
 									)}
 									{content && channel === "text" && (
-										<Button asChild className="min-w-0 bg-gradient-to-br from-[#38b2ac] to-[#A8E6CF] text-[#2d2d2d] hover:opacity-90 active:scale-[0.99] transition-transform">
+										<Button asChild className="min-w-0 bg-gradient-to-br from-[#38b2ac] to-[#A8E6CF] text-[#2d2d2d] hover:opacity-90 active:scale-[0.99] transition-transform shadow-sm">
 											<a href={buildSmsUrl(content)}>Open SMS</a>
 										</Button>
 									)}
 									{content && channel === "card" && (
-										<Button onClick={() => printNote(content)} className="min-w-0 bg-gradient-to-br from-[#38b2ac] to-[#A8E6CF] text-[#2d2d2d] hover:opacity-90 active:scale-[0.99] transition-transform">
+										<Button onClick={() => printNote(content)} className="min-w-0 bg-gradient-to-br from-[#38b2ac] to-[#A8E6CF] text-[#2d2d2d] hover:opacity-90 active:scale-[0.99] transition-transform shadow-sm">
 											Print
 										</Button>
 									)}
@@ -774,7 +814,7 @@ pre{white-space:pre-wrap;word-break:break-word}
 											router.refresh();
 										}}
 										disabled={isGenerating || !selectedGift || !content.trim()}
-										className="min-w-0 bg-gradient-to-br from-[#A8E6CF] to-[#98CFBA] text-[#2d2d2d] hover:opacity-90 active:scale-[0.99] transition-transform"
+										className="min-w-0 bg-gradient-to-br from-[#A8E6CF] to-[#98CFBA] text-[#2d2d2d] hover:opacity-90 active:scale-[0.99] transition-transform shadow-sm"
 									>
 										<CheckCircle2 className="mr-2 h-4 w-4" />
 										<span className="truncate">Mark as Sent</span>
@@ -782,7 +822,7 @@ pre{white-space:pre-wrap;word-break:break-word}
 								</div>
 
 								{/* Helper */}
-								<div className="text-xs text-gray-500 bg-gray-50/60 rounded-lg p-3">
+								<div className="text-xs text-gray-600 bg-white/70 border border-gray-200/70 rounded-lg p-3 shadow-xs">
 									💡 <strong>Tip:</strong> Use the toolbar to tailor tone and relationship. Open “More” for occasion and personal touches.
 								</div>
 							</div>

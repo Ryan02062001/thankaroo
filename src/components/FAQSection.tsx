@@ -17,8 +17,7 @@ export default function FAQSection() {
           <div className="rounded-lg border bg-background p-6">
             <h3 className="text-lg font-semibold">Is Thankaroo free to use?</h3>
             <p className="mt-2 text-muted-foreground">
-              Yes! Basic tracking is completely free. We offer premium features like PDF exports for a small one-time
-              fee.
+              Yes! Basic tracking with limited access to features is completely free. We offer premium features like note generation and more storage for a small fee or subscription.
             </p>
           </div>
           <div className="rounded-lg border bg-background p-6">
@@ -32,12 +31,6 @@ export default function FAQSection() {
             <p className="mt-2 text-muted-foreground">
               Thankaroo is designed to complement your existing registries by tracking all gifts in one place,
               regardless of source.
-            </p>
-          </div>
-          <div className="rounded-lg border bg-background p-6">
-            <h3 className="text-lg font-semibold">What happens to my data?</h3>
-            <p className="mt-2 text-muted-foreground">
-              Your data stays on your device by default. We never share your information with third parties.
             </p>
           </div>
         </div>

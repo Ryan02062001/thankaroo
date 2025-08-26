@@ -90,7 +90,7 @@ export function ListSelector({
           onValueChange={onChangeList}
           disabled={!hasLists}
         >
-          <SelectTrigger className="w-64 text-[#2d2d2d]">
+          <SelectTrigger className="w-64 h-9 rounded-lg border-slate-200 bg-white text-slate-800">
             <SelectValue
               placeholder={hasLists ? "Select a list" : "No lists yet"}
             />
@@ -106,7 +106,7 @@ export function ListSelector({
 
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="sm">New List</Button>
+            <Button variant="outline" size="sm" className="rounded-lg border-slate-200 text-slate-700 bg-white hover:bg-slate-50">New List</Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
@@ -137,13 +137,15 @@ export function ListSelector({
                 <Button
                   type="button"
                   variant="outline"
+                  className="rounded-md border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
                   onClick={() => setIsCreateOpen(false)}
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  className="bg-[#A8E6CF] text-[#2d2d2d] hover:bg-[#98CFBA]"
+                  variant="outline"
+                  className="rounded-md border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
                   disabled={!createName.trim()}
                 >
                   Create
@@ -155,7 +157,7 @@ export function ListSelector({
 
         <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="sm" disabled={!currentListId}>
+            <Button variant="outline" size="sm" className="rounded-lg border-slate-200 text-slate-700 bg-white hover:bg-slate-50" disabled={!currentListId}>
               Rename
             </Button>
           </DialogTrigger>
@@ -188,12 +190,14 @@ export function ListSelector({
                 <Button
                   type="button"
                   variant="outline"
+                  className="rounded-md border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
                   onClick={() => setIsRenameOpen(false)}
                 >
                   Cancel
                 </Button>
                 <Button
-                  className="bg-[#A8E6CF] text-[#2d2d2d] hover:bg-[#98CFBA]"
+                  variant="outline"
+                  className="rounded-md border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
                   disabled={!renameName.trim()}
                 >
                   Save
