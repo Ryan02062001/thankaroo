@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
 import { requireAuth } from "@/lib/auth";
-import GiftListClient from "./giftlist-client";
+import GiftHubClient from "./gift-hub-client";
 import { Button } from "@/components/ui/button";
 import { ListSelector } from "@/components/ui/list-selector";
 
@@ -18,7 +18,6 @@ export default async function GiftListPage({
     .select("id, name")
     .eq("owner_id", user.id)
     .order("created_at", { ascending: true });
-
   if (listsErr) throw new Error(listsErr.message);
 
   const params = await searchParams;
@@ -53,12 +52,12 @@ export default async function GiftListPage({
     );
   }
 
+  // Gifts
   const { data: gifts, error: giftsErr } = await supabase
     .from("gifts")
     .select("id, guest_name, description, gift_type, date_received, thank_you_sent")
     .eq("list_id", currentListId)
     .order("date_received", { ascending: false });
-
   if (giftsErr) throw new Error(giftsErr.message);
 
   const uiGifts = (gifts ?? []).map((g) => ({
@@ -70,6 +69,19 @@ export default async function GiftListPage({
     thankYouSent: g.thank_you_sent,
   }));
 
+  // Notes (for the unified composer + “has note” filters/indicators)
+  const { data: notesRaw, error: notesErr } = await supabase
+    .from("thank_you_notes")
+    .select("id, gift_id, channel, relationship, tone, status, content, meta, created_at, updated_at, sent_at")
+    .eq("list_id", currentListId)
+    .order("created_at", { ascending: false });
+  if (notesErr) throw new Error(notesErr.message);
+
+  const safeNotes = (notesRaw ?? []).map((n) => ({
+    ...n,
+    meta: typeof n.meta === "object" && n.meta !== null ? (n.meta as Record<string, unknown>) : null,
+  }));
+
   return (
     <div className="min-h-screen bg-[#fefefe] pt-10">
       <main className="mx-auto w-full px-4 sm:px-6 lg:px-10 2xl:px-35 py-10">
@@ -78,7 +90,7 @@ export default async function GiftListPage({
             {errorMsg}
           </div>
         ) : null}
-        <GiftListClient listId={currentListId} gifts={uiGifts} lists={lists ?? []} />
+        <GiftHubClient listId={currentListId} gifts={uiGifts} lists={lists ?? []} notes={safeNotes} />
       </main>
     </div>
   );

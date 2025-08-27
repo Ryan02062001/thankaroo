@@ -89,7 +89,7 @@ export default async function DashboardPage({
           </div>
           <div className="flex items-center gap-2">
             <Link href="/giftlist">
-              <Button size="sm" variant="outline">Open Gift List</Button>
+              <Button size="sm" variant="outline">Manage Gifts</Button>
             </Link>
           </div>
         </div>

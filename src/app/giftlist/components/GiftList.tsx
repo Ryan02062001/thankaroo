@@ -1,32 +1,38 @@
 "use client";
 
-import { GiftCard } from "./GiftCard";
-import { Gift as GiftIcon, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { UIGift } from "../giftlist-client";
+import { Gift as GiftIcon, Plus } from "lucide-react";
+import type { UIGift } from "../gift-hub-client";
+import { GiftCard } from "./GiftCard";
 
 export function GiftList({
-  listId,
   gifts,
+  noteStatusMap,
   onEditGift,
   onAddGift,
   onRemindGift,
+  onComposeThankYou,
+  onDeleteGift,
 }: {
-  listId: string;
   gifts: UIGift[];
+  noteStatusMap: Map<string, "none" | "draft" | "sent">;
   onEditGift: (g: UIGift) => void;
   onAddGift: () => void;
   onRemindGift: (g: UIGift) => void;
+  onComposeThankYou: (g: UIGift) => void;
+  onDeleteGift: (g: UIGift) => void;
 }) {
   return gifts.length > 0 ? (
     <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       {gifts.map((gift) => (
         <GiftCard
           key={gift.id}
-          listId={listId}
           gift={gift}
+          noteStatus={noteStatusMap.get(gift.id) ?? "none"}
           onEdit={onEditGift}
           onRemind={onRemindGift}
+          onCompose={() => onComposeThankYou(gift)}
+          onDelete={() => onDeleteGift(gift)}
         />
       ))}
     </div>

@@ -3,6 +3,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Heart,
   LayoutDashboard,
@@ -20,38 +21,24 @@ type Props = {
 };
 
 export default function HeaderNav({ isAuthed }: Props) {
-  const [featuresOpen, setFeaturesOpen] = React.useState(false);
   const [userOpen, setUserOpen] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
-  const featuresRef = React.useRef<HTMLDivElement | null>(null);
   const userRef = React.useRef<HTMLDivElement | null>(null);
   const mobileRef = React.useRef<HTMLDivElement | null>(null);
 
-  // Close-delay timer for smoother hover hand-off between trigger and panel
-  const featuresCloseTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  const openFeatures = () => {
-    if (featuresCloseTimer.current) {
-      clearTimeout(featuresCloseTimer.current);
-      featuresCloseTimer.current = null;
-    }
-    setFeaturesOpen(true);
-  };
-  const scheduleCloseFeatures = (delay = 140) => {
-    if (featuresCloseTimer.current) clearTimeout(featuresCloseTimer.current);
-    featuresCloseTimer.current = setTimeout(() => setFeaturesOpen(false), delay);
-  };
+  const pathname = usePathname();
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(`${href}/`);
 
   React.useEffect(() => {
     function onDocClick(e: MouseEvent) {
       const t = e.target as Node;
-      if (featuresRef.current && !featuresRef.current.contains(t)) setFeaturesOpen(false);
       if (userRef.current && !userRef.current.contains(t)) setUserOpen(false);
       if (mobileRef.current && !mobileRef.current.contains(t)) setMobileOpen(false);
     }
     function onEsc(e: KeyboardEvent) {
       if (e.key === "Escape") {
-        setFeaturesOpen(false);
         setUserOpen(false);
         setMobileOpen(false);
       }
@@ -66,9 +53,11 @@ export default function HeaderNav({ isAuthed }: Props) {
 
   const baseTrigger =
     "inline-flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors";
-  const mutedLink = `${baseTrigger} text-slate-600 hover:text-slate-800`;
+  const mutedLink = `${baseTrigger} text-slate-600 hover:text-slate-800 hover:bg-slate-50`;
   const primaryTag =
     "bg-[#A8E6CF]/10 text-[#1a1a1a] hover:bg-[#A8E6CF]/20 border border-[#A8E6CF]/30 font-medium";
+  const activeLink =
+    "text-slate-900 bg-slate-50 ring-1 ring-slate-200";
 
   return (
     <header className="bg-white/95 backdrop-blur-lg border-b border-slate-200/80 sticky top-0 z-50 w-full shadow-sm">
@@ -85,118 +74,53 @@ export default function HeaderNav({ isAuthed }: Props) {
           </Link>
 
           {/* Desktop Navigation - Centered */}
-          <div className="hidden lg:flex items-center justify-center absolute left-1/2 transform -translate-x-1/2">
+          <div className="hidden lg:flex items-center justify-center absolute left-1/2 -translate-x-1/2">
             {isAuthed ? (
-              <nav>
+              <nav aria-label="Primary">
                 <ul className="flex items-center space-x-1">
-                  {/* Dashboard - Primary */}
+                  {/* Dashboard */}
                   <li>
-                    <Link href="/dashboard" className={`${baseTrigger} ${primaryTag}`}>
+                    <Link
+                      href="/dashboard"
+                      className={`${baseTrigger} ${primaryTag} ${isActive("/dashboard") ? "ring-1 ring-[#A8E6CF]" : ""}`}
+                      aria-current={isActive("/dashboard") ? "page" : undefined}
+                    >
                       <LayoutDashboard className="w-4 h-4 mr-2" />
                       Dashboard
                     </Link>
                   </li>
 
-                  {/* Features Dropdown */}
+                  {/* Gift List (direct) */}
                   <li>
-                    <div className="relative" ref={featuresRef}>
-                      <button
-                        id="features-menu-button"
-                        type="button"
-                        aria-haspopup="menu"
-                        aria-expanded={featuresOpen}
-                        aria-controls="features-menu-panel"
-                        className={`${baseTrigger} ${featuresOpen ? "bg-slate-50" : ""}`}
-                        onMouseEnter={openFeatures}
-                        onMouseLeave={() => scheduleCloseFeatures()}
-                        onFocus={openFeatures}
-                        onBlur={() => scheduleCloseFeatures()}
-                        onClick={() => setFeaturesOpen((v) => !v)}
-                      >
-                        Features
-                      </button>
+                    <Link
+                      href="/giftlist"
+                      className={`${mutedLink} ${isActive("/giftlist") ? activeLink : ""}`}
+                      aria-current={isActive("/giftlist") ? "page" : undefined}
+                    >
+                      <GiftIcon className="w-4 h-4 mr-2" />
+                      Gift List
+                    </Link>
+                  </li>
 
-                      {/* Hover bridge to prevent flicker between button and panel */}
-                      <div
-                        className="absolute left-0 top-full w-full h-2"
-                        onMouseEnter={openFeatures}
-                      />
-
-                      {/* Keep mounted for smooth transition; hide via CSS when closed */}
-                      <div
-                        id="features-menu-panel"
-                        role="menu"
-                        aria-hidden={!featuresOpen}
-                        className={[
-                          "absolute left-0 top-full mt-2 w-[30rem] p-2 bg-white rounded-md shadow-lg ring-1 ring-slate-200",
-                          "origin-top transition ease-out duration-150",
-                          featuresOpen
-                            ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
-                            : "opacity-0 scale-95 -translate-y-1 pointer-events-none",
-                        ].join(" ")}
-                        onMouseEnter={openFeatures}
-                        onMouseLeave={() => scheduleCloseFeatures()}
-                      >
-                        <div className="space-y-1 grid grid-cols-2 gap-2">
-                          <Link
-                            href="/notes"
-                            className="flex items-start gap-3 p-3 rounded-md hover:bg-slate-50 transition-colors group"
-                          >
-                            <div className="p-1.5 rounded bg-[#EAFBF3] text-[#1f4d3d] group-hover:bg-[#A8E6CF]">
-                              <FileText className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <div className="font-medium text-sm">My Notes</div>
-                              <div className="text-xs text-slate-500">View all notes</div>
-                            </div>
-                          </Link>
-
-                          <Link
-                            href="/thankyou"
-                            className="flex items-start gap-3 p-3 rounded-md hover:bg-slate-50 transition-colors group"
-                          >
-                            <div className="p-1.5 rounded bg-[#EAFBF3] text-[#1f4d3d] group-hover:bg-[#A8E6CF]">
-                              <Heart className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <div className="font-medium text-sm">Thank You Generator</div>
-                              <div className="text-xs text-slate-500">Write and manage notes</div>
-                            </div>
-                          </Link>
-
-                          <Link
-                            href="/giftlist"
-                            className="flex items-start gap-3 p-3 rounded-md hover:bg-slate-50 transition-colors group"
-                          >
-                            <div className="p-1.5 rounded bg-[#FFF2E0] text-[#5a3a1a] group-hover:bg-[#FFD8A8]">
-                              <GiftIcon className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <div className="font-medium text-sm">Gift List</div>
-                              <div className="text-xs text-slate-500">Track gifts and occasions</div>
-                            </div>
-                          </Link>
-
-                          <Link
-                            href="/reminders"
-                            className="flex items-start gap-3 p-3 rounded-md hover:bg-slate-50 transition-colors group"
-                          >
-                            <div className="p-1.5 rounded bg-[#E6F0FF] text-[#1d3b6a] group-hover:bg-[#B7D0FF]">
-                              <Bell className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <div className="font-medium text-sm">Reminders</div>
-                              <div className="text-xs text-slate-500">Set up reminder schedules</div>
-                            </div>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
+                  {/* Reminders (direct) */}
+                  <li>
+                    <Link
+                      href="/reminders"
+                      className={`${mutedLink} ${isActive("/reminders") ? activeLink : ""}`}
+                      aria-current={isActive("/reminders") ? "page" : undefined}
+                    >
+                      <Bell className="w-4 h-4 mr-2" />
+                      Reminders
+                    </Link>
                   </li>
 
                   {/* Pricing */}
                   <li>
-                    <Link href="/pricing" className={mutedLink}>
+                    <Link
+                      href="/pricing"
+                      className={`${mutedLink} ${isActive("/pricing") ? activeLink : ""}`}
+                      aria-current={isActive("/pricing") ? "page" : undefined}
+                    >
                       Pricing
                     </Link>
                   </li>
@@ -329,6 +253,7 @@ export default function HeaderNav({ isAuthed }: Props) {
                       <Link
                         href="/dashboard"
                         className="flex items-center py-3 px-3 rounded-md hover:bg-slate-50 transition-colors col-span-2"
+                        aria-current={isActive("/dashboard") ? "page" : undefined}
                       >
                         <div className="p-2 rounded bg-[#A8E6CF]/20 mr-3">
                           <LayoutDashboard className="w-4 h-4 text-[#1f4d3d]" />
@@ -340,34 +265,9 @@ export default function HeaderNav({ isAuthed }: Props) {
                       </Link>
 
                       <Link
-                        href="/notes"
-                        className="flex items-center py-3 px-3 rounded-md hover:bg-slate-50 transition-colors col-span-1"
-                      >
-                        <div className="p-2 rounded bg-[#EAFBF3] mr-3">
-                          <FileText className="w-4 h-4 text-[#1f4d3d]" />
-                        </div>
-                        <div>
-                          <div className="font-medium text-sm">My Notes</div>
-                          <div className="text-xs text-slate-500">View all</div>
-                        </div>
-                      </Link>
-
-                      <Link
-                        href="/thankyou"
-                        className="flex items-center py-3 px-3 rounded-md hover:bg-slate-50 transition-colors col-span-1"
-                      >
-                        <div className="p-2 rounded bg-[#EAFBF3] mr-3">
-                          <Heart className="w-4 h-4 text-[#1f4d3d]" />
-                        </div>
-                        <div>
-                          <div className="font-medium text-sm">Thank You</div>
-                          <div className="text-xs text-slate-500">Manage notes</div>
-                        </div>
-                      </Link>
-
-                      <Link
                         href="/giftlist"
                         className="flex items-center py-3 px-3 rounded-md hover:bg-slate-50 transition-colors col-span-1"
+                        aria-current={isActive("/giftlist") ? "page" : undefined}
                       >
                         <div className="p-2 rounded bg-[#FFF2E0] mr-3">
                           <GiftIcon className="w-4 h-4 text-[#5a3a1a]" />
@@ -381,6 +281,7 @@ export default function HeaderNav({ isAuthed }: Props) {
                       <Link
                         href="/reminders"
                         className="flex items-center py-3 px-3 rounded-md hover:bg-slate-50 transition-colors col-span-1"
+                        aria-current={isActive("/reminders") ? "page" : undefined}
                       >
                         <div className="p-2 rounded bg-[#E6F0FF] mr-3">
                           <Bell className="w-4 h-4 text-[#1d3b6a]" />
@@ -394,6 +295,7 @@ export default function HeaderNav({ isAuthed }: Props) {
                       <Link
                         href="/pricing"
                         className="flex items-center py-3 px-3 rounded-md hover:bg-slate-50 transition-colors col-span-1"
+                        aria-current={isActive("/pricing") ? "page" : undefined}
                       >
                         <div className="p-2 rounded bg-slate-100 mr-3">
                           <FileText className="w-4 h-4 text-slate-600" />
@@ -468,6 +370,7 @@ export default function HeaderNav({ isAuthed }: Props) {
                       <Link
                         href="/pricing"
                         className="flex items-center py-3 px-3 rounded-md hover:bg-slate-50 transition-colors"
+                        aria-current={isActive("/pricing") ? "page" : undefined}
                       >
                         <FileText className="w-4 h-4 text-slate-600 mr-3" />
                         <span className="text-sm">Pricing</span>

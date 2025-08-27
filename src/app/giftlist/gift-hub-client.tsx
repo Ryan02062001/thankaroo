@@ -1,16 +1,18 @@
-// src/app/giftlist/giftlist-client.tsx
 "use client";
 
 import * as React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { AddGiftDialog } from "./components/AddGiftDialog";
-import { EditGiftDialog } from "./components/EditGiftDialog";
+import { QuotaBanner, useBillingSummary } from "@/components/QuotaBanner";
 import { GiftList } from "./components/GiftList";
+import { GiftListControls } from "./components/GiftListControls";
 import { ReminderSettingsDialog } from "@/components/ReminderSettingsDialog";
 import { AddReminderDialog } from "@/components/AddReminderDialog";
-import { GiftListControls } from "./components/GiftListControls";
-import { QuotaBanner, useBillingSummary } from "@/components/QuotaBanner";
+import { ThankYouComposerDialog } from "./components/ThankYouComposerDialog";
+import { EditGiftDialog } from "./components/EditGiftDialog";
+import { AddGiftDialog } from "./components/AddGiftDialog";
+import { DeleteGiftDialog } from "./components/DeleteGiftDialog";
+import type { Note } from "@/components/thankyous/types";
 
 export type UIGift = {
   id: string;
@@ -23,29 +25,51 @@ export type UIGift = {
 
 type List = { id: string; name: string };
 
-export default function GiftListClient({
+export default function GiftHubClient({
   listId,
   gifts,
   lists,
+  notes,
 }: {
   listId: string;
   gifts: UIGift[];
   lists: List[];
+  notes: Note[];
 }) {
   const { data: billing } = useBillingSummary();
+
   const [searchTerm, setSearchTerm] = React.useState("");
-  const [filterType, setFilterType] = React.useState<string | null>(null);
+  const [filterType, setFilterType] = React.useState<UIGift["type"] | null>(null);
   const [filterThankYou, setFilterThankYou] = React.useState<boolean | null>(null);
+  const [filterHasNote, setFilterHasNote] = React.useState<boolean | null>(null);
   const [sortMethod, setSortMethod] = React.useState<string>("");
-  const [editingGift, setEditingGift] = React.useState<UIGift | null>(null);
-  const [isAddGiftOpen, setIsAddGiftOpen] = React.useState(false);
-  const [isEditGiftOpen, setIsEditGiftOpen] = React.useState(false);
 
   const [isListReminderOpen, setIsListReminderOpen] = React.useState(false);
   const [isAddOpen, setIsAddOpen] = React.useState(false);
   const [reminderGift, setReminderGift] = React.useState<UIGift | null>(null);
 
-  // Removed in favor of dedicated Thank You pages
+  const [composerGift, setComposerGift] = React.useState<UIGift | null>(null);
+  const [isComposerOpen, setIsComposerOpen] = React.useState(false);
+
+  const [editGift, setEditGift] = React.useState<UIGift | null>(null);
+  const [isEditOpen, setIsEditOpen] = React.useState(false);
+
+  const [isAddGiftOpen, setIsAddGiftOpen] = React.useState(false);
+
+  const [deleteGift, setDeleteGift] = React.useState<UIGift | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
+
+  // Build note status map per gift (none | draft | sent)
+  const noteStatusMap = React.useMemo(() => {
+    const m = new Map<string, "none" | "draft" | "sent">();
+    for (const g of gifts) m.set(g.id, "none");
+    for (const n of notes) {
+      const prev = m.get(n.gift_id) ?? "none";
+      if (n.status === "sent") m.set(n.gift_id, "sent");
+      else if (prev !== "sent") m.set(n.gift_id, "draft");
+    }
+    return m;
+  }, [gifts, notes]);
 
   const filtered = gifts.filter((gift) => {
     const q = searchTerm.toLowerCase();
@@ -53,7 +77,10 @@ export default function GiftListClient({
       gift.guestName.toLowerCase().includes(q) || gift.description.toLowerCase().includes(q);
     const matchesType = filterType ? gift.type === filterType : true;
     const matchesThank = filterThankYou !== null ? gift.thankYouSent === filterThankYou : true;
-    return matchesSearch && matchesType && matchesThank;
+    const status = noteStatusMap.get(gift.id) ?? "none";
+    const hasNote = status !== "none";
+    const matchesHasNote = filterHasNote !== null ? hasNote === filterHasNote : true;
+    return matchesSearch && matchesType && matchesThank && matchesHasNote;
   });
 
   const sorted = [...filtered].sort((a, b) => {
@@ -68,13 +95,8 @@ export default function GiftListClient({
     setSearchTerm("");
     setFilterType(null);
     setFilterThankYou(null);
+    setFilterHasNote(null);
     setSortMethod("");
-  };
-
-  const openAddGift = () => setIsAddGiftOpen(true);
-  const handleEditGift = (gift: UIGift) => {
-    setEditingGift(gift);
-    setIsEditGiftOpen(true);
   };
 
   const openGiftReminder = (gift: UIGift) => {
@@ -82,7 +104,24 @@ export default function GiftListClient({
     setIsAddOpen(true);
   };
 
-  // no-op: drafting handled under /thankyou
+  const openComposer = (gift: UIGift) => {
+    setComposerGift(gift);
+    setIsComposerOpen(true);
+  };
+
+  const openEditGift = (gift: UIGift) => {
+    setEditGift(gift);
+    setIsEditOpen(true);
+  };
+
+  const openAddGift = () => {
+    setIsAddGiftOpen(true);
+  };
+
+  const openDeleteGift = (gift: UIGift) => {
+    setDeleteGift(gift);
+    setIsDeleteDialogOpen(true);
+  };
 
   const stats = React.useMemo(() => {
     const total = gifts.length;
@@ -97,17 +136,18 @@ export default function GiftListClient({
         <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
           {/* Header row with View Dashboard */}
           <div className="mb-4 flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-[#2d2d2d]">Gift List</h1>
-            <Link href="/dashboard">
-              <Button size="sm" variant="ghost" className="text-[#2d2d2d]">
-                View Dashboard
-              </Button>
-            </Link>
+            <h1 className="text-3xl font-bold text-[#2d2d2d]">Gift Hub</h1>
+            <div className="flex items-center gap-1">
+              <Link href="/dashboard">
+                <Button size="sm" variant="ghost" className="text-[#2d2d2d]">
+                  View Dashboard
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Controls + right column */}
           <div className="grid items-start gap-4 md:grid-cols-[1fr_360px]">
-            {/* Left: list selector + search + filter/sort */}
             <GiftListControls
               lists={lists}
               currentListId={listId}
@@ -117,6 +157,8 @@ export default function GiftListClient({
               setFilterType={setFilterType}
               filterThankYou={filterThankYou}
               setFilterThankYou={setFilterThankYou}
+              filterHasNote={filterHasNote}
+              setFilterHasNote={setFilterHasNote}
               sortMethod={sortMethod}
               setSortMethod={setSortMethod}
               resetFilters={resetFilters}
@@ -152,31 +194,22 @@ export default function GiftListClient({
         </div>
 
         <GiftList
-          listId={listId}
           gifts={sorted}
-          onEditGift={handleEditGift}
-          onAddGift={openAddGift}
+          noteStatusMap={noteStatusMap}
+          onEditGift={openEditGift}
+          onAddGift={() => { /* handled elsewhere */ }}
           onRemindGift={openGiftReminder}
+          onComposeThankYou={openComposer}
+          onDeleteGift={openDeleteGift}
         />
       </div>
 
-      <AddGiftDialog listId={listId} isOpen={isAddGiftOpen} setIsOpen={setIsAddGiftOpen} />
-
-      {editingGift && (
-        <EditGiftDialog
-          listId={listId}
-          gift={editingGift}
-          isOpen={isEditGiftOpen}
-          setIsOpen={setIsEditGiftOpen}
-        />
-      )}
-
+      {/* Reminders */}
       <ReminderSettingsDialog
         isOpen={isListReminderOpen}
         setIsOpen={setIsListReminderOpen}
         listId={listId}
       />
-
       <AddReminderDialog
         isOpen={isAddOpen}
         setIsOpen={setIsAddOpen}
@@ -184,7 +217,43 @@ export default function GiftListClient({
         initialGiftId={reminderGift ? reminderGift.id : undefined}
       />
 
-      {/* Draft composer removed from Gift List. Use /thankyou instead. */}
+      {/* Unified inline composer */}
+      {composerGift ? (
+        <ThankYouComposerDialog
+          isOpen={isComposerOpen}
+          onOpenChange={setIsComposerOpen}
+          listId={listId}
+          gift={composerGift}
+          notes={notes.filter((n) => n.gift_id === composerGift.id)}
+        />
+      ) : null}
+
+      {/* Edit Gift Dialog */}
+      {editGift ? (
+        <EditGiftDialog
+          listId={listId}
+          gift={editGift}
+          isOpen={isEditOpen}
+          setIsOpen={setIsEditOpen}
+        />
+      ) : null}
+
+      {/* Add Gift Dialog */}
+      <AddGiftDialog
+        listId={listId}
+        isOpen={isAddGiftOpen}
+        setIsOpen={setIsAddGiftOpen}
+      />
+
+      {/* Delete Gift Dialog */}
+      {deleteGift ? (
+        <DeleteGiftDialog
+          listId={listId}
+          gift={{ id: deleteGift.id, guestName: deleteGift.guestName }}
+          isOpen={isDeleteDialogOpen}
+          setIsOpen={setIsDeleteDialogOpen}
+        />
+      ) : null}
     </>
   );
 }
