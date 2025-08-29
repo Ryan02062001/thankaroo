@@ -31,10 +31,10 @@ export function GiftCard({
   const pathname = usePathname();
 
   const types = {
-    "non registry": { label: "Non Registry", badge: "bg-sky-50 text-sky-700 border-sky-200" },
-    monetary: { label: "Monetary", badge: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-    registry: { label: "Registry", badge: "bg-violet-50 text-violet-700 border-violet-200" },
-    multiple: { label: "Multiple", badge: "bg-amber-50 text-amber-700 border-amber-200" },
+    "non registry": { label: "Non Registry", badge: "bg-[#EAFBF3] text-[#2F6D5A] border-[#A8E6CF]" },
+    monetary: { label: "Monetary", badge: "bg-[#EAFBF3] text-[#2F6D5A] border-[#A8E6CF]" },
+    registry: { label: "Registry", badge: "bg-[#EAFBF3] text-[#2F6D5A] border-[#A8E6CF]" },
+    multiple: { label: "Multiple", badge: "bg-[#EAFBF3] text-[#2F6D5A] border-[#A8E6CF]" },
   } as const;
 
   const meta = types[gift.type];
@@ -46,11 +46,11 @@ export function GiftCard({
 
   const noteBadge =
     noteStatus === "sent" ? (
-      <Badge className="bg-green-100 text-green-800 border border-green-200"> 
+      <Badge className="bg-[#A8E6CF] text-[#124C3A] border border-[#A8E6CF]"> 
         <CheckCircle className="h-3 w-3 mr-1" /> Note Sent
       </Badge>
     ) : noteStatus === "draft" ? (
-      <Badge className="bg-[#A8E6CF] text-gray-800 border border-[#A8E6CF]/60">
+      <Badge className="bg-[#EAFBF3] text-[#2F6D5A] border border-[#A8E6CF]">
         <FileText className="h-3 w-3 mr-1" /> Draft Saved
       </Badge>
     ) : null;
@@ -59,7 +59,7 @@ export function GiftCard({
     <>
       <Card className="group relative overflow-hidden rounded-2xl border bg-tr border-gray-100 bg-white transition-shadow shadow-sm hover:shadow-md min-h-[320px] w-full">
         {/* left status rail */}
-        <div className={`absolute inset-y-0 left-0 w-1 ${gift.thankYouSent ? "bg-[#A8E6CF]" : "bg-red-300"}`} />
+        <div className={`absolute inset-y-0 left-0 w-1 ${gift.thankYouSent ? "bg-[#A8E6CF]" : "bg-gray-200"}`} />
         <CardContent className="flex h-full flex-col p-5">
           {/* Header */}
           <div className="flex items-start justify-between gap-3">
@@ -78,7 +78,7 @@ export function GiftCard({
               type="button"
               variant="ghost"
               size="icon"
-              className="h-9 w-9 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50"
+              className="h-9 w-9 rounded-lg text-rose-500 hover:text-rose-600 hover:bg-rose-50"
               onClick={onDelete}
               aria-label={`Delete gift from ${gift.guestName}`}
             >
@@ -91,12 +91,12 @@ export function GiftCard({
             <div className="flex items-center gap-2 flex-wrap">
               <Badge variant="outline" className={`border ${meta.badge}`}>{meta.label}</Badge>
               {gift.thankYouSent ? (
-                <Badge className="bg-[#A8E6CF] text-gray-800">
+                <Badge className="bg-[#A8E6CF] text-[#124C3A] border border-[#A8E6CF]">
                   <CheckCircle className="h-3 w-3 mr-1" />
                   Thanked
                 </Badge>
               ) : (
-                <Badge variant="outline" className="border border-gray-200 text-gray-600">
+                <Badge variant="outline" className="border border-[#A8E6CF]/50 text-[#2F6D5A]">
                   Not Thanked
                 </Badge>
               )}
@@ -122,12 +122,12 @@ export function GiftCard({
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="w-full h-10 rounded-xl border border-gray-200 bg-white text-gray-700 shadow-sm hover:bg-gray-50
-                             focus-visible:ring-2 focus-visible:ring-gray-300 focus-visible:ring-offset-0 justify-center whitespace-nowrap"
+                  className="w-full h-10 rounded-xl border border-[#A8E6CF]/50 bg-white text-[#2d2d2d] shadow-sm hover:bg-[#EAFBF3]
+                             focus-visible:ring-2 focus-visible:ring-[#A8E6CF] focus-visible:ring-offset-0 justify-center whitespace-nowrap"
                   onClick={() => onRemind(gift)}
                   aria-label={`Set reminder for ${gift.guestName}`}
                 >
-                  <Bell className="h-4 w-4 mr-1.5 text-gray-600" />
+                  <Bell className="h-4 w-4 mr-1.5 text-[#2F6D5A]" />
                   Remind
                 </Button>
 
@@ -135,12 +135,12 @@ export function GiftCard({
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="w-full h-10 rounded-xl border border-gray-200 bg-white text-gray-700 shadow-sm hover:bg-gray-50
-                             focus-visible:ring-2 focus-visible:ring-gray-300 focus-visible:ring-offset-0 justify-center whitespace-nowrap"
+                  className="w-full h-10 rounded-xl border border-[#A8E6CF]/50 bg-white text-[#2d2d2d] shadow-sm hover:bg-[#EAFBF3]
+                             focus-visible:ring-2 focus-visible:ring-[#A8E6CF] focus-visible:ring-offset-0 justify-center whitespace-nowrap"
                   onClick={() => onEdit(gift)}
                   aria-label={`Edit gift from ${gift.guestName}`}
                 >
-                  <Edit className="h-4 w-4 mr-1.5 text-gray-600" />
+                  <Edit className="h-4 w-4 mr-1.5 text-[#2F6D5A]" />
                   Edit
                 </Button>
 
@@ -148,12 +148,12 @@ export function GiftCard({
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="w-full h-10 rounded-xl border border-gray-200 bg-white text-gray-700 shadow-sm hover:bg-gray-50
-                             focus-visible:ring-2 focus-visible:ring-gray-300 focus-visible:ring-offset-0 justify-center whitespace-nowrap"
+                  className="w-full h-10 rounded-xl border border-[#A8E6CF]/50 bg-white text-[#2d2d2d] shadow-sm hover:bg-[#EAFBF3]
+                             focus-visible:ring-2 focus-visible:ring-[#A8E6CF] focus-visible:ring-offset-0 justify-center whitespace-nowrap"
                   onClick={onCompose}
                   aria-label={`Compose thank you for ${gift.guestName}`}
                 >
-                  <Mail className="h-4 w-4 mr-1.5 text-gray-600" />
+                  <Mail className="h-4 w-4 mr-1.5 text-[#2F6D5A]" />
                   Compose
                 </Button>
               </div>
@@ -167,19 +167,19 @@ export function GiftCard({
                 size="sm"
                 className={`w-full h-11 rounded-xl font-medium transition-colors ${
                   gift.thankYouSent
-                    ? "border border-[#A8E6CF]/60 bg-[#EAFBF3] text-[#2d2d2d] hover:bg-[#E1F6EE]"
-                    : "border border-gray-200 bg-transparent text-[#2d2d2d] hover:bg-[#A8E6CF]"
+                    ? "border border-[#A8E6CF] bg-[#EAFBF3] text-[#2d2d2d] hover:bg-[#E1F6EE]"
+                    : "border border-[#A8E6CF]/50 bg-transparent text-[#2d2d2d] hover:bg-[#EAFBF3]"
                 }`}
                 type="submit"
               >
                 {gift.thankYouSent ? (
                   <>
-                    <CheckCircle className="mr-2 h-4 w-4" />
+                    <CheckCircle className="mr-2 h-4 w-4 text-[#2F6D5A]" />
                     Thank You Sent
                   </>
                 ) : (
                   <>
-                    <Mail className="mr-2 h-4 w-4" />
+                    <Mail className="mr-2 h-4 w-4 text-[#2F6D5A]" />
                     Mark as Thanked
                   </>
                 )}
