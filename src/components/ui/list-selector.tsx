@@ -61,6 +61,9 @@ export function ListSelector({
     const params = new URLSearchParams(search.toString());
     params.set("list", id);
     router.push(`${pathname}?${params.toString()}`);
+    try {
+      document.cookie = `thankaroo_last_list_id=${encodeURIComponent(id)}; Path=/; Max-Age=31536000; SameSite=Lax`;
+    } catch {}
   };
 
   // Measure the width of the primary group: Select + New List + Rename
@@ -81,6 +84,14 @@ export function ListSelector({
   }, [onPrimaryWidth]);
 
   const hasLists = lists.length > 0;
+
+  // Keep a cookie of the current list to preserve selection across pages/routes
+  React.useEffect(() => {
+    if (!currentListId) return;
+    try {
+      document.cookie = `thankaroo_last_list_id=${encodeURIComponent(currentListId)}; Path=/; Max-Age=31536000; SameSite=Lax`;
+    } catch {}
+  }, [currentListId]);
 
   return (
     <div className={cn("mb-6 flex flex-wrap items-center gap-3", className)}>

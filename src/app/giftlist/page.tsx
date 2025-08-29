@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { requireAuth } from "@/lib/auth";
 import GiftHubClient, { type ImportGiftItem } from "./gift-hub-client";
@@ -23,7 +24,18 @@ export default async function GiftListPage({
 
   const params = await searchParams;
   const errorMsg = params?.error ?? "";
-  const currentListId = params?.list ?? lists?.[0]?.id ?? null;
+  let currentListId = params?.list ?? null;
+
+  // Fallback to cookie (last selected list) if no list param
+  if (!currentListId) {
+    const cookieHeader = await cookies();
+    const cookieVal = cookieHeader.get("thankaroo_last_list_id")?.value ?? null;
+    if (cookieVal && (lists ?? []).some((l) => l.id === cookieVal)) {
+      currentListId = cookieVal;
+    }
+  }
+
+  if (!currentListId) currentListId = lists?.[0]?.id ?? null;
 
   if (!currentListId) {
     return (

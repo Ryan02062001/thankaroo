@@ -22,6 +22,7 @@ type Props = {
 export default function HeaderNav({ isAuthed }: Props) {
   const [userOpen, setUserOpen] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [lastListId, setLastListId] = React.useState<string | null>(null);
 
   const userRef = React.useRef<HTMLDivElement | null>(null);
   const mobileRef = React.useRef<HTMLDivElement | null>(null);
@@ -48,6 +49,16 @@ export default function HeaderNav({ isAuthed }: Props) {
       document.removeEventListener("mousedown", onDocClick);
       document.removeEventListener("keydown", onEsc);
     };
+  }, []);
+
+  // Read last selected list id from cookie on mount (client only)
+  React.useEffect(() => {
+    try {
+      const m = document.cookie.match(/(?:^|; )thankaroo_last_list_id=([^;]+)/);
+      setLastListId(m ? decodeURIComponent(m[1]) : null);
+    } catch {
+      setLastListId(null);
+    }
   }, []);
 
   const baseTrigger =
@@ -93,7 +104,7 @@ export default function HeaderNav({ isAuthed }: Props) {
                   {/* Reminders (direct) */}
                   <li>
                     <Link
-                      href="/reminders"
+                      href={lastListId ? `/reminders?list=${encodeURIComponent(lastListId)}` : "/reminders"}
                       className={`${mutedLink} ${isActive("/reminders") ? activeLink : ""}`}
                       aria-current={isActive("/reminders") ? "page" : undefined}
                     >
