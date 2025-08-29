@@ -57,7 +57,7 @@ export function GiftCard({
 
   return (
     <>
-      <Card className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white transition-shadow shadow-sm hover:shadow-md min-h-[320px] w-full">
+      <Card className="group relative overflow-hidden rounded-2xl border bg-tr border-gray-100 bg-white transition-shadow shadow-sm hover:shadow-md min-h-[320px] w-full">
         {/* left status rail */}
         <div className={`absolute inset-y-0 left-0 w-1 ${gift.thankYouSent ? "bg-[#A8E6CF]" : "bg-red-300"}`} />
         <CardContent className="flex h-full flex-col p-5">

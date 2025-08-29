@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { ListSelector } from "@/components/ui/list-selector";
-
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import {
@@ -16,7 +15,6 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
-
 import {
   Search,
   Filter,
@@ -30,6 +28,8 @@ import {
   CheckCircle,
   Mail,
   X,
+  Upload,
+  Download,
 } from "lucide-react";
 
 type List = { id: string; name: string };
@@ -60,6 +60,10 @@ export function GiftListControls({
   setSortMethod,
   resetFilters,
   openAddGift,
+  openAddReminder, // kept for compatibility
+  onTriggerImport,
+  onExportCSV,
+  importBusy,
 }: {
   lists: List[];
   currentListId: string;
@@ -75,9 +79,14 @@ export function GiftListControls({
   setSortMethod: (v: string) => void;
   resetFilters: () => void;
   openAddGift: () => void;
-  openAddReminder: () => void; // kept for compatibility
+  openAddReminder: () => void;
+  onTriggerImport: () => void;
+  onExportCSV: () => void;
+  importBusy: boolean;
 }) {
-  const [primaryWidth, setPrimaryWidth] = React.useState<number>(320);
+  // keep to preserve ListSelector behavior
+  const [primaryWidth, setPrimaryWidth] = React.useState<number>(360);
+
   const [filtersOpen, setFiltersOpen] = React.useState(false);
   const [sortOpen, setSortOpen] = React.useState(false);
 
@@ -98,7 +107,10 @@ export function GiftListControls({
 
   const hasFilters = !!filterType || filterThankYou !== null || filterHasNote !== null;
 
-  // ——— Helpers ———
+  // avoid unused warning on openAddReminder, no behavior change
+  React.useEffect(() => {}, [openAddReminder]);
+
+  // --- UI helpers ---
   const FilterChip = ({
     children,
     onClear,
@@ -108,7 +120,7 @@ export function GiftListControls({
   }) => (
     <Badge
       variant="outline"
-      className="flex items-center gap-1 border-[#A8E6CF] bg-[#A8E6CF]/10 text-[#1f2937]"
+      className="flex items-center gap-1 rounded-xl border-[#A8E6CF] bg-[#A8E6CF]/30 text-[#2f9c79]"
     >
       {children}
       <button
@@ -122,23 +134,20 @@ export function GiftListControls({
     </Badge>
   );
 
-  // Keyboard shortcuts: / focus search, F = filters, S = sort
+  // Keyboard shortcuts
   const searchRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
-      const typingInField = tag === "input" || tag === "textarea" || (e.target as HTMLElement)?.isContentEditable;
+      const typingInField =
+        tag === "input" || tag === "textarea" || (e.target as HTMLElement)?.isContentEditable;
 
       if (!typingInField && e.key === "/") {
         e.preventDefault();
         searchRef.current?.focus();
       }
-      if (!typingInField && (e.key === "f" || e.key === "F")) {
-        setFiltersOpen((v) => !v);
-      }
-      if (!typingInField && (e.key === "s" || e.key === "S")) {
-        setSortOpen((v) => !v);
-      }
+      if (!typingInField && (e.key === "f" || e.key === "F")) setFiltersOpen((v) => !v);
+      if (!typingInField && (e.key === "s" || e.key === "S")) setSortOpen((v) => !v);
       if (e.key === "Escape") {
         setFiltersOpen(false);
         setSortOpen(false);
@@ -148,202 +157,254 @@ export function GiftListControls({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // Unified dimensions
+  const CONTROL_H = "h-12";
+  const UNIFORM_W = "w-[176px]";
+  const BTN_BASE = `${CONTROL_H} ${UNIFORM_W} rounded-xl border-gray-200 bg-white hover:bg-gray-50 px-4`;
+  const filterBtnClass =
+    (filtersOpen || hasFilters)
+      ? `${CONTROL_H} ${UNIFORM_W} rounded-xl border-[#A8E6CF] bg-white text-[#2f9c79] ring-2 ring-[#A8E6CF] px-4`
+      : BTN_BASE;
+
   return (
     <TooltipProvider delayDuration={120}>
       <div className="w-full">
-        <div className="flex flex-col gap-3">
-          {/* Row 1: List + primary action */}
-          <div className="inline-block">
+        <div className="flex flex-col">
+          {/* Row 1: List controls + Add Gift + Import/Export (same row) */}
+          <div className="flex items-center gap-2">
             <ListSelector
               lists={lists}
               currentListId={currentListId}
-              className="mb-0"
+              className={`
+                mb-0
+                [&_button:not(.brand-btn)]:${CONTROL_H}
+                [&_button:not(.brand-btn)]:${UNIFORM_W}
+                [&_button:not(.brand-btn)]:rounded-xl
+                [&_button:not(.brand-btn)]:px-4
+              `}
               onPrimaryWidth={setPrimaryWidth}
             >
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     size="sm"
-                    className="h-9 bg-[#A8E6CF] text-[#1f2937] hover:bg-[#98CFBA]"
+                    className={`brand-btn ${CONTROL_H} ${UNIFORM_W} rounded-xl bg-[#3EB489] px-5 text-white hover:bg-[#2f9c79] focus-visible:ring-2 focus-visible:ring-[#3EB489] focus-visible:ring-offset-2`}
                     onClick={openAddGift}
                     aria-label="Add gift"
                   >
-                    <Plus className="mr-1 h-4 w-4" />
-                    Add gift
+                    <Plus className="mr-1.5 h-4 w-4" />
+                    Add Gift
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Add a new gift to this list</TooltipContent>
               </Tooltip>
             </ListSelector>
+
+            {/* Right-side group: Import / Export */}
+            <div className="ml-auto flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className={`${CONTROL_H} ${UNIFORM_W} rounded-xl border-[#A8E6CF] text-[#2f9c79] hover:bg-[#A8E6CF]/30`}
+                onClick={onTriggerImport}
+                disabled={importBusy}
+                aria-label="Import gifts from CSV"
+                title="Import gifts from CSV"
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                {importBusy ? "Importing…" : "Import CSV"}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className={`${CONTROL_H} ${UNIFORM_W} rounded-xl border-[#A8E6CF] text-[#2f9c79] hover:bg-[#A8E6CF]/30`}
+                onClick={onExportCSV}
+                aria-label="Export gifts to CSV"
+                title="Export current list to CSV"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Export CSV
+              </Button>
+            </div>
           </div>
 
-          {/* Row 1.5: friendly tip line */}
-          <p className="text-xs text-gray-500 pl-[2px]">
-            Tip: press <kbd className="px-1 py-0.5 rounded border text-[10px]">/</kbd> to search,&nbsp;
-            <kbd className="px-1 py-0.5 rounded border text-[10px]">F</kbd> to open filters,&nbsp;
-            <kbd className="px-1 py-0.5 rounded border text-[10px]">S</kbd> to sort.
-          </p>
+          {/* Full-width separator */}
+          <div className="-mx-6 my-4 hidden h-px bg-gray-200 md:block md:-mx-8" aria-hidden="true" />
 
           {/* Row 2: Search + Filters + Sort */}
-          <div className="flex flex-wrap items-center gap-3 md:flex-nowrap">
-            <div className="relative w-full md:w-auto" style={{ width: primaryWidth }}>
+          <div className="flex items-center gap-3">
+            {/* Long search */}
+            <div className="relative flex-1">
               <Label htmlFor="gift-search" className="sr-only">
                 Search gifts or guests
               </Label>
-              <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <Input
                 ref={searchRef}
                 id="gift-search"
                 type="search"
                 placeholder="Search gifts or guests…"
-                className="w-full pl-8"
+                className={`${CONTROL_H} w-full rounded-xl border-gray-200 bg-gray-50 pl-10 pr-4 text-[15px] focus-visible:ring-2 focus-visible:ring-[#3EB489] focus-visible:ring-offset-2`}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 aria-describedby="search-help"
+                style={{ minWidth: Math.min(primaryWidth, 360) }}
               />
             </div>
 
-            <div className="flex min-w-0 flex-1 items-center gap-2">
-              {/* Filters */}
-              <Popover open={filtersOpen} onOpenChange={setFiltersOpen}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-9" aria-label="Open filters">
-                    <Filter className="mr-2 h-4 w-4" />
-                    Filters
-                    <ChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </PopoverTrigger>
+            {/* Filters */}
+            <Popover open={filtersOpen} onOpenChange={setFiltersOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className={filterBtnClass} aria-label="Open filters">
+                  <Filter className="mr-2 h-4 w-4" />
+                  Filters
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
 
-                <PopoverContent align="start" className="w-[560px] max-w-[90vw] p-5" sideOffset={8}>
-                  <div className="space-y-5">
-                    {/* Type */}
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-700">Gift type</Label>
-                      <div className="grid grid-cols-2 gap-3">
-                        {(Object.keys(TYPE_META) as GiftType[]).map((t) => {
-                          const { label, Icon } = TYPE_META[t];
-                          const active = filterType === t;
-                          return (
-                            <button
-                              key={t}
-                              type="button"
-                              onClick={() => setFilterType(active ? null : t)}
-                              aria-pressed={active}
-                              className={[
-                                "flex w-full items-center gap-4 rounded-xl border px-4 h-20 text-left transition-all",
-                                active
-                                  ? "border-[#A8E6CF] bg-[#A8E6CF]/15 shadow-sm"
-                                  : "border-gray-200 hover:border-gray-300",
-                              ].join(" ")}
-                            >
-                              <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[#A8E6CF]/20">
-                                <Icon className="h-5 w-5 text-gray-700" />
-                              </span>
-                              <span className="font-medium text-gray-800 whitespace-nowrap">{label}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Thanked tri-state */}
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-700">Thank you status</Label>
-                      <div className="inline-flex overflow-hidden rounded-full border border-gray-200 bg-white">
-                        <button
-                          type="button"
-                          className={["px-3 py-1.5 text-sm", filterThankYou === null ? "bg-gray-50 font-medium" : "hover:bg-gray-50"].join(" ")}
-                          onClick={() => setFilterThankYou(null)}
-                        >
-                          All
-                        </button>
-                        <button
-                          type="button"
-                          className={["inline-flex items-center gap-1 px-3 py-1.5 text-sm", filterThankYou === true ? "bg-[#A8E6CF]/30 font-medium" : "hover:bg-gray-50"].join(" ")}
-                          onClick={() => setFilterThankYou(true)}
-                        >
-                          <CheckCircle className="h-4 w-4" />
-                          Yes
-                        </button>
-                        <button
-                          type="button"
-                          className={["inline-flex items-center gap-1 px-3 py-1.5 text-sm", filterThankYou === false ? "bg-[#A8E6CF]/30 font-medium" : "hover:bg-gray-50"].join(" ")}
-                          onClick={() => setFilterThankYou(false)}
-                        >
-                          <Mail className="h-4 w-4" />
-                          No
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Note tri-state */}
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-700">Has note</Label>
-                      <div className="inline-flex overflow-hidden rounded-full border border-gray-200 bg-white">
-                        <button
-                          type="button"
-                          className={["px-3 py-1.5 text-sm", filterHasNote === null ? "bg-gray-50 font-medium" : "hover:bg-gray-50"].join(" ")}
-                          onClick={() => setFilterHasNote(null)}
-                        >
-                          All
-                        </button>
-                        <button
-                          type="button"
-                          className={["px-3 py-1.5 text-sm", filterHasNote === true ? "bg-[#A8E6CF]/30 font-medium" : "hover:bg-gray-50"].join(" ")}
-                          onClick={() => setFilterHasNote(true)}
-                        >
-                          Yes
-                        </button>
-                        <button
-                          type="button"
-                          className={["px-3 py-1.5 text-sm", filterHasNote === false ? "bg-[#A8E6CF]/30 font-medium" : "hover:bg-gray-50"].join(" ")}
-                          onClick={() => setFilterHasNote(false)}
-                        >
-                          No
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-1">
-                      <span className="text-xs text-gray-500">Tip: you can combine filters</span>
-                      {hasFilters && (
-                        <Button variant="ghost" size="sm" onClick={resetFilters}>
-                          Reset all
-                        </Button>
-                      )}
+              <PopoverContent
+                align="end"
+                className="w-[640px] max-w-[92vw] rounded-2xl border border-gray-200 p-6 shadow-xl"
+                sideOffset={8}
+              >
+                <div className="space-y-6">
+                  {/* Type */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-800">Gift type</Label>
+                    <div className="grid grid-cols-2 gap-4">
+                      {(Object.keys(TYPE_META) as GiftType[]).map((t) => {
+                        const { label, Icon } = TYPE_META[t];
+                        const active = filterType === t;
+                        return (
+                          <button
+                            key={t}
+                            type="button"
+                            onClick={() => setFilterType(active ? null : t)}
+                            aria-pressed={active}
+                            className={[
+                              "flex h-20 w-full items-center gap-4 rounded-xl border px-5 text-left transition-all",
+                              active
+                                ? "border-[#3EB489] bg-[#A8E6CF]/60 shadow-sm"
+                                : "border-gray-200 hover:border-gray-300",
+                            ].join(" ")}
+                          >
+                            <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[#A8E6CF]">
+                              <Icon className="h-5 w-5 text-[#2f9c79]" />
+                            </span>
+                            <span className="whitespace-nowrap font-medium text-gray-900">
+                              {label}
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
-                </PopoverContent>
-              </Popover>
 
-              {/* Sort */}
-              <DropdownMenu open={sortOpen} onOpenChange={setSortOpen}>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-9" aria-label="Change sort">
-                    <SlidersHorizontal className="mr-2 h-4 w-4" />
-                    Sort
-                    <span className="ml-1 text-xs text-gray-600">({sortLabel})</span>
-                    <ChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[220px]">
-                  <DropdownMenuRadioGroup value={sortMethod} onValueChange={setSortMethod}>
-                    <DropdownMenuRadioItem value="">None</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="name-asc">Name (A-Z)</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="name-desc">Name (Z-A)</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="newest">Newest first</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="oldest">Oldest first</DropdownMenuRadioItem>
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  {/* Thanked tri-state */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-800">Thank you status</Label>
+                    <div className="inline-flex overflow-hidden rounded-xl border border-gray-200 bg-white">
+                      <button
+                        type="button"
+                        className={["px-3.5 py-1.5 text-sm", filterThankYou === null ? "bg-gray-50 font-medium" : "hover:bg-gray-50"].join(" ")}
+                        onClick={() => setFilterThankYou(null)}
+                      >
+                        All
+                      </button>
+                      <button
+                        type="button"
+                        className={["inline-flex items-center gap-1 px-3.5 py-1.5 text-sm", filterThankYou === true ? "bg-[#A8E6CF]/60 font-medium text-[#2f9c79]" : "hover:bg-gray-50"].join(" ")}
+                        onClick={() => setFilterThankYou(true)}
+                      >
+                        <CheckCircle className="h-4 w-4" />
+                        Yes
+                      </button>
+                      <button
+                        type="button"
+                        className={["inline-flex items-center gap-1 px-3.5 py-1.5 text-sm", filterThankYou === false ? "bg-[#A8E6CF]/60 font-medium text-[#2f9c79]" : "hover:bg-gray-50"].join(" ")}
+                        onClick={() => setFilterThankYou(false)}
+                      >
+                        <Mail className="h-4 w-4" />
+                        No
+                      </button>
+                    </div>
+                  </div>
 
-              <div className="grow" />
-            </div>
+                  {/* Has note tri-state */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-800">Has note</Label>
+                    <div className="inline-flex overflow-hidden rounded-xl border border-gray-200 bg-white">
+                      <button
+                        type="button"
+                        className={["px-3.5 py-1.5 text-sm", filterHasNote === null ? "bg-gray-50 font-medium" : "hover:bg-gray-50"].join(" ")}
+                        onClick={() => setFilterHasNote(null)}
+                      >
+                        All
+                      </button>
+                      <button
+                        type="button"
+                        className={["px-3.5 py-1.5 text-sm", filterHasNote === true ? "bg-[#A8E6CF]/60 font-medium text-[#2f9c79]" : "hover:bg-gray-50"].join(" ")}
+                        onClick={() => setFilterHasNote(true)}
+                      >
+                        Yes
+                      </button>
+                      <button
+                        type="button"
+                        className={["px-3.5 py-1.5 text-sm", filterHasNote === false ? "bg-[#A8E6CF]/60 font-medium text-[#2f9c79]" : "hover:bg-gray-50"].join(" ")}
+                        onClick={() => setFilterHasNote(false)}
+                      >
+                        No
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="text-xs text-gray-500">Tip: you can combine filters</span>
+                    {hasFilters && (
+                      <Button variant="ghost" size="sm" onClick={resetFilters}>
+                        Reset all
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            {/* Sort (uniform size) */}
+            <DropdownMenu open={sortOpen} onOpenChange={setSortOpen}>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className={BTN_BASE} aria-label="Change sort">
+                  <SlidersHorizontal className="mr-2 h-4 w-4" />
+                  <span className="truncate">
+                    Sort <span className="ml-1 text-xs text-gray-600">({sortLabel})</span>
+                  </span>
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[240px]">
+                <DropdownMenuRadioGroup value={sortMethod} onValueChange={setSortMethod}>
+                  <DropdownMenuRadioItem value="">None</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="name-asc">Name (A-Z)</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="name-desc">Name (Z-A)</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="newest">Newest first</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="oldest">Oldest first</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
-          {/* Row 3: Active filter chips + quick clear */}
+          {/* Full-width separator */}
+          <div className="-mx-6 my-4 hidden h-px bg-gray-200 md:block md:-mx-8" aria-hidden="true" />
+
+          {/* Tip + active chips */}
+          <p className="pl-0 text-xs text-gray-500">
+            Tip: Press <kbd className="rounded border px-1 py-0.5 text-[10px]">/</kbd> to search,&nbsp;
+            <kbd className="rounded border px-1 py-0.5 text-[10px]">F</kbd> to open filters,&nbsp;
+            <kbd className="rounded border px-1 py-0.5 text-[10px]">S</kbd> to sort.
+          </p>
+
           {hasFilters && (
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="mt-2 flex flex-wrap items-center gap-2">
               {filterType && (
                 <FilterChip onClear={() => setFilterType(null)}>
                   {TYPE_META[filterType].label}

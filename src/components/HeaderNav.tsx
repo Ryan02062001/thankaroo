@@ -6,7 +6,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Heart,
-  LayoutDashboard,
   Gift as GiftIcon,
   LogOut,
   Bell,
@@ -54,8 +53,7 @@ export default function HeaderNav({ isAuthed }: Props) {
   const baseTrigger =
     "inline-flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors";
   const mutedLink = `${baseTrigger} text-slate-600 hover:text-slate-800 hover:bg-slate-50`;
-  const primaryTag =
-    "bg-[#A8E6CF]/10 text-[#1a1a1a] hover:bg-[#A8E6CF]/20 border border-[#A8E6CF]/30 font-medium";
+  
   const activeLink =
     "text-slate-900 bg-slate-50 ring-1 ring-slate-200";
 
@@ -78,17 +76,7 @@ export default function HeaderNav({ isAuthed }: Props) {
             {isAuthed ? (
               <nav aria-label="Primary">
                 <ul className="flex items-center space-x-1">
-                  {/* Dashboard */}
-                  <li>
-                    <Link
-                      href="/dashboard"
-                      className={`${baseTrigger} ${primaryTag} ${isActive("/dashboard") ? "ring-1 ring-[#A8E6CF]" : ""}`}
-                      aria-current={isActive("/dashboard") ? "page" : undefined}
-                    >
-                      <LayoutDashboard className="w-4 h-4 mr-2" />
-                      Dashboard
-                    </Link>
-                  </li>
+                 
 
                   {/* Gift List (direct) */}
                   <li>
@@ -250,19 +238,7 @@ export default function HeaderNav({ isAuthed }: Props) {
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 mb-3">
-                      <Link
-                        href="/dashboard"
-                        className="flex items-center py-3 px-3 rounded-md hover:bg-slate-50 transition-colors col-span-2"
-                        aria-current={isActive("/dashboard") ? "page" : undefined}
-                      >
-                        <div className="p-2 rounded bg-[#A8E6CF]/20 mr-3">
-                          <LayoutDashboard className="w-4 h-4 text-[#1f4d3d]" />
-                        </div>
-                        <div>
-                          <div className="font-medium text-sm">Dashboard</div>
-                          <div className="text-xs text-slate-500">Overview & analytics</div>
-                        </div>
-                      </Link>
+                    
 
                       <Link
                         href="/giftlist"

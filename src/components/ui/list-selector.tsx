@@ -90,7 +90,7 @@ export function ListSelector({
           onValueChange={onChangeList}
           disabled={!hasLists}
         >
-          <SelectTrigger className="w-64 h-9 rounded-lg border-slate-200 bg-white text-slate-800">
+          <SelectTrigger size="lg" className="w-[176px] rounded-xl border-slate-200 bg-white text-slate-800">
             <SelectValue
               placeholder={hasLists ? "Select a list" : "No lists yet"}
             />
@@ -106,7 +106,13 @@ export function ListSelector({
 
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="rounded-lg border-slate-200 text-slate-700 bg-white hover:bg-slate-50">New List</Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-12 w-[176px] rounded-xl border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
+            >
+              New List
+            </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
@@ -157,7 +163,12 @@ export function ListSelector({
 
         <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="rounded-lg border-slate-200 text-slate-700 bg-white hover:bg-slate-50" disabled={!currentListId}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-12 w-[176px] rounded-xl border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
+              disabled={!currentListId}
+            >
               Rename
             </Button>
           </DialogTrigger>
