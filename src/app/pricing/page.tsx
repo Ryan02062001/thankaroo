@@ -107,50 +107,74 @@ function PricingContent() {
     }
   }
 
+  // === Plans (updated to the new model) ===
+
   const free: Plan = {
     name: "Free",
-    tagline: "Get started and track gifts and thank-you notes.",
+    tagline: "Try it out.",
     price: "$0",
     ctaLabel: "Start free",
     ctaHref: "/signup",
     features: [
-      "Track up to 100 gifts",
-      "1 list (single event)",
-      "Fast search & filters",
-      "10 AI draft notes",
-      "CSV import & export",
+      "Up to 50 gifts",
+      "1 event",
+      "Basic reminders",
+      "20 AI draft notes",
+      "No CSV export",
       "Email support",
     ],
   }
 
-  const weddingPassBase: Omit<Plan, "price"> = {
+  const weddingPass: Plan = {
     name: "Wedding Pass",
-    tagline: "Everything you need for one wedding — no subscription.",
+    tagline: "Everything for one wedding — 12 months. No subscription.",
+    price: "$59",
     ctaLabel: "Get Wedding Pass",
-    ctaHref: "/signup",
+    ctaHref: "#",
     oneTime: true,
     mostPopular: true,
     features: [
-      "3 lists, unlimited gifts",
-      "Smart reminders with custom intervals",
-      "Up to 300 AI draft notes a month",
+      "1 wedding, unlimited gifts",
+      "Smart reminders that run for 12 months",
       "CSV import & export",
+      "1,000 AI thank‑you drafts (total)",
       "Priority email support",
     ],
+    ctaOnClick: () => startCheckout({ lookup_key: "wedding_pass" }),
   }
 
-  const proMonthlyBase: Omit<Plan, "price" | "priceNote"> = {
+  const proMonthly: Plan = {
     name: "Pro (All Events)",
-    tagline: "For ongoing gift tracking across weddings, showers, holidays, and more.",
-    ctaLabel: "Get Pro",
-    ctaHref: "/signup",
+    tagline: "For planners & power users.",
+    price: "$24",
+    priceNote: "/month • 3‑month minimum",
+    ctaLabel: "Get Pro Monthly",
+    ctaHref: "#",
     features: [
-      "Unlimited gifts, lists",
-      "Advanced reminder schedules",
+      "Unlimited events & gifts",
+      "Advanced reminder schedules & automations",
       "Bulk import & export",
-      "AI drafts (fair use)",
       "Calendar export (.ics)",
+      "2 collaborator seats (roles)",
     ],
+    ctaOnClick: () => startCheckout({ lookup_key: "thank_you_pro_monthly" }),
+  }
+
+  const proAnnual: Plan = {
+    name: "Pro Annual (All Events)",
+    tagline: "Best value for planners.",
+    price: "$144",
+    priceNote: "/year (~$12/mo)",
+    ctaLabel: "Get Pro Annual",
+    ctaHref: "#",
+    features: [
+      "Unlimited events & gifts",
+      "Advanced reminder schedules & automations",
+      "Bulk import & export",
+      "Calendar export (.ics)",
+      "2 collaborator seats (roles)",
+    ],
+    ctaOnClick: () => startCheckout({ lookup_key: "thank_you_pro_yearly" }),
   }
 
   return (
@@ -186,10 +210,10 @@ function PricingContent() {
                 Simple, honest pricing
               </div>
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-900">
-                Start free. Upgrade if you love it.
+                Start free. Pick a one‑time pass or subscribe.
               </h1>
               <p className="text-base sm:text-lg text-gray-600">
-                30-day free trial on Pro. No credit card required. Cancel anytime.
+                No credit card required. Wedding Pass covers 12 months. Pro monthly has a 3‑month minimum.
               </p>
 
               <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm sm:text-base text-gray-700">
@@ -209,81 +233,56 @@ function PricingContent() {
             </div>
 
             <div className="mx-auto mt-8 sm:mt-10 lg:w-10/12 w-full">
-              <Tabs defaultValue="monthly" className="w-full">
+              {/* Tabs changed to Pay once / Subscribe */}
+              <Tabs defaultValue="pay-once" className="w-full">
                 <TabsList className="mx-auto w-full max-w-[420px] rounded-full bg-white text-[#2f9c79] border border-[#A8E6CF]/60 p-1 flex">
                   <TabsTrigger
-                    value="monthly"
+                    value="pay-once"
                     className="flex-1 rounded-full px-4 py-1.5 text-gray-700 data-[state=active]:bg-[#E0FFF4] data-[state=active]:text-[#2f9c79]"
                   >
-                    Monthly
+                    Pay once
                   </TabsTrigger>
                   <TabsTrigger
-                    value="yearly"
-                    className="flex-1 rounded-full px-4 py-1.5 text-gray-700 data-[state=active]:bg-[#E0FFF4] data-[state=active]:text-[#2f9c79] inline-flex items-center justify-center"
+                    value="subscribe"
+                    className="flex-1 rounded-full px-4 py-1.5 text-gray-700 data-[state=active]:bg-[#E0FFF4] data-[state=active]:text-[#2f9c79]"
                   >
-                    <span>Yearly</span>
-                    <Badge className="ml-2 bg-[#E0FFF4] text-[#2f9c79] border border-[#A8E6CF]/60 text-[11px] sm:text-xs whitespace-nowrap">
-                      Save 20%
-                    </Badge>
+                    Subscribe
                   </TabsTrigger>
                 </TabsList>
-                <TabsContent value="monthly" className="mt-6 sm:mt-8">
-                  <div className="mx-auto justify-items-center grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1 sm:gap-6">
+
+                {/* Pay once tab */}
+                <TabsContent value="pay-once" className="mt-6 sm:mt-8">
+                  <div className="mx-auto justify-items-center grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 w-fit gap-4 sm:gap-6">
                     <PlanCard {...free} />
-                    <PlanCard
-                      {...weddingPassBase}
-                      price="$49"
-                      ctaHref="#"
-                      ctaOnClick={() => startCheckout({ lookup_key: "wedding_pass" })}
-                    />
-                    <PlanCard
-                      {...proMonthlyBase}
-                      price="$15"
-                      priceNote="/month"
-                      ctaHref="#"
-                      ctaOnClick={() => startCheckout({ lookup_key: "thank_you_pro_monthly" })}
-                    />
+                    <PlanCard {...weddingPass} />
                   </div>
                 </TabsContent>
 
-                <TabsContent value="yearly" className="mt-6 sm:mt-8">
-                  <div className="mx-auto  justify-items-center grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {/* Subscribe tab */}
+                <TabsContent value="subscribe" className="mt-6 sm:mt-8">
+                  <div className="mx-auto justify-items-center grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     <PlanCard {...free} />
-                    <PlanCard
-                      {...weddingPassBase}
-                      price="$49"
-                      ctaHref="#"
-                      ctaOnClick={() => startCheckout({ lookup_key: "wedding_pass" })}
-                    />
-                    <PlanCard
-                      {...proMonthlyBase}
-                      price="$144"
-                      priceNote="/year (~$12/mo)"
-                      ctaHref="#"
-                      ctaOnClick={() => startCheckout({ lookup_key: "thank_you_pro_yearly" })}
-                    />
+                    <PlanCard {...proMonthly} />
+                    <PlanCard {...proAnnual} />
                   </div>
                 </TabsContent>
               </Tabs>
             </div>
 
             <div className="mx-auto mt-8 sm:mt-10 grid max-w-5xl grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-sm text-gray-700">
-              
               <div className="rounded-lg border border-[#A8E6CF]/60 bg-white p-4">
                 <div className="font-semibold text-gray-900">No credit card</div>
                 Try it first, upgrade later.
               </div>
               <div className="rounded-lg border border-[#A8E6CF]/60 bg-white p-4">
-                <div className="font-semibold text-gray-900">Cancel anytime</div>
-                No lock-in contracts.
+                <div className="font-semibold text-gray-900">3‑month minimum (Monthly)</div>
+                Cancel anytime after the minimum.
               </div>
               <div className="rounded-lg border border-[#A8E6CF]/60 bg-white p-4">
-                <div className="font-semibold text-gray-900">Refund promise</div>
-                30-days, no-questions.
+                <div className="font-semibold text-gray-900">Wedding Pass covers 12 months</div>
+                Automations run for a full year.
               </div>
             </div>
-
-            
           </div>
         </section>
       </main>

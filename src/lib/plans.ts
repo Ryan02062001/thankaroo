@@ -18,9 +18,9 @@ export const PLAN_LIMITS: Record<PlanId, Limits> = {
 
 // Map Stripe price lookup_keys to a plan id
 export const LOOKUP_KEY_TO_PLAN: Record<string, PlanId> = {
-  wedding_pass: "wedding",
-  thank_you_pro_monthly: "pro",
-  thank_you_pro_yearly: "pro",
+  wedding_pass_: "wedding",
+  pro_monthly: "pro",
+  pro_yearly: "pro",
 };
 
 function firstDayOfMonthISO(d = new Date()) {
