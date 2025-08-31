@@ -56,7 +56,7 @@ export async function POST() {
       subsUpserted += 1;
     }
 
-    // Backfill one-time entitlements (e.g., wedding_pass)
+    // Backfill one-time entitlements (e.g., wedding_plan)
     const sessions = await stripe.checkout.sessions.list({
       customer: customerId,
       limit: 20,
@@ -69,10 +69,10 @@ export async function POST() {
       const linePrice = (session as unknown as { line_items?: { data?: Array<{ price?: { lookup_key?: string } }> } }).line_items?.data?.[0]?.price;
       const liLookup = (linePrice?.lookup_key ?? '') as string;
       const lookup = metaLookup || liLookup;
-      if (lookup === 'wedding_pass') {
+      if (lookup === 'wedding_plan' || lookup === 'wedding_pass' || lookup === 'wedding_pass_') {
         await admin
           .from('billing_entitlements')
-          .upsert({ user_id: user.id, product_lookup_key: 'wedding_pass', active: true }, { onConflict: 'user_id,product_lookup_key' });
+          .upsert({ user_id: user.id, product_lookup_key: 'wedding_plan', active: true }, { onConflict: 'user_id,product_lookup_key' });
         entitlementsUpserted += 1;
       }
     }

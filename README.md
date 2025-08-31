@@ -85,4 +85,27 @@ If you use the CLI, export the provided signing secret to `STRIPE_WEBHOOK_SECRET
 
 - On `checkout.session.completed`, when `client_reference_id` is present, stores `stripe_customer_id` on the Supabase user. Otherwise invites by email and attaches the ID to metadata.
 
-Ensure your Stripe Prices use the lookup keys referenced in `src/app/pricing/page.tsx` (e.g., `wedding_pass`, `thank_you_pro_monthly`, `thank_you_pro_yearly`).
+Ensure your Stripe Prices use the lookup keys referenced in `src/app/pricing/page.tsx`.
+
+Supported lookup keys (new preferred, legacy still work via aliasing):
+
+```
+New canonical keys:
+- wedding_pass_
+- pro_monthly
+- pro_annual
+
+Legacy keys still accepted:
+- wedding_pass
+- thank_you_pro_monthly
+- pro_yearly
+- thank_you_pro_yearly
+```
+
+Diagnostics:
+
+```
+GET /api/stripe/prices?keys=pro_monthly,pro_annual,wedding_pass,wedding_pass_
+```
+
+This endpoint lists active prices for those lookup keys in your current Stripe mode (test vs live) to help verify configuration.

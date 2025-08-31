@@ -1,109 +1,71 @@
 // src/app/api/stripe/create-checkout-session/route.ts
-import { NextResponse } from 'next/server';
-import { stripe, getPriceByLookupOrId, checkoutModeForPrice } from '@/lib/stripe';
-import { createClient } from '@/utils/supabase/server';
-import { randomUUID } from 'node:crypto';
-import type Stripe from 'stripe';
-import { getSupabaseAdmin } from '@/lib/admin';
+import { NextResponse } from "next/server";
+import { stripe, getOrCreateCustomerIdForCurrentUser, successUrlWithSession, cancelUrl, resolvePriceByLookupKey, deriveModeFromLookupKey } from "@/lib/stripe";
+import { createClient } from "@/utils/supabase/server";
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-type UserMetadata = { stripe_customer_id?: string } & Record<string, unknown>;
+type Body = {
+  lookup_key?: string;
+  price_id?: string;
+};
 
 export async function POST(req: Request) {
-	try {
-		const origin = req.headers.get('origin') ?? process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
-		const { lookup_key, price_id } = await req.json();
+  try {
+    const payload = (await req.json().catch(() => ({}))) as Body;
+    const lookupKey = payload.lookup_key;
+    const priceIdInput = payload.price_id;
 
-		const price = await getPriceByLookupOrId({ lookup_key, price_id });
-		const mode = checkoutModeForPrice(price);
+    // Require auth explicitly so we can return 401 (client will redirect)
+    const supabase = await createClient();
+    const { data: auth } = await supabase.auth.getUser();
+    const user = auth.user;
+    if (!user) return NextResponse.json({ error: { message: "Unauthorized" } }, { status: 401 });
 
-		const supabase = await createClient();
-		const { data: authRes } = await supabase.auth.getUser();
-		const user = authRes.user;
+    const customerId = await getOrCreateCustomerIdForCurrentUser();
 
-		const params: Stripe.Checkout.SessionCreateParams = {
-			billing_address_collection: 'auto',
-			allow_promotion_codes: true,
-			line_items: [{ price: price.id, quantity: 1 }],
-			mode,
-			success_url: `${origin}/pricing?success=true&session_id={CHECKOUT_SESSION_ID}`,
-			cancel_url: `${origin}/pricing?canceled=true`,
-			metadata: {
-				price_lookup_key: String((lookup_key ?? (price as unknown as { lookup_key?: string })?.lookup_key) || ''),
-			},
-		};
+    // Resolve price
+    let priceId: string | null = null;
+    let recurring = false;
+    if (priceIdInput) {
+      priceId = priceIdInput;
+      const p = await stripe.prices.retrieve(priceId);
+      recurring = Boolean(p.recurring);
+    } else if (lookupKey) {
+      const resolved = await resolvePriceByLookupKey(lookupKey);
+      if (!resolved) return NextResponse.json({ error: { message: `Unknown price lookup_key: ${lookupKey}` } }, { status: 400 });
+      priceId = resolved.id;
+      recurring = resolved.recurring;
+    } else {
+      return NextResponse.json({ error: { message: "Missing price_id or lookup_key" } }, { status: 400 });
+    }
 
-		// Associate the session with the signed-in user
-		if (user?.id) {
-			params.client_reference_id = user.id;
-		}
+    const mode = recurring ? "subscription" : deriveModeFromLookupKey(lookupKey || "");
 
-		// Always ensure a Stripe Customer exists before starting checkout (recommended)
-		let customerId: string | undefined;
-		if (user?.id) {
-			// 1) Try DB mapping first
-			const { data: bc } = await supabase
-				.from('billing_customers')
-				.select('stripe_customer_id')
-				.eq('user_id', user.id)
-				.maybeSingle();
-			customerId = (bc as { stripe_customer_id?: string } | null)?.stripe_customer_id;
+    const session = await stripe.checkout.sessions.create({
+      customer: customerId,
+      mode,
+      success_url: successUrlWithSession(),
+      cancel_url: cancelUrl(),
+      metadata: lookupKey ? { price_lookup_key: lookupKey } : undefined,
+      line_items: [
+        {
+          price: priceId!,
+          quantity: 1,
+          // minimum subscription period: enforce 3 months for pro_monthly using trial/phase? Stripe doesn't support directly.
+          // We'll enforce on our side for cancellations.
+        },
+      ],
+      allow_promotion_codes: true,
+      // If desired, set `subscription_data[trial_settings]` here.
+    });
 
-			// 2) Try user metadata next
-			if (!customerId) {
-				const metadata = (user.user_metadata ?? {}) as UserMetadata;
-				customerId = metadata.stripe_customer_id;
-			}
-
-			// 3) Create the customer if still missing
-			if (!customerId && user.email) {
-				const created = await stripe.customers.create({
-					email: user.email,
-					metadata: { userId: user.id },
-				});
-				customerId = created.id;
-				// Upsert mapping with admin key (RLS-safe)
-				try {
-					const admin = getSupabaseAdmin();
-					await admin
-						.from('billing_customers')
-						.upsert({ user_id: user.id, stripe_customer_id: customerId }, { onConflict: 'user_id' });
-				} catch {}
-			}
-		}
-
-		// Prefer passing an explicit customer to avoid ephemeral customers
-		if (customerId) {
-			params.customer = customerId;
-		} else if (user?.email) {
-			// Guest or no user mapping available: fall back to email
-			params.customer_email = user.email;
-		}
-
-		// For one-time payments, if we still don't have a customer, let Stripe create one and create an invoice
-		if (mode === 'payment' && !params.customer) {
-			params.customer_creation = 'always';
-			params.invoice_creation = { enabled: true };
-		}
-
-		// If we already know user + customer id, upsert mapping immediately
-		if (user?.id && params.customer) {
-			try {
-				const admin = getSupabaseAdmin();
-				await admin
-					.from('billing_customers')
-					.upsert({ user_id: user.id, stripe_customer_id: String(params.customer) }, { onConflict: 'user_id' });
-			} catch {}
-		}
-
-		const idempotencyKey = randomUUID();
-		const session = await stripe.checkout.sessions.create(params, { idempotencyKey });
-
-		return NextResponse.json({ url: session.url }, { status: 200 });
-	} catch (err: unknown) {
-		const message = err instanceof Error ? err.message : 'Unknown error';
-		return NextResponse.json({ error: { message } }, { status: 400 });
-	}
+    return NextResponse.json({ url: session.url }, { status: 200 });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : "Unknown error";
+    return NextResponse.json({ error: { message } }, { status: 500 });
+  }
 }
+
+

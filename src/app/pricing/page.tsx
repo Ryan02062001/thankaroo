@@ -99,6 +99,11 @@ function PricingContent() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     })
+    if (res.status === 401) {
+      const next = encodeURIComponent(`${window.location.pathname}${window.location.search}` || "/pricing")
+      window.location.href = `/signin?next=${next}`
+      return
+    }
     const data = await res.json()
     if (data?.url) {
       window.location.href = data.url
@@ -140,7 +145,7 @@ function PricingContent() {
       "1,000 AI thank‑you drafts (total)",
       "Priority email support",
     ],
-    ctaOnClick: () => startCheckout({ lookup_key: "wedding_pass" }),
+    ctaOnClick: () => startCheckout({ lookup_key: "wedding_plan" }),
   }
 
   const proMonthly: Plan = {
@@ -157,7 +162,7 @@ function PricingContent() {
       "Calendar export (.ics)",
       "2 collaborator seats (roles)",
     ],
-    ctaOnClick: () => startCheckout({ lookup_key: "thank_you_pro_monthly" }),
+    ctaOnClick: () => startCheckout({ lookup_key: "pro_monthly" }),
   }
 
   const proAnnual: Plan = {
@@ -174,7 +179,7 @@ function PricingContent() {
       "Calendar export (.ics)",
       "2 collaborator seats (roles)",
     ],
-    ctaOnClick: () => startCheckout({ lookup_key: "thank_you_pro_yearly" }),
+    ctaOnClick: () => startCheckout({ lookup_key: "pro_annual" }),
   }
 
   return (
