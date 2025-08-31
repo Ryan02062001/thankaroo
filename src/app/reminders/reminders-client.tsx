@@ -11,6 +11,7 @@ import { getMonthKey, ymd } from "@/components/reminders/utils";
 import Header from "@/components/reminders/Header";
 import FiltersBar, { type ChannelFilter } from "@/components/reminders/FiltersBar";
 import ReminderList from "@/components/reminders/ReminderList";
+import type { ReminderRowData } from "@/components/reminders/ReminderRow";
 
 type List = { id: string; name: string };
 
@@ -46,7 +47,21 @@ export default function RemindersClient({ listId, lists }: { listId: string; lis
     });
   }, [allReminders, pendingOnly, channelFilter, search]);
 
-  const openDraftFromReminder = (r: (typeof allReminders)[number]) => {
+  const listReminders: ReminderRowData[] = React.useMemo(
+    () =>
+      filteredReminders.map((r) => ({
+        id: r.id,
+        listId: r.listId,
+        giftId: r.giftId,
+        dueAt: r.dueAt,
+        sent: r.sent,
+        channel: r.channel,
+        giftSnapshot: r.giftSnapshot,
+      })),
+    [filteredReminders]
+  );
+
+  const openDraftFromRow = (r: ReminderRowData) => {
     setDraftGift({
       id: r.giftId,
       listId: r.listId,
@@ -106,8 +121,8 @@ export default function RemindersClient({ listId, lists }: { listId: string; lis
       />
 
       <ReminderList
-        reminders={filteredReminders as any}
-        onDraft={(r) => openDraftFromReminder(r as any)}
+        reminders={listReminders}
+        onDraft={openDraftFromRow}
         onMarkDone={(id) => markReminderDone(id)}
         onReschedToday={(id) => rescheduleToday(id)}
         onReschedPlusMonth={(id, due) => reschedulePlusOneMonth(id, due)}
