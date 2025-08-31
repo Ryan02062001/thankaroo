@@ -25,9 +25,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={`${poppins.variable} ${geistMono.variable} antialiased font-sans`}>
         <Header />
-        <ReminderProvider>
-          {children}
-        </ReminderProvider>
+        <main id="main-content" role="main">
+          <ReminderProvider>
+            {children}
+          </ReminderProvider>
+        </main>
         <Footer />
       </body>
     </html>

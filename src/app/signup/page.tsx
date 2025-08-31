@@ -85,12 +85,12 @@ export default async function SignUpPage({
 
   return (
     <div className="min-h-screen bg-[#fefefe]">
-      <div className="mx-auto flex min-h-screen w-full max-w-5xl items-center justify-center px-4">
+      <div className="mx-auto flex min-h-screen w-full max-w-5xl items-center justify-center px-4" role="region" aria-labelledby="signup-heading">
         <div className="grid w-full overflow-hidden rounded-2xl border bg-[#fefefe] shadow-xl md:grid-cols-2">
           <Card className="border-0 rounded-none">
             <CardContent className="p-8 md:p-10">
               <div className="mb-8">
-                <h1 className="text-2xl font-bold text-[#2d2d2d]">Create your account</h1>
+                <h1 id="signup-heading" className="text-2xl font-bold text-[#2d2d2d]">Create your account</h1>
                 <p className="mt-1 text-sm text-[#2d2d2d]">Join Thankaroo in a few seconds</p>
               </div>
 
@@ -106,7 +106,7 @@ export default async function SignUpPage({
                 </p>
               ) : null}
 
-              <form>
+              <form aria-labelledby="signup-heading">
                 <input type="hidden" name="next" value={next} />
 
                 <div className="space-y-2">

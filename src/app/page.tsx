@@ -10,14 +10,14 @@ import CallToActionSection from "@/components/CallToActionSection"
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col">
-      <main className="flex-1">
+      <section aria-labelledby="home-hero" className="flex-1">
         <HeroSection />
         <FeaturesSection />
         <HowItWorksSection />
         {/* <PrivacySection /> */}
         <FAQSection />
         <CallToActionSection />
-      </main>
+      </section>
     </div>
   )
 }

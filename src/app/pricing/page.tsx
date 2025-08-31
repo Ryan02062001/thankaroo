@@ -184,7 +184,7 @@ function PricingContent() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <main className="flex-1">
+      <section aria-labelledby="pricing-heading" className="flex-1">
         <section className="relative overflow-hidden bg-gradient-to-br from-[#F0FDFB] via-white to-[#E0FFF4]/40">
           <div className="absolute inset-0 -z-10">
             <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#E0FFF4]/50 rounded-full blur-3xl"></div>
@@ -214,7 +214,7 @@ function PricingContent() {
                 <Sparkles className="h-4 w-4" />
                 Simple, honest pricing
               </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-900">
+              <h1 id="pricing-heading" className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-900">
                 Start free. Pick a one‑time pass or subscribe.
               </h1>
               <p className="text-base sm:text-lg text-gray-600">
@@ -257,7 +257,7 @@ function PricingContent() {
 
                 {/* Pay once tab */}
                 <TabsContent value="pay-once" className="mt-6 sm:mt-8">
-                  <div className="mx-auto justify-items-center grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 w-fit gap-4 sm:gap-6">
+                  <div className="mx-auto justify-items-center grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <PlanCard {...free} />
                     <PlanCard {...weddingPass} />
                   </div>
@@ -290,7 +290,7 @@ function PricingContent() {
             </div>
           </div>
         </section>
-      </main>
+      </section>
     </div>
   )
 }

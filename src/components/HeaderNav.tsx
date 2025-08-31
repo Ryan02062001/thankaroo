@@ -71,7 +71,7 @@ export default function HeaderNav({ isAuthed }: Props) {
   return (
     <header className="bg-white/95 backdrop-blur-lg border-b border-slate-200/80 sticky top-0 z-50 w-full shadow-sm">
       <div className="container mx-auto px-4 lg:px-8">
-        <div className="flex items-center justify-between h-20 relative">
+        <div className="flex items-center justify-between h-16 sm:h-20 relative">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <div className="p-2 rounded-lg bg-gradient-to-br from-[#A4D9C9] to-[#8ed0be] group-hover:from-[#8ed0be] group-hover:to-[#7ac1a8] transition-all duration-200">
@@ -126,21 +126,29 @@ export default function HeaderNav({ isAuthed }: Props) {
                 </ul>
               </nav>
             ) : (
-              <div className="flex items-center">
-                <Link href="/pricing" className={mutedLink}>
-                  Pricing
-                </Link>
-                <div className="w-px h-6 bg-slate-300 mx-3" />
-                <Link href="/signin" className={mutedLink}>
-                  Sign in
-                </Link>
-                <Link
-                  href="/signup"
-                  className="ml-2 bg-[#A8E6CF] text-[#1a1a1a] hover:bg-[#8ed0be] px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  Get Started
-                </Link>
-              </div>
+              <nav aria-label="Primary">
+                <ul className="flex items-center">
+                  <li>
+                    <Link href="/pricing" className={mutedLink}>
+                      Pricing
+                    </Link>
+                  </li>
+                  <li aria-hidden className="w-px h-6 bg-slate-300 mx-3" />
+                  <li>
+                    <Link href="/signin" className={mutedLink}>
+                      Sign in
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/signup"
+                      className="ml-2 bg-[#A8E6CF] text-[#1a1a1a] hover:bg-[#8ed0be] px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                      Get Started
+                    </Link>
+                  </li>
+                </ul>
+              </nav>
             )}
           </div>
 
@@ -241,7 +249,7 @@ export default function HeaderNav({ isAuthed }: Props) {
             </button>
 
             {mobileOpen && (
-              <div className="absolute right-0 top-full mt-2 w-80 p-3 shadow-lg border-0 bg-white/95 backdrop-blur-lg max-h-[80vh] rounded-md ring-1 ring-slate-200">
+              <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] max-w-[22rem] p-3 shadow-lg border-0 bg-white/95 backdrop-blur-lg max-h-[80vh] rounded-md ring-1 ring-slate-200" role="dialog" aria-modal="true">
                 {isAuthed ? (
                   <>
                     <div className="px-2 py-1.5 mb-3">
@@ -353,32 +361,38 @@ export default function HeaderNav({ isAuthed }: Props) {
                       <div className="text-xs font-medium text-slate-500 uppercase tracking-wider">Menu</div>
                     </div>
 
-                    <div className="space-y-1">
-                      <Link
-                        href="/pricing"
-                        className="flex items-center py-3 px-3 rounded-md hover:bg-slate-50 transition-colors"
-                        aria-current={isActive("/pricing") ? "page" : undefined}
-                      >
-                        <FileText className="w-4 h-4 text-slate-600 mr-3" />
-                        <span className="text-sm">Pricing</span>
-                      </Link>
-
-                      <Link
-                        href="/signin"
-                        className="flex items-center py-3 px-3 rounded-md hover:bg-slate-50 transition-colors"
-                      >
-                        <User className="w-4 h-4 text-slate-600 mr-3" />
-                        <span className="text-sm">Sign in</span>
-                      </Link>
-
-                      <Link
-                        href="/signup"
-                        className="flex items-center py-3 px-3 rounded-md bg-[#A8E6CF] text-[#1a1a1a] hover:bg-[#8ed0be] transition-colors"
-                      >
-                        <Heart className="w-4 h-4 text-[#1a1a1a] mr-3" />
-                        <span className="text-sm font-medium">Get Started</span>
-                      </Link>
-                    </div>
+                    <nav aria-label="Mobile">
+                      <ul className="space-y-1">
+                        <li>
+                          <Link
+                            href="/pricing"
+                            className="flex items-center py-3 px-3 rounded-md hover:bg-slate-50 transition-colors"
+                            aria-current={isActive("/pricing") ? "page" : undefined}
+                          >
+                            <FileText className="w-4 h-4 text-slate-600 mr-3" />
+                            <span className="text-sm">Pricing</span>
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            href="/signin"
+                            className="flex items-center py-3 px-3 rounded-md hover:bg-slate-50 transition-colors"
+                          >
+                            <User className="w-4 h-4 text-slate-600 mr-3" />
+                            <span className="text-sm">Sign in</span>
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            href="/signup"
+                            className="flex items-center py-3 px-3 rounded-md bg-[#A8E6CF] text-[#1a1a1a] hover:bg-[#8ed0be] transition-colors"
+                          >
+                            <Heart className="w-4 h-4 text-[#1a1a1a] mr-3" />
+                            <span className="text-sm font-medium">Get Started</span>
+                          </Link>
+                        </li>
+                      </ul>
+                    </nav>
                   </>
                 )}
               </div>

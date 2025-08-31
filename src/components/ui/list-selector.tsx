@@ -94,14 +94,14 @@ export function ListSelector({
   }, [currentListId]);
 
   return (
-    <div className={cn("mb-6 flex flex-wrap items-center gap-3", className)}>
-      <div ref={primaryRef} className="flex flex-wrap items-center gap-3">
+    <div className={cn("mb-6 flex flex-col md:flex-row md:flex-wrap lg:flex-nowrap md:items-center gap-2 md:gap-3", className)}>
+      <div ref={primaryRef} className="flex flex-col md:flex-row md:flex-wrap lg:flex-nowrap items-stretch md:items-center gap-2 md:gap-3 w-full md:w-auto">
         <Select
           value={currentListId ?? ""}
           onValueChange={onChangeList}
           disabled={!hasLists}
         >
-          <SelectTrigger size="lg" className="w-[176px] rounded-xl border-slate-200 bg-white text-slate-800">
+          <SelectTrigger size="lg" className="w-full sm:w-[176px] rounded-xl border-slate-200 bg-white text-slate-800">
             <SelectValue
               placeholder={hasLists ? "Select a list" : "No lists yet"}
             />
@@ -120,7 +120,7 @@ export function ListSelector({
             <Button
               variant="outline"
               size="sm"
-              className="h-12 w-[176px] rounded-xl border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
+              className="h-12 w-full sm:w-[176px] rounded-xl border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
             >
               New List
             </Button>
@@ -177,7 +177,7 @@ export function ListSelector({
             <Button
               variant="outline"
               size="sm"
-              className="h-12 w-[176px] rounded-xl border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
+              className="h-12 w-full sm:w-[176px] rounded-xl border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
               disabled={!currentListId}
             >
               Rename

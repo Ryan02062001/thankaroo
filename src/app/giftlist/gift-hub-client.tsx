@@ -269,7 +269,8 @@ export default function GiftHubClient({
 
         {/* ===== Manage – controls (Import/Export are inside GiftListControls) ===== */}
         <section aria-labelledby="manage-gifts">
-          <div className="rounded-3xl border border-gray-200 bg-[#fefefe] p-6 md:p-8">
+          <h2 id="manage-gifts" className="sr-only">Manage gifts</h2>
+          <div className="rounded-3xl border border-gray-200 bg-[#fefefe] p-4 sm:p-6 md:p-8">
             {/* Hidden file input for Import */}
             <input
               ref={fileInputRef}

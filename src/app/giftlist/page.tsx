@@ -40,9 +40,9 @@ export default async function GiftListPage({
   if (!currentListId) {
     return (
       <div className="min-h-screen bg-[#fefefe] pt-10">
-        <main className="mx-auto w-full px-4 sm:px-6 lg:px-10 2xl:px-35 py-10 max-w-none">
+        <section aria-labelledby="giftlist-heading" className="mx-auto w-full px-4 sm:px-6 lg:px-10 2xl:px-35 py-10 max-w-none">
           <div className="mb-6 flex items-center justify-between gap-3">
-            <h1 className="text-4xl font-bold text-[#2d2d2d]">Gift Hub</h1>
+            <h1 id="giftlist-heading" className="text-4xl font-bold text-[#2d2d2d]">Gift Hub</h1>
             <Link href="/giftlist">
               <Button size="sm" variant="outline">Refresh</Button>
             </Link>
@@ -58,7 +58,7 @@ export default async function GiftListPage({
               <ListSelector lists={lists ?? []} currentListId={null} />
             </div>
           </div>
-        </main>
+        </section>
       </div>
     );
   }
@@ -120,7 +120,7 @@ export default async function GiftListPage({
 
   return (
     <div className="min-h-screen bg-fefefe pt-10">
-      <main className="mx-auto w-full px-4 sm:px-6 lg:px-10 2xl:px-35 py-10 max-w-none">
+      <section aria-labelledby="giftlist-heading" className="mx-auto w-full px-4 sm:px-6 lg:px-10 2xl:px-35 py-10 max-w-none">
         {errorMsg ? (
           <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
             {errorMsg}
@@ -134,7 +134,7 @@ export default async function GiftListPage({
           notes={safeNotes}
           onImportGifts={importGiftsAction}
         />
-      </main>
+      </section>
     </div>
   );
 }

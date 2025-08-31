@@ -20,7 +20,8 @@ export function MessageSurface({
   canEdit: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white/90 shadow-sm">
+    <section className="rounded-xl border border-gray-200 bg-white/90 shadow-sm" aria-labelledby="message-surface-heading">
+      <h2 id="message-surface-heading" className="sr-only">Message</h2>
       <div className="relative p-5 sm:p-6 max-h-[50vh] overflow-y-auto overscroll-contain">
         {content && (
           <button
@@ -50,7 +51,7 @@ export function MessageSurface({
             disabled={!canEdit}
           />
         ) : content ? (
-          <div className="prose prose-sm max-w-none break-words">
+          <div className="prose prose-sm max-w-none break-words" role="document" aria-label="Message preview">
             <div className="whitespace-pre-wrap break-words break-all text-[#2d2d2d] leading-relaxed overflow-x-auto font-serif text-[16px] sm:text-[15px]">
               {content}
             </div>
@@ -65,6 +66,6 @@ export function MessageSurface({
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }

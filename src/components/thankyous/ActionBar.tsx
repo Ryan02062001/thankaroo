@@ -46,7 +46,7 @@ export function ActionsBar({
   onMarkSent: () => Promise<void> | void;
 }) {
   return (
-    <div className="flex flex-col sm:flex-row flex-wrap gap-3">
+    <nav className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3" aria-label="Composer actions">
       <Button
         onClick={onGenerate}
         disabled={!canGenerate || isGenerating}
@@ -122,6 +122,6 @@ export function ActionsBar({
         <CheckCircle2 className="mr-2 h-4 w-4" />
         <span className="truncate">Mark as Sent</span>
       </Button>
-    </div>
+    </nav>
   );
 }

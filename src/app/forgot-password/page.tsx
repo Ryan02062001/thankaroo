@@ -74,12 +74,12 @@ export default async function ForgotPasswordPage({
 
   return (
     <div className="min-h-screen bg-[#fefefe]">
-      <div className="mx-auto flex min-h-screen w-full max-w-5xl items-center justify-center px-4">
+      <div className="mx-auto flex min-h-screen w-full max-w-5xl items-center justify-center px-4" role="region" aria-labelledby="forgot-heading">
         <div className="grid w-full overflow-hidden rounded-2xl border bg-[#fefefe] shadow-xl md:grid-cols-1">
           <Card className="border-0 rounded-none">
             <CardContent className="p-8 md:p-10">
               <div className="mb-8">
-                <h1 className="text-2xl font-bold text-[#2d2d2d]">Reset your password</h1>
+                <h1 id="forgot-heading" className="text-2xl font-bold text-[#2d2d2d]">Reset your password</h1>
                 <p className="mt-1 text-sm text-[#2d2d2d]">We’ll email you a reset link</p>
               </div>
 
@@ -95,7 +95,7 @@ export default async function ForgotPasswordPage({
                 </p>
               ) : null}
 
-              <form>
+              <form aria-labelledby="forgot-heading">
                 <input type="hidden" name="next" value={next} />
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-[#2d2d2d]">

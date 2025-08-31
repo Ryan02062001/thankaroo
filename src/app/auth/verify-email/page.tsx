@@ -13,9 +13,9 @@ export default async function VerifyEmailPage({
 
   return (
     <div className="min-h-screen bg-[#fefefe] pt-10">
-      <main className="mx-auto max-w-lg px-35 py-10">
+      <section aria-labelledby="verify-heading" className="mx-auto max-w-lg px-35 py-10">
         <div className="rounded-lg border bg-white p-6">
-          <h1 className="mb-3 text-2xl font-bold text-[#2d2d2d]">Verify your email</h1>
+          <h1 id="verify-heading" className="mb-3 text-2xl font-bold text-[#2d2d2d]">Verify your email</h1>
           <p className="text-[#2d2d2d]">{decodeURIComponent(notice)}</p>
           <p className="mt-4 text-sm text-[#2d2d2d]">Once confirmed, you&apos;ll be redirected to your gift list.</p>
           <div className="mt-6">
@@ -24,7 +24,7 @@ export default async function VerifyEmailPage({
             </Link>
           </div>
         </div>
-      </main>
+      </section>
     </div>
   );
 }

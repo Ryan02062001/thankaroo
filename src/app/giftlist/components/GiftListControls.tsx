@@ -159,7 +159,7 @@ export function GiftListControls({
 
   // Unified dimensions
   const CONTROL_H = "h-12";
-  const UNIFORM_W = "w-[176px]";
+  const UNIFORM_W = "w-full sm:w-[176px]";
   const BTN_BASE = `${CONTROL_H} ${UNIFORM_W} rounded-xl border-gray-200 bg-white hover:bg-gray-50 px-4`;
   const filterBtnClass =
     (filtersOpen || hasFilters)
@@ -171,7 +171,7 @@ export function GiftListControls({
       <div className="w-full">
         <div className="flex flex-col">
           {/* Row 1: List controls + Add Gift + Import/Export (same row) */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col md:flex-row md:flex-wrap lg:flex-nowrap md:items-center md:justify-between gap-2 md:gap-3">
             <ListSelector
               lists={lists}
               currentListId={currentListId}
@@ -201,7 +201,7 @@ export function GiftListControls({
             </ListSelector>
 
             {/* Right-side group: Import / Export */}
-            <div className="ml-auto flex items-center gap-2">
+            <div className="ml-0 md:ml-auto flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full md:w-auto shrink-0">
               <Button
                 variant="outline"
                 size="sm"
@@ -232,7 +232,7 @@ export function GiftListControls({
           <div className="-mx-6 my-4 hidden h-px bg-gray-200 md:block md:-mx-8" aria-hidden="true" />
 
           {/* Row 2: Search + Filters + Sort */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
             {/* Long search */}
             <div className="relative flex-1">
               <Label htmlFor="gift-search" className="sr-only">
@@ -397,7 +397,7 @@ export function GiftListControls({
           <div className="-mx-6 my-4 hidden h-px bg-gray-200 md:block md:-mx-8" aria-hidden="true" />
 
           {/* Tip + active chips */}
-          <p className="pl-0 text-xs text-gray-500">
+          <p className="pl-0 text-xs text-gray-500 hidden sm:block">
             Tip: Press <kbd className="rounded border px-1 py-0.5 text-[10px]">/</kbd> to search,&nbsp;
             <kbd className="rounded border px-1 py-0.5 text-[10px]">F</kbd> to open filters,&nbsp;
             <kbd className="rounded border px-1 py-0.5 text-[10px]">S</kbd> to sort.

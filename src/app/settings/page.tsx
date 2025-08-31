@@ -9,11 +9,11 @@ export default async function SettingsPage() {
   if (!auth.user) {
     return (
       <div className="min-h-screen bg-[#fefefe] pt-20">
-        <main className="mx-auto w-full px-6 py-10">
+        <section aria-labelledby="settings-heading" className="mx-auto w-full px-6 py-10">
           <div className="rounded border bg-white p-6 text-[#2d2d2d]">
             Please <Link href="/signin" className="underline">sign in</Link>.
           </div>
-        </main>
+        </section>
       </div>
     );
   }
@@ -22,8 +22,8 @@ export default async function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-[#fefefe] pt-20">
-      <main className="mx-auto w-full max-w-3xl px-6 py-10 space-y-6">
-        <h1 className="text-2xl font-semibold text-[#2d2d2d]">Account & Billing</h1>
+      <section aria-labelledby="settings-heading" className="mx-auto w-full max-w-3xl px-6 py-10 space-y-6">
+        <h1 id="settings-heading" className="text-2xl font-semibold text-[#2d2d2d]">Account & Billing</h1>
 
         <div className="rounded border bg-white p-6 text-[#2d2d2d] space-y-3">
           <div className="text-sm text-gray-600">Current plan</div>
@@ -39,7 +39,7 @@ export default async function SettingsPage() {
             </button>
           </form>
         </div>
-      </main>
+      </section>
     </div>
   );
 }

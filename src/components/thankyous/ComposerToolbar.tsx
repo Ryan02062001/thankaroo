@@ -19,7 +19,8 @@ export function ComposerToolbar({
   showAdvanced: boolean; toggleAdvanced: () => void;
 }) {
   return (
-    <div className="rounded-xl border bg-white/80 shadow-sm overflow-hidden">
+    <section className="rounded-xl border bg-white/80 shadow-sm overflow-hidden" aria-labelledby="composer-toolbar-heading">
+      <h2 id="composer-toolbar-heading" className="sr-only">Composer options</h2>
       <div className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur p-3">
         <div className="flex flex-wrap items-center gap-2">
           <Tabs value={channel} onValueChange={(v) => setChannel(v as Channel)}>
@@ -71,6 +72,6 @@ export function ComposerToolbar({
           </Button>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

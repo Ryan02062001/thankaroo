@@ -58,13 +58,14 @@ export function GiftCard({
   return (
     <>
       <Card className="group relative overflow-hidden rounded-2xl border bg-tr border-gray-100 bg-white transition-shadow shadow-sm hover:shadow-md min-h-[320px] w-full">
-        {/* left status rail */}
-        <div className={`absolute inset-y-0 left-0 w-1 ${gift.thankYouSent ? "bg-[#A8E6CF]" : "bg-gray-200"}`} />
+        <article aria-labelledby={`gift-${gift.id}-title`}>
+          {/* left status rail */}
+          <div className={`absolute inset-y-0 left-0 w-1 ${gift.thankYouSent ? "bg-[#A8E6CF]" : "bg-gray-200"}`} />
         <CardContent className="flex h-full flex-col p-5">
           {/* Header */}
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h3 className="font-bold text-[#1a1a1a] text-2xl leading-snug break-words">
+              <h3 id={`gift-${gift.id}-title`} className="font-bold text-[#1a1a1a] text-2xl leading-snug break-words">
                 {gift.guestName}
               </h3>
               <div className="mt-1 flex items-center gap-2 text-sm text-gray-500">
@@ -115,9 +116,9 @@ export function GiftCard({
 
           {/* Actions */}
           <div className="mt-4">
-            {/* Centered, equal-sized trio */}
+            {/* Responsive action layout */}
             <div className="w-full max-w-[520px] mx-auto">
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
                 <Button
                   type="button"
                   variant="outline"
@@ -187,6 +188,7 @@ export function GiftCard({
             </form>
           </div>
         </CardContent>
+        </article>
       </Card>
     </>
   );

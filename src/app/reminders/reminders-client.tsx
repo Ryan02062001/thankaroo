@@ -157,7 +157,7 @@ export default function RemindersClient({ listId, lists }: { listId: string; lis
 
   return (
     <>
-      <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <header className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-4xl font-bold text-[#2d2d2d]">Reminders</h1>
           <p className="mt-1 text-sm text-[#2d2d2d]/70">Plan, reschedule, and complete your thank‑you reminders.</p>
@@ -185,7 +185,7 @@ export default function RemindersClient({ listId, lists }: { listId: string; lis
             <Download className="h-4 w-4" /> Export
           </Button>
         </div>
-      </div>
+      </header>
 
       <div className="mb-6">
         <ListSelector lists={lists} currentListId={listId} />
@@ -230,16 +230,16 @@ export default function RemindersClient({ listId, lists }: { listId: string; lis
                 return acc;
               }, [])
               .map((group) => (
-                <div key={group.month} className="space-y-8">
-                  <div className="px-1 mt-12 mb-6 text-2xl md:text-3xl font-semibold text-slate-700">{group.month}</div>
+                <section key={group.month} className="space-y-8" aria-labelledby={`month-${group.month.replace(/\s+/g, '-')}`}>
+                  <h2 id={`month-${group.month.replace(/\s+/g, '-')}`} className="px-1 mt-12 mb-6 text-2xl md:text-3xl font-semibold text-slate-700">{group.month}</h2>
                   {group.days.map(({ ymd, items }) => {
                     const { dow, day } = formatDayParts(ymd);
                     const isToday = ymd === todayYmd;
                     return (
                       <React.Fragment key={ymd}>
                         {items.map((r) => (
-                          <div key={r.id} className={`rounded-xl border shadow-sm overflow-hidden ${r.sent ? "bg-[#EAFBF3] border-[#A8E6CF]" : "bg-white"}`}>
-                            <div className="grid grid-cols-[112px_1fr_auto] items-center">
+                          <article key={r.id} className={`rounded-xl border shadow-sm overflow-hidden ${r.sent ? "bg-[#EAFBF3] border-[#A8E6CF]" : "bg-white"}`} aria-label={`${r.giftSnapshot.guestName} reminder`}>
+                            <div className="grid grid-cols-[96px_1fr] lg:grid-cols-[112px_1fr_auto] items-center">
                               {/* Left day column */}
                               <div className={`flex flex-col items-center justify-center border-r py-5 ${r.sent ? "bg-[#E0FFF4]" : "bg-slate-50/60"}`}>
                                 <div className={`text-sm font-medium ${r.sent ? "text-[#2d2d2d]" : "text-[#A8E6CF]"}`}>{dow}</div>
@@ -250,7 +250,7 @@ export default function RemindersClient({ listId, lists }: { listId: string; lis
                               </div>
 
                               {/* Middle content */}
-                              <div className="px-5 py-5 min-w-0">
+                              <div className="px-4 lg:px-5 py-5 min-w-0">
                                 <div className="flex flex-wrap items-center gap-5 text-base">
                                   <span className={`inline-flex items-center ${r.sent ? "text-[#1a1a1a]" : "text-slate-600"}`}>
                                     <Clock className="h-5 w-5 mr-1 text-slate-400" /> Due
@@ -265,7 +265,7 @@ export default function RemindersClient({ listId, lists }: { listId: string; lis
                               </div>
 
                               {/* Right actions */}
-                              <div className="px-5">
+                              <div className="px-4 lg:px-5 mt-4 lg:mt-0">
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>
                                     <Button
@@ -299,12 +299,12 @@ export default function RemindersClient({ listId, lists }: { listId: string; lis
                                 </DropdownMenu>
                               </div>
                             </div>
-                          </div>
+                          </article>
                         ))}
                       </React.Fragment>
                     );
                   })}
-                </div>
+                </section>
               ))}
       </div>
 

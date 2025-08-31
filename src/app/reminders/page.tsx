@@ -38,9 +38,9 @@ export default async function RemindersPage({
   if (!currentListId) {
     return (
       <div className="min-h-screen bg-[#fefefe] pt-10">
-        <main className=" w-full px-4 sm:px-6 lg:px-10 2xl:px-35 py-10 mx-auto">
+        <section aria-labelledby="reminders-heading" className=" w-full px-4 sm:px-6 lg:px-10 2xl:px-35 py-10 mx-auto">
           <div className="mb-5 flex items-center space-x-7">
-            <h1 className="text-4xl font-bold text-[#2d2d2d]">Reminders</h1>
+            <h1 id="reminders-heading" className="text-4xl font-bold text-[#2d2d2d]">Reminders</h1>
             <Link href="/dashboard">
               <Button size="sm" variant="ghost" className="text-[#2d2d2d]">
                 View Dashboard
@@ -50,7 +50,7 @@ export default async function RemindersPage({
           <div className="mt-10 rounded border bg-white p-6 text-[#2d2d2d]">
             Create your first list to start scheduling reminders.
           </div>
-        </main>
+        </section>
       </div>
     );
   }
@@ -58,9 +58,9 @@ export default async function RemindersPage({
   // The client loads reminders via ReminderContext (hydrates from Supabase and persists locally)
   return (
     <div className="min-h-screen bg-[#fefefe] pt-10">
-      <main className="mx-auto w-full px-4 sm:px-6 lg:px-10 2xl:px-35 py-10 max-w-none">
+      <section aria-labelledby="reminders-heading" className="mx-auto w-full px-4 sm:px-6 lg:px-10 2xl:px-35 py-10 max-w-none">
         <RemindersClient listId={currentListId} lists={lists ?? []} />
-      </main>
+      </section>
     </div>
   );
 }

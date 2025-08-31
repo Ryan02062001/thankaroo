@@ -23,21 +23,22 @@ export function GiftList({
   onDeleteGift: (g: UIGift) => void;
 }) {
   return gifts.length > 0 ? (
-    <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+    <ul className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" role="list">
       {gifts.map((gift) => (
-        <GiftCard
-          key={gift.id}
-          gift={gift}
-          noteStatus={noteStatusMap.get(gift.id) ?? "none"}
-          onEdit={onEditGift}
-          onRemind={onRemindGift}
-          onCompose={() => onComposeThankYou(gift)}
-          onDelete={() => onDeleteGift(gift)}
-        />
+        <li key={gift.id}>
+          <GiftCard
+            gift={gift}
+            noteStatus={noteStatusMap.get(gift.id) ?? "none"}
+            onEdit={onEditGift}
+            onRemind={onRemindGift}
+            onCompose={() => onComposeThankYou(gift)}
+            onDelete={() => onDeleteGift(gift)}
+          />
+        </li>
       ))}
-    </div>
+    </ul>
   ) : (
-    <div className="col-span-full flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
+    <div className="col-span-full flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center" role="status" aria-live="polite">
       <GiftIcon className="h-12 w-12 text-[#2d2d2d]/50" />
       <h3 className="mt-4 text-lg font-semibold text-[#2d2d2d]">No gifts found</h3>
       <p className="mt-2 text-sm text-[#2d2d2d]">Add your first gift to get started!</p>
