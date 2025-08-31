@@ -6,7 +6,6 @@ import {
   Heart,
   Smartphone,
   Shield,
-  Users,
   FileText,
   Sparkles,
   HelpCircle
@@ -69,14 +68,7 @@ const faqData: FAQItem[] = [
     icon: Shield,
     category: "privacy",
   },
-  {
-    id: "sharing",
-    question: "Can I share access with my partner?",
-    answer:
-      "Yes! You can invite your partner to collaborate on the same gift lists and thank-you notes. Perfect for couples who want to work together on wedding planning and thank-you management.",
-    icon: Users,
-    category: "collaboration",
-  },
+  
 ]
 
 /** Typed easing (smooth, elegant) */
@@ -171,7 +163,7 @@ export default function FAQSection() {
           className="mt-16 text-center"
           style={{ willChange: "transform, opacity" }}
         >
-          <motion.div
+          {/* <motion.div
             whileHover={prefersReduced ? undefined : { y: -2, scale: 1.02 }}
             transition={{ type: "spring", stiffness: 300, damping: 26 }}
             className="inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-[#3EB489] to-[#2F9C79] px-8 py-4 text-white shadow-lg hover:shadow-xl cursor-pointer"
@@ -184,7 +176,7 @@ export default function FAQSection() {
           </motion.div>
           <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
             Can&apos;t find what you&apos;re looking for? Contact our support team.
-          </p>
+          </p> */}
         </motion.div>
       </div>
     </motion.section>

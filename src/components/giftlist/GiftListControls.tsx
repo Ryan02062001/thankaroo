@@ -84,7 +84,6 @@ export function GiftListControls({
   onExportCSV: () => void;
   importBusy: boolean;
 }) {
-  // keep to preserve ListSelector behavior
   const [primaryWidth, setPrimaryWidth] = React.useState<number>(360);
 
   const [filtersOpen, setFiltersOpen] = React.useState(false);
@@ -107,10 +106,8 @@ export function GiftListControls({
 
   const hasFilters = !!filterType || filterThankYou !== null || filterHasNote !== null;
 
-  // avoid unused warning on openAddReminder, no behavior change
   React.useEffect(() => {}, [openAddReminder]);
 
-  // --- UI helpers ---
   const FilterChip = ({
     children,
     onClear,
@@ -134,7 +131,6 @@ export function GiftListControls({
     </Badge>
   );
 
-  // Keyboard shortcuts
   const searchRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -157,7 +153,6 @@ export function GiftListControls({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Unified dimensions
   const CONTROL_H = "h-12";
   const UNIFORM_W = "w-full sm:w-[176px]";
   const BTN_BASE = `${CONTROL_H} ${UNIFORM_W} rounded-xl border-gray-200 bg-white hover:bg-gray-50 px-4`;
@@ -170,7 +165,6 @@ export function GiftListControls({
     <TooltipProvider delayDuration={120}>
       <div className="w-full">
         <div className="flex flex-col">
-          {/* Row 1: List controls + Add Gift + Import/Export (same row) */}
           <div className="flex flex-col md:flex-row md:flex-wrap lg:flex-nowrap md:items-center md:justify-between gap-2 md:gap-3">
             <ListSelector
               lists={lists}
@@ -200,7 +194,6 @@ export function GiftListControls({
               </Tooltip>
             </ListSelector>
 
-            {/* Right-side group: Import / Export */}
             <div className="ml-0 md:ml-auto flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full md:w-auto shrink-0">
               <Button
                 variant="outline"
@@ -228,12 +221,9 @@ export function GiftListControls({
             </div>
           </div>
 
-          {/* Full-width separator */}
           <div className="-mx-6 my-4 hidden h-px bg-gray-200 md:block md:-mx-8" aria-hidden="true" />
 
-          {/* Row 2: Search + Filters + Sort */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-            {/* Long search */}
             <div className="relative flex-1">
               <Label htmlFor="gift-search" className="sr-only">
                 Search gifts or guests
@@ -252,7 +242,6 @@ export function GiftListControls({
               />
             </div>
 
-            {/* Filters */}
             <Popover open={filtersOpen} onOpenChange={setFiltersOpen}>
               <PopoverTrigger asChild>
                 <Button variant="outline" size="sm" className={filterBtnClass} aria-label="Open filters">
@@ -268,7 +257,6 @@ export function GiftListControls({
                 sideOffset={8}
               >
                 <div className="space-y-6">
-                  {/* Type */}
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-800">Gift type</Label>
                     <div className="grid grid-cols-2 gap-4">
@@ -300,7 +288,6 @@ export function GiftListControls({
                     </div>
                   </div>
 
-                  {/* Thanked tri-state */}
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-800">Thank you status</Label>
                     <div className="inline-flex overflow-hidden rounded-xl border border-gray-200 bg-white">
@@ -330,7 +317,6 @@ export function GiftListControls({
                     </div>
                   </div>
 
-                  {/* Has note tri-state */}
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-800">Has note</Label>
                     <div className="inline-flex overflow-hidden rounded-xl border border-gray-200 bg-white">
@@ -370,7 +356,6 @@ export function GiftListControls({
               </PopoverContent>
             </Popover>
 
-            {/* Sort (uniform size) */}
             <DropdownMenu open={sortOpen} onOpenChange={setSortOpen}>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className={BTN_BASE} aria-label="Change sort">
@@ -393,10 +378,8 @@ export function GiftListControls({
             </DropdownMenu>
           </div>
 
-          {/* Full-width separator */}
           <div className="-mx-6 my-4 hidden h-px bg-gray-200 md:block md:-mx-8" aria-hidden="true" />
 
-          {/* Tip + active chips */}
           <p className="pl-0 text-xs text-gray-500 hidden sm:block">
             Tip: Press <kbd className="rounded border px-1 py-0.5 text-[10px]">/</kbd> to search,&nbsp;
             <kbd className="rounded border px-1 py-0.5 text-[10px]">F</kbd> to open filters,&nbsp;

@@ -15,7 +15,7 @@ import {
   Gift as GiftIcon, DollarSign, Package, Boxes,
   CalendarDays, BadgeCheck
 } from "lucide-react";
-import type { UIGift } from "../gift-hub-client";
+import type { UIGift } from "@/components/giftlist/types";
 import { useFormStatus } from "react-dom";
 
 function SubmitButton({ disabled, className }: { disabled?: boolean; className?: string }) {
@@ -132,7 +132,6 @@ export function EditGiftDialog({
             <input type="hidden" name="gift_type" value={type} />
             <input type="hidden" name="thank_you_sent" value={thank.toString()} />
 
-            {/* Guest */}
             <div className="space-y-2">
               <Label htmlFor="guest_name">Guest name</Label>
               <Input
@@ -144,7 +143,6 @@ export function EditGiftDialog({
               />
             </div>
 
-            {/* Date received */}
             <div className="space-y-2">
               <Label htmlFor="date_received" className="text-sm">Date received</Label>
               <div className="relative">
@@ -161,7 +159,6 @@ export function EditGiftDialog({
               </div>
             </div>
 
-            {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="description">Gift description</Label>
               <Textarea
@@ -175,7 +172,6 @@ export function EditGiftDialog({
               <div className="text-xs text-gray-500 flex justify-end">{desc.length}/500</div>
             </div>
 
-            {/* Gift type (2×2) */}
             <div className="space-y-2">
               <Label>Gift type</Label>
               <div role="radiogroup" className="grid grid-cols-2 gap-2">
@@ -186,7 +182,6 @@ export function EditGiftDialog({
               </div>
             </div>
 
-            {/* Thank-you status */}
             <div className="space-y-2">
               <Label htmlFor="thank_you_sent">Thank-you status</Label>
               <div className="grid grid-cols-2 gap-2">
@@ -239,4 +234,3 @@ export function EditGiftDialog({
     </Dialog>
   );
 }
-

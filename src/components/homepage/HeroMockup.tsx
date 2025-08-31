@@ -14,7 +14,7 @@ const cardVariants: Variants = {
 }
 
 type CardCfg = {
-  id: "giftlist" | "reminders" | "dashboard"
+  id: "add-gift" | "compose" | "gift-hub"
   url: string
   img: string
   alt: string
@@ -71,7 +71,7 @@ function CardItem({
   let targetScale = 1
 
   if (isActive) {
-    if (cfg.id === "dashboard") {
+    if (cfg.id === "gift-hub") {
       // Hovering the center: keep it large but give a tiny lift/scale for feedback
       targetScale = 1.03
     } else {
@@ -82,7 +82,7 @@ function CardItem({
           : FALLBACK_SIDE_TO_CENTER
       targetScale = ratio
     }
-  } else if (cfg.id === "dashboard" && hovered && hovered !== "dashboard") {
+  } else if (cfg.id === "gift-hub" && hovered && hovered !== "gift-hub") {
     // Center shrinks to hovered side's original size
     const ratio =
       centerWidth && hoveredWidth
@@ -141,30 +141,30 @@ export default function HeroMockup({}: HeroMockupProps) {
 
   const cards: CardCfg[] = [
     {
-      id: "giftlist",
-      url: "thankaroo.app/Giftlist",
-      img: "Giftlist.png",
-      alt: "Giftlist",
+      id: "add-gift",
+      url: "thankaroo.app/giftlist",
+      img: "AddGift.png",
+      alt: "Add Gift",
       baseClass: "absolute left-0 top-12 sm:top-20 w-[78%] sm:w-[800px] h-auto",
       baseRotate: -6,
       baseZ: 10,
       enterDelay: 0.08,
     },
     {
-      id: "reminders",
-      url: "thankaroo.app/reminders",
-      img: "Reminders.png",
-      alt: "Reminders",
+      id: "compose",
+      url: "thankaroo.app/giftlist",
+      img: "ComposeLetter.png",
+      alt: "Compose Thank‑You",
       baseClass: "absolute right-0 top-16 sm:top-24 w-[78%] sm:w-[800px] h-auto",
       baseRotate: 6,
       baseZ: 10,
       enterDelay: 0.14,
     },
     {
-      id: "dashboard",
-      url: "thankaroo.app/dashboard",
-      img: "Dashboard.png",
-      alt: "Dashboard",
+      id: "gift-hub",
+      url: "thankaroo.app/giftlist",
+      img: "GiftHub.png",
+      alt: "Gift Hub",
       baseClass:
         "absolute left-1/2 top-0 -translate-x-1/2 w-[98%] sm:w-[960px] h-auto",
       baseRotate: 0,
@@ -173,7 +173,7 @@ export default function HeroMockup({}: HeroMockupProps) {
     },
   ]
 
-  const centerWidth = widths["dashboard"]
+  const centerWidth = widths["gift-hub"]
   const hoveredWidth = hovered ? widths[hovered] : undefined
 
   return (

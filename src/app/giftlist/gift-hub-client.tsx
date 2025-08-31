@@ -7,37 +7,23 @@ import Papa from "papaparse";
 
 import { Button } from "@/components/ui/button";
 import { QuotaBanner, useBillingSummary } from "@/components/QuotaBanner";
-import { GiftList } from "./components/GiftList";
-import { GiftListControls } from "./components/GiftListControls";
+import { GiftList } from "@/components/giftlist/GiftList";
+import { GiftListControls } from "@/components/giftlist/GiftListControls";
 import { ReminderSettingsDialog } from "@/components/ReminderSettingsDialog";
 import { AddReminderDialog } from "@/components/AddReminderDialog";
-import { ThankYouComposerDialog } from "./components/ThankYouComposerDialog";
-import { EditGiftDialog } from "./components/EditGiftDialog";
-import { AddGiftDialog } from "./components/AddGiftDialog";
-import { DeleteGiftDialog } from "./components/DeleteGiftDialog";
+import { ThankYouComposerDialog } from "@/components/giftlist/ThankYouComposerDialog";
+import { EditGiftDialog } from "@/components/giftlist/EditGiftDialog";
+import { AddGiftDialog } from "@/components/giftlist/AddGiftDialog";
+import { DeleteGiftDialog } from "@/components/giftlist/DeleteGiftDialog";
 import type { Note } from "@/components/thankyous/types";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { CompletionCard } from "@/components/giftlist/CompletionCard";
+import { KpiCard } from "@/components/giftlist/KpiCard";
+import type { UIGift, ImportGiftItem } from "@/components/giftlist/types";
 
-export type UIGift = {
-  id: string;
-  guestName: string;
-  description: string;
-  type: "non registry" | "monetary" | "registry" | "multiple";
-  date: string; // YYYY-MM-DD
-  thankYouSent: boolean;
-};
+export type { UIGift, ImportGiftItem };
 
 type List = { id: string; name: string };
-
-export type ImportGiftItem = {
-  guestName: string;
-  description: string;
-  type: UIGift["type"];
-  date: string; // YYYY-MM-DD
-  thankYouSent: boolean;
-};
 
 export default function GiftHubClient({
   listId,
@@ -76,7 +62,6 @@ export default function GiftHubClient({
   const [deleteGift, setDeleteGift] = React.useState<UIGift | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
 
-  // Build note status map per gift (none | draft | sent)
   const noteStatusMap = React.useMemo(() => {
     const m = new Map<string, "none" | "draft" | "sent">();
     for (const g of gifts) m.set(g.id, "none");
@@ -140,7 +125,6 @@ export default function GiftHubClient({
     setIsDeleteDialogOpen(true);
   };
 
-  // -------- Derived stats --------
   const stats = React.useMemo(() => {
     const total = gifts.length;
     const thanked = gifts.filter((g) => g.thankYouSent).length;
@@ -149,7 +133,6 @@ export default function GiftHubClient({
     return { total, thanked, pending, progress };
   }, [gifts]);
 
-  // -------- Import/Export (callbacks passed to controls) --------
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [busy, startTransition] = React.useTransition();
 
@@ -188,7 +171,6 @@ export default function GiftHubClient({
       },
     });
 
-    // allow same-file re-upload
     e.target.value = "";
   };
 
@@ -217,7 +199,6 @@ export default function GiftHubClient({
       <div className="space-y-6">
         {billing ? <QuotaBanner context="lists" /> : null}
 
-        {/* Dashboard – unchanged */}
         <section aria-labelledby="dashboard-overview">
           <div>
             <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -241,37 +222,20 @@ export default function GiftHubClient({
                 </Link>
               </div>
             </div>
-   <div className="mb-6 rounded-3xl border border-gray-200 bg-white p-6 md:p-7 shadow-sm">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="text-xl font-bold text-[#2d2d2d]">Thank‑You Completion</span>
-                <span className="inline-flex items-center rounded-full border border-[#A8E6CF] bg-[#A8E6CF]/20 px-2.5 py-1 text-xs font-medium text-[#2f9c79]">
-                  {stats.thanked} of {stats.total}
-                </span>
-              </div>
-              <div className="relative">
-                <Progress
-                  value={stats.progress}
-                  className="h-4 bg-[#A8E6CF]/40 [&>div]:bg-[linear-gradient(to_right,#2f9c79,#3EB489)] [&>div]:shadow-sm"
-                  aria-label="Overall thank you progress"
-                />
-                <div className="mt-2 text-xs text-[#2d2d2d]/70">{stats.progress}% completed</div>
-              </div>
+            <div className="mb-6">
+              <CompletionCard thanked={stats.thanked} total={stats.total} progress={stats.progress} />
             </div>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
               <KpiCard label="TOTAL" value={stats.total} badge="All time" />
               <KpiCard label="THANKED" value={stats.thanked} badge="Completed" badgeTone="success" />
               <KpiCard label="PENDING" value={stats.pending} badge="Action" badgeTone="warn" />
             </div>
-
-         
           </div>
         </section>
 
-        {/* ===== Manage – controls (Import/Export are inside GiftListControls) ===== */}
         <section aria-labelledby="manage-gifts">
           <h2 id="manage-gifts" className="sr-only">Manage gifts</h2>
           <div className="rounded-3xl border border-gray-200 bg-[#fefefe] p-4 sm:p-6 md:p-8">
-            {/* Hidden file input for Import */}
             <input
               ref={fileInputRef}
               type="file"
@@ -302,15 +266,13 @@ export default function GiftHubClient({
             />
           </div>
 
-          {/* Gift table */}
           <div className="mt-4">
             <GiftList
               gifts={sorted}
               noteStatusMap={noteStatusMap}
               onEditGift={openEditGift}
-              onAddGift={() => {
-                /* handled via controls */
-              }}
+              onAddGift={() => {}
+              }
               onRemindGift={openGiftReminder}
               onComposeThankYou={openComposer}
               onDeleteGift={openDeleteGift}
@@ -319,7 +281,6 @@ export default function GiftHubClient({
         </section>
       </div>
 
-      {/* Reminders */}
       <ReminderSettingsDialog
         isOpen={isListReminderOpen}
         setIsOpen={setIsListReminderOpen}
@@ -332,7 +293,6 @@ export default function GiftHubClient({
         initialGiftId={reminderGift ? reminderGift.id : undefined}
       />
 
-      {/* Unified inline composer */}
       {composerGift ? (
         <ThankYouComposerDialog
           isOpen={isComposerOpen}
@@ -343,7 +303,6 @@ export default function GiftHubClient({
         />
       ) : null}
 
-      {/* Edit Gift Dialog */}
       {editGift ? (
         <EditGiftDialog
           listId={listId}
@@ -353,14 +312,12 @@ export default function GiftHubClient({
         />
       ) : null}
 
-      {/* Add Gift Dialog */}
       <AddGiftDialog
         listId={listId}
         isOpen={isAddGiftOpen}
         setIsOpen={setIsAddGiftOpen}
       />
 
-      {/* Delete Gift Dialog */}
       {deleteGift ? (
         <DeleteGiftDialog
           listId={listId}
@@ -370,43 +327,5 @@ export default function GiftHubClient({
         />
       ) : null}
     </>
-  );
-}
-
-// -----------------------
-function KpiCard({
-  label,
-  value,
-  badge,
-  badgeTone,
-}: {
-  label: string;
-  value: number | string;
-  badge?: string;
-  badgeTone?: "success" | "warn" | "neutral";
-}) {
-  const badgeClass =
-    badgeTone === "success"
-      ? "border-[#3EB489]/40 bg-[#3EB489]/10 text-[#2f9c79]"
-      : badgeTone === "warn"
-      ? "border-amber-300/60 bg-amber-100/40 text-amber-800"
-      : "border-gray-200 bg-gray-50 text-gray-600";
-
-  return (
-    <Card className="rounded-2xl">
-      <CardContent className="p-6 md:p-7">
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="text-xs uppercase tracking-wide text-gray-500">{label}</div>
-            <div className="mt-1 text-4xl md:text-5xl font-semibold leading-none text-[#2d2d2d]">
-              {value}
-            </div>
-          </div>
-          {badge ? (
-            <div className={`rounded-full border px-3 py-1 text-xs ${badgeClass}`}>{badge}</div>
-          ) : null}
-        </div>
-      </CardContent>
-    </Card>
   );
 }

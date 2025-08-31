@@ -1,11 +1,11 @@
 "use client"
 
-import HeroSection from "@/components/HeroSection"
-import FeaturesSection from "@/components/FeaturesSection"
-import HowItWorksSection from "@/components/HowItWorksSection"
+import HeroSection from "@/components/homepage/HeroSection"
+import FeaturesSection from "@/components/homepage/FeaturesSection"
+import HowItWorksSection from "@/components/homepage/HowItWorksSection"
 // import PrivacySection from "@/components/PrivacySection"
-import FAQSection from "@/components/FAQSection"
-import CallToActionSection from "@/components/CallToActionSection"
+import FAQSection from "@/components/homepage/FAQSection"
+import CallToActionSection from "@/components/homepage/CallToActionSection"
 
 export default function Home() {
   return (

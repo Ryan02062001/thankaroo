@@ -7,7 +7,6 @@ import {
   Heart,
   Sparkles,
   Clock,
-  Play,
 } from "lucide-react"
 import {
   motion,
@@ -187,19 +186,7 @@ export default function HeroSection() {
                 </motion.div>
               </Link>
 
-              <div className="w-full sm:w-1/2">
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="h-12 px-6 border-[#A8E6CF] text-[#2f9c79] hover:bg-[#E0FFF4] hover:border-[#2f9c79] w-full"
-                    aria-label="Watch a 2-minute demo"
-                  >
-                    <Play className="mr-2 h-5 w-5" />
-                    Watch 2-min Demo
-                  </Button>
-                </motion.div>
-              </div>
+             
             </div>
             <p className="text-sm text-gray-500">100% free trial. No credit card required.</p>
           </motion.div>

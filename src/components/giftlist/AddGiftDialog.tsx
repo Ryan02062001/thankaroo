@@ -116,7 +116,7 @@ export function AddGiftDialog({
 
         <div className="p-5 sm:p-6">
           <DialogHeader className="space-y-2">
-           
+            
             <DialogTitle className="text-2xl font-bold text-[#1f2937]">Add New Gift</DialogTitle>
             <DialogDescription className="text-gray-600">
               Capture the essentials now—you can refine later.
@@ -128,7 +128,6 @@ export function AddGiftDialog({
             <input type="hidden" name="redirect_to" value={pathname} />
             <input type="hidden" name="gift_type" value={type} />
 
-            {/* Guest */}
             <div className="space-y-2">
               <Label htmlFor="guest_name">Guest name</Label>
               <Input
@@ -148,7 +147,6 @@ export function AddGiftDialog({
               )}
             </div>
 
-            {/* Date received */}
             <div className="space-y-2">
               <Label htmlFor="date_received" className="text-sm">Date received</Label>
               <div className="relative">
@@ -165,7 +163,6 @@ export function AddGiftDialog({
               </div>
             </div>
 
-            {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="description">Gift description</Label>
               <Textarea
@@ -189,7 +186,6 @@ export function AddGiftDialog({
               )}
             </div>
 
-            {/* Gift type (2×2) */}
             <div className="space-y-2">
               <Label>Gift type</Label>
               <div role="radiogroup" className="grid grid-cols-2 gap-2">

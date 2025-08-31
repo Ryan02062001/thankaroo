@@ -1,84 +1,12 @@
 "use client"
 
-import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { CheckCircle, Sparkles, Heart, Gift, Calendar } from "lucide-react"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Sparkles, Heart, Gift, Calendar } from "lucide-react"
 import { Suspense, useEffect } from "react"
-
-type Plan = {
-  name: string
-  tagline: string
-  price: string
-  priceNote?: string
-  ctaLabel: string
-  ctaHref: string
-  mostPopular?: boolean
-  oneTime?: boolean
-  features: string[]
-  ctaOnClick?: () => void
-}
-
-function PlanCard(p: Plan) {
-  return (
-    <Card
-      className={[
-        "flex flex-col rounded-3xl border-2 text-gray-900 bg-white shadow-xl",
-        "w-full min-w-[16rem] sm:min-w-[20rem] max-w-[25rem]",
-        p.mostPopular ? "border-emerald-400/60 ring-emerald-400/40" : "border-gray-200",
-      ].join(" ")}
-    >
-      <CardHeader className="pt-6 pb-4 px-6 sm:pt-8 sm:pb-6 sm:px-8">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <CardTitle className="text-xl sm:text-2xl text-gray-900">{p.name}</CardTitle>
-            <CardDescription className="mt-1 text-gray-600">{p.tagline}</CardDescription>
-          </div>
-          {p.mostPopular && (
-            <Badge className="bg-[#E0FFF4] text-[#2f9c79] border border-[#A8E6CF] px-2 py-1 text-xs sm:text-sm whitespace-nowrap">
-              Most popular
-            </Badge>
-          )}
-        </div>
-        <div className="mt-4 flex flex-wrap items-end gap-2">
-          <div className="text-4xl sm:text-5xl font-bold text-gray-900">{p.price}</div>
-          {p.priceNote && <div className="text-sm text-gray-500">{p.priceNote}</div>}
-          {p.oneTime && (
-            <div className="ml-0 sm:ml-2 text-xs rounded bg-gray-100 px-2 py-1 text-gray-600">One-time</div>
-          )}
-        </div>
-      </CardHeader>
-
-      <CardContent className="px-6 pb-4 sm:px-8 sm:pb-6">
-        <ul className="space-y-2">
-          {p.features.map((f, i) => (
-            <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-              <CheckCircle className="mt-0.5 h-4 w-4 text-[#3EB489] shrink-0" />
-              <span className="leading-snug">{f}</span>
-            </li>
-          ))}
-        </ul>
-      </CardContent>
-
-      <CardFooter className="mt-auto px-6 pb-6 sm:px-8">
-        {p.ctaOnClick ? (
-          <Button size="lg" className="w-full h-12 bg-[#3EB489] hover:bg-[#2d9970] text-white" onClick={p.ctaOnClick}>
-            {p.ctaLabel}
-          </Button>
-        ) : (
-          <Link href={p.ctaHref} className="w-full">
-            <Button size="lg" className="w-full h-12 bg-[#3EB489] hover:bg-[#2d9970] text-white">
-              {p.ctaLabel}
-            </Button>
-          </Link>
-        )}
-      </CardFooter>
-    </Card>
-  )
-}
+import PricingTabs from "@/components/pricing/PricingTabs"
+import HighlightsGrid from "@/components/pricing/HighlightsGrid"
+import BillingStatusBanner from "@/components/pricing/BillingStatusBanner"
+import type { Plan } from "@/components/pricing/PlanCard"
 
 function PricingContent() {
   const searchParams = useSearchParams()
@@ -192,22 +120,7 @@ function PricingContent() {
           </div>
 
           <div className="container relative mx-auto px-4 py-12 sm:py-16 md:py-20">
-            {success && (
-              <div className="mx-auto mb-6 max-w-2xl rounded-md border border-[#A8E6CF]/60 bg-[#E0FFF4] p-4 text-[#2f9c79]">
-                Subscription successful!
-                {sessionId && (
-                  <form method="POST" action="/api/stripe/create-portal-session" className="mt-3">
-                    <input type="hidden" name="session_id" value={sessionId} />
-                    <Button className="bg-[#3EB489] hover:bg-[#2d9970] text-white">Manage your billing</Button>
-                  </form>
-                )}
-              </div>
-            )}
-            {canceled && (
-              <div className="mx-auto mb-6 max-w-2xl rounded-md border border-red-200 bg-red-50 p-4 text-red-700">
-                Checkout canceled — you can try again anytime.
-              </div>
-            )}
+            <BillingStatusBanner success={success} canceled={canceled} sessionId={sessionId} />
 
             <div className="mx-auto text-center space-y-5">
               <div className="inline-flex items-center gap-2 rounded-full bg-[#E0FFF4] px-3 py-1.5 sm:px-4 sm:py-2 text-sm text-[#2f9c79] border border-[#A8E6CF]/60">
@@ -238,56 +151,10 @@ function PricingContent() {
             </div>
 
             <div className="mx-auto mt-8 sm:mt-10 lg:w-10/12 w-full">
-              {/* Tabs changed to Pay once / Subscribe */}
-              <Tabs defaultValue="pay-once" className="w-full">
-                <TabsList className="mx-auto w-full max-w-[420px] rounded-full bg-white text-[#2f9c79] border border-[#A8E6CF]/60 p-1 flex">
-                  <TabsTrigger
-                    value="pay-once"
-                    className="flex-1 rounded-full px-4 py-1.5 text-gray-700 data-[state=active]:bg-[#E0FFF4] data-[state=active]:text-[#2f9c79]"
-                  >
-                    Pay once
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="subscribe"
-                    className="flex-1 rounded-full px-4 py-1.5 text-gray-700 data-[state=active]:bg-[#E0FFF4] data-[state=active]:text-[#2f9c79]"
-                  >
-                    Subscribe
-                  </TabsTrigger>
-                </TabsList>
-
-                {/* Pay once tab */}
-                <TabsContent value="pay-once" className="mt-6 sm:mt-8">
-                  <div className="mx-auto justify-items-center grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                    <PlanCard {...free} />
-                    <PlanCard {...weddingPass} />
-                  </div>
-                </TabsContent>
-
-                {/* Subscribe tab */}
-                <TabsContent value="subscribe" className="mt-6 sm:mt-8">
-                  <div className="mx-auto justify-items-center grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                    <PlanCard {...free} />
-                    <PlanCard {...proMonthly} />
-                    <PlanCard {...proAnnual} />
-                  </div>
-                </TabsContent>
-              </Tabs>
+              <PricingTabs free={free} weddingPass={weddingPass} proMonthly={proMonthly} proAnnual={proAnnual} />
             </div>
 
-            <div className="mx-auto mt-8 sm:mt-10 grid max-w-5xl grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-sm text-gray-700">
-              <div className="rounded-lg border border-[#A8E6CF]/60 bg-white p-4">
-                <div className="font-semibold text-gray-900">No credit card</div>
-                Try it first, upgrade later.
-              </div>
-              <div className="rounded-lg border border-[#A8E6CF]/60 bg-white p-4">
-                <div className="font-semibold text-gray-900">3‑month minimum (Monthly)</div>
-                Cancel anytime after the minimum.
-              </div>
-              <div className="rounded-lg border border-[#A8E6CF]/60 bg-white p-4">
-                <div className="font-semibold text-gray-900">Wedding Pass covers 12 months</div>
-                Automations run for a full year.
-              </div>
-            </div>
+            <HighlightsGrid />
           </div>
         </section>
       </section>

@@ -12,18 +12,10 @@ import { GiftContextCard } from "@/components/thankyous/GiftContextCard";
 import { appendMeta, buildMailtoUrl, buildSmsUrl } from "@/components/thankyous/utils";
 import type { Channel, Relationship, Tone } from "@/app/contexts/ReminderContext";
 import type { Note } from "@/components/thankyous/types";
+import type { UIGift } from "@/components/giftlist/types";
 import { generateDraft } from "@/lib/draft-templates";
 import { generateThankYouDraft } from "@/app/actions/ai";
 import { saveThankYouDraftAction, sendThankYouNoteAction } from "@/app/actions/thankyous";
-
-export type UIGift = {
-  id: string;
-  guestName: string;
-  description: string;
-  type: "non registry" | "monetary" | "registry" | "multiple";
-  date: string; // YYYY-MM-DD
-  thankYouSent: boolean;
-};
 
 export function ThankYouComposerDialog({
   isOpen,
@@ -36,12 +28,11 @@ export function ThankYouComposerDialog({
   onOpenChange: (v: boolean) => void;
   listId: string;
   gift: UIGift;
-  notes: Note[]; // existing notes for this gift
+  notes: Note[];
 }) {
   const router = useRouter();
   const { data: billing } = useBillingSummary();
 
-  // ——— Toolbar state
   const [channel, setChannel] = React.useState<Channel>("email");
   const [relationship, setRelationship] = React.useState<Relationship>("friend");
   const [tone, setTone] = React.useState<Tone>("warm");
@@ -56,7 +47,6 @@ export function ThankYouComposerDialog({
   const [copied, setCopied] = React.useState(false);
   const [saved, setSaved] = React.useState(false);
 
-  // Find existing note (if any) for the selected channel
   const currentPersistedNote = React.useMemo(() => {
     return notes.find((n) => n.channel === channel) ?? null;
   }, [notes, channel]);

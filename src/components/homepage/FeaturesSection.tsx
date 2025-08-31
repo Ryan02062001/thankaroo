@@ -11,7 +11,6 @@ import {
   Calendar,
   Heart,
   Users,
-  Shield,
   CheckCircle,
   ArrowRight,
 } from "lucide-react"
@@ -154,10 +153,10 @@ export default function FeaturesSection() {
       color: "from-[#A8E6CF] to-[#E0FFF4]",
     },
     {
-      icon: Shield,
-      title: "Privacy you can trust",
-      description: "Your memories stay private on a secure, privacy-first platform.",
-      bullets: ["You control sharing", "Secure by default", "No surprises"],
+      icon: Calendar,
+      title: "Calendar export (.ics)",
+      description: "Send upcoming reminders straight to your calendar.",
+      bullets: ["Export due dates", "Works with Google/Apple/Outlook", "One‑click download"],
       color: "from-[#E0FFF4] to-[#3EB489]",
     },
   ]

@@ -10,7 +10,7 @@ import {
   Edit,
 } from "lucide-react";
 import { toggleThankYou } from "@/app/actions/gifts";
-import type { UIGift } from "../gift-hub-client";
+import type { UIGift } from "@/components/giftlist/types";
 import { usePathname } from "next/navigation";
 
 export function GiftCard({
@@ -59,10 +59,8 @@ export function GiftCard({
     <>
       <Card className="group relative overflow-hidden rounded-2xl border bg-tr border-gray-100 bg-white transition-shadow shadow-sm hover:shadow-md min-h-[320px] w-full">
         <article aria-labelledby={`gift-${gift.id}-title`}>
-          {/* left status rail */}
           <div className={`absolute inset-y-0 left-0 w-1 ${gift.thankYouSent ? "bg-[#A8E6CF]" : "bg-gray-200"}`} />
         <CardContent className="flex h-full flex-col p-5">
-          {/* Header */}
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <h3 id={`gift-${gift.id}-title`} className="font-bold text-[#1a1a1a] text-2xl leading-snug break-words">
@@ -74,7 +72,6 @@ export function GiftCard({
               </div>
             </div>
 
-            {/* Delete button */}
             <Button
               type="button"
               variant="ghost"
@@ -87,7 +84,6 @@ export function GiftCard({
             </Button>
           </div>
 
-          {/* Tags row */}
           <div className="mt-3">
             <div className="flex items-center gap-2 flex-wrap">
               <Badge variant="outline" className={`border ${meta.badge}`}>{meta.label}</Badge>
@@ -105,7 +101,6 @@ export function GiftCard({
             </div>
           </div>
 
-          {/* Description */}
           <div className="mt-3">
             <div className="rounded-lg border border-gray-100 bg-white p-4">
               <p className="text-gray-700 text-[15px] leading-6 break-words hyphens-auto">
@@ -114,9 +109,7 @@ export function GiftCard({
             </div>
           </div>
 
-          {/* Actions */}
           <div className="mt-4">
-            {/* Responsive action layout */}
             <div className="w-full max-w-[520px] mx-auto">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
                 <Button
@@ -160,7 +153,6 @@ export function GiftCard({
               </div>
             </div>
 
-            {/* Mark-as-Thanked */}
             <form action={toggleThankYou} className="mt-3">
               <input type="hidden" name="id" value={gift.id} />
               <input type="hidden" name="next" value={pathname} />

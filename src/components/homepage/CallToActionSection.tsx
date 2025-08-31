@@ -1,4 +1,4 @@
-import { ArrowRight, Heart, Play, Sparkles, Star, ShieldCheck } from "lucide-react"
+import { ArrowRight, Heart, Sparkles, Star, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
@@ -45,15 +45,7 @@ export default function FinalCTASection() {
                   </Button>
                 </Link>
 
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-12 px-6 border-[#A8E6CF] text-[#2f9c79] hover:bg-[#E0FFF4] hover:border-[#2f9c79] w-full sm:w-auto"
-                  aria-label="See how it works"
-                >
-                  <Play className="mr-2 h-5 w-5" />
-                  See how it works
-                </Button>
+              
               </div>
 
               <div className="mt-4 text-xs text-gray-500">

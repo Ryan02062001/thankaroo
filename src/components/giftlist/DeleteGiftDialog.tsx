@@ -31,8 +31,6 @@ export function DeleteGiftDialog({
     formData.append("id", gift.id);
     formData.append("list_id", listId);
     formData.append("next", pathname);
-    
-    // Call the delete action
     await deleteGift(formData);
     setIsOpen(false);
   };

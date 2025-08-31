@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Gift as GiftIcon, Plus } from "lucide-react";
-import type { UIGift } from "../gift-hub-client";
+import type { UIGift } from "@/components/giftlist/types";
 import { GiftCard } from "./GiftCard";
 
 export function GiftList({
