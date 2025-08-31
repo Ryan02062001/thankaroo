@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/dashboard";
+  const next = searchParams.get("next") ?? "/giftlist";
 
   // Prepare to capture cookies and then apply to final redirect response
   const pendingCookies: { name: string; value: string; options: CookieOptions }[] = [];

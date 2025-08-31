@@ -15,7 +15,7 @@ export function getSiteUrl() {
 
 // Prevent open redirect: only allow in-app paths that start with a single "/"
 export function safeNextPath(next?: string | null) {
-  if (!next || typeof next !== "string") return "/dashboard";
-  if (!next.startsWith("/") || next.startsWith("//")) return "/dashboard";
+  if (!next || typeof next !== "string") return "/giftlist";
+  if (!next.startsWith("/") || next.startsWith("//")) return "/giftlist";
   return next;
 }
