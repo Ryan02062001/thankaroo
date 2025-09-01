@@ -15,7 +15,7 @@ import type { Note } from "@/components/thankyous/types";
 import type { UIGift } from "@/components/giftlist/types";
 import { generateDraft } from "@/lib/draft-templates";
 import { generateThankYouDraft } from "@/app/actions/ai";
-import { saveThankYouDraftAction, sendThankYouNoteAction, saveThankYouDraftDirect, sendThankYouNoteDirect, type UINote } from "@/app/actions/thankyous";
+import { saveThankYouDraftDirect, sendThankYouNoteDirect, type UINote } from "@/app/actions/thankyous";
 
 export function ThankYouComposerDialog({
   isOpen,
