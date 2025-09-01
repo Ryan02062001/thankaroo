@@ -53,7 +53,7 @@ export default function HeaderNav({ isAuthed }: Props) {
 
   // Close the mobile sheet when the route changes
   React.useEffect(() => {
-    if (mobileOpen) setMobileOpen(false);
+    setMobileOpen(false);
   }, [pathname]);
 
   // Read last selected list id from cookie on mount (client only)
