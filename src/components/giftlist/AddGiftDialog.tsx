@@ -5,42 +5,34 @@ import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
   DialogFooter, DialogTrigger,
 } from "@/components/ui/dialog";
-import { createGift } from "@/app/actions/gifts";
+import { createGiftDirect } from "@/app/actions/gifts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { usePathname } from "next/navigation";
+// import { usePathname } from "next/navigation";
 import {
   Gift as GiftIcon, DollarSign, Package, Boxes,
   CalendarDays
 } from "lucide-react";
-import { useFormStatus } from "react-dom";
+// import { useFormStatus } from "react-dom";
 
 type GiftType = "non registry" | "monetary" | "registry" | "multiple";
 
-function SubmitButton({ disabled, className }: { disabled?: boolean; className?: string }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button
-      disabled={disabled || pending}
-      className={`bg-[#A8E6CF] text-[#1f2937] hover:bg-[#98CFBA] disabled:opacity-60 disabled:cursor-not-allowed ${className || ""}`}
-    >
-      {pending ? "Adding…" : "Add Gift"}
-    </Button>
-  );
-}
+// removed unused SubmitButton
 
 export function AddGiftDialog({
   listId,
   isOpen,
   setIsOpen,
+  onCreated,
 }: {
   listId: string;
   isOpen: boolean;
   setIsOpen: (v: boolean) => void;
+  onCreated: (gift: { id: string; guestName: string; description: string; type: GiftType; date: string; thankYouSent: boolean }) => void;
 }) {
-  const pathname = usePathname();
+  // const pathname = usePathname();
 
   const [guest, setGuest] = React.useState("");
   const [desc, setDesc] = React.useState("");
@@ -58,8 +50,39 @@ export function AddGiftDialog({
     return Object.keys(next).length === 0;
   }, [guest, desc]);
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    if (!validate()) e.preventDefault();
+  const [submitting, setSubmitting] = React.useState(false);
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!validate() || submitting) return;
+    setSubmitting(true);
+    try {
+      const newGift = await createGiftDirect({
+        listId,
+        guestName: guest.trim(),
+        description: desc.trim(),
+        giftType: type,
+        dateReceived: date,
+      });
+      onCreated({
+        id: newGift.id,
+        guestName: newGift.guestName,
+        description: newGift.description,
+        type: newGift.type,
+        date: newGift.date,
+        thankYouSent: newGift.thankYouSent,
+      });
+      setIsOpen(false);
+      setGuest("");
+      setDesc("");
+      setType("non registry");
+      setDate(new Date().toISOString().slice(0, 10));
+      setErrors({});
+    } catch {
+      // swallow error; validation toast could be added
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const TypeTile = ({
@@ -82,6 +105,7 @@ export function AddGiftDialog({
         aria-checked={active}
         className={[
           "flex items-center gap-2 rounded-xl border p-3 text-left transition-all",
+          "w-full min-h-[88px] h-full", // equal, comfortable tap targets on mobile
           "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A8E6CF] focus-visible:ring-offset-2",
           active
             ? "border-[#A8E6CF] bg-[#A8E6CF]/10 shadow-sm"
@@ -90,7 +114,7 @@ export function AddGiftDialog({
       >
         <span
           className={[
-            "inline-flex h-8 w-8 items-center justify-center rounded-lg",
+            "hidden sm:inline-flex h-8 w-8 items-center justify-center rounded-lg",
             active ? "bg-[#A8E6CF]/30" : "bg-gray-50",
           ].join(" ")}
           aria-hidden
@@ -123,10 +147,7 @@ export function AddGiftDialog({
             </DialogDescription>
           </DialogHeader>
 
-          <form action={createGift} onSubmit={onSubmit} className="mt-4 space-y-5">
-            <input type="hidden" name="list_id" value={listId} />
-            <input type="hidden" name="redirect_to" value={pathname} />
-            <input type="hidden" name="gift_type" value={type} />
+          <form onSubmit={onSubmit} className="mt-4 space-y-5">
 
             <div className="space-y-2">
               <Label htmlFor="guest_name">Guest name</Label>
@@ -206,10 +227,13 @@ export function AddGiftDialog({
                 >
                   Cancel
                 </Button>
-                <SubmitButton
-                  disabled={!guest.trim() || !desc.trim()}
-                  className="flex-1"
-                />
+                <Button
+                  type="submit"
+                  disabled={!guest.trim() || !desc.trim() || submitting}
+                  className="flex-1 bg-[#A8E6CF] text-[#1f2937] hover:bg-[#98CFBA] disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {submitting ? "Adding…" : "Add Gift"}
+                </Button>
               </div>
             </DialogFooter>
           </form>

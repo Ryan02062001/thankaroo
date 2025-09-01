@@ -5,7 +5,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
   DialogFooter, DialogTrigger,
 } from "@/components/ui/dialog";
-import { updateGift } from "@/app/actions/gifts";
+import { updateGiftDirect } from "@/app/actions/gifts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,31 +16,22 @@ import {
   CalendarDays, BadgeCheck
 } from "lucide-react";
 import type { UIGift } from "@/components/giftlist/types";
-import { useFormStatus } from "react-dom";
+// import { useFormStatus } from "react-dom";
 
-function SubmitButton({ disabled, className }: { disabled?: boolean; className?: string }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button
-      type="submit"
-      disabled={disabled || pending}
-      className={`bg-[#A8E6CF] text-[#1f2937] hover:bg-[#98CFBA] disabled:opacity-60 disabled:cursor-not-allowed ${className || ""}`}
-    >
-      {pending ? "Saving…" : "Save Changes"}
-    </Button>
-  );
-}
+// removed unused SubmitButton
 
 export function EditGiftDialog({
   listId,
   gift,
   isOpen,
   setIsOpen,
+  onUpdated,
 }: {
   listId: string;
   gift: UIGift;
   isOpen: boolean;
   setIsOpen: (v: boolean) => void;
+  onUpdated: (gift: UIGift) => void;
 }) {
   const pathname = usePathname();
   const [guest, setGuest] = React.useState(gift.guestName);
@@ -70,6 +61,7 @@ export function EditGiftDialog({
         aria-checked={active}
         className={[
           "flex items-center gap-2 rounded-xl border p-3 text-left transition-all",
+          "w-full min-h-[88px] h-full", // equal, comfortable tap targets on mobile
           "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A8E6CF] focus-visible:ring-offset-2",
           active
             ? "border-[#A8E6CF] bg-[#A8E6CF]/10 shadow-sm"
@@ -78,14 +70,25 @@ export function EditGiftDialog({
       >
         <span
           className={[
-            "inline-flex h-8 w-8 items-center justify-center rounded-lg",
+            "hidden sm:inline-flex h-8 w-8 items-center justify-center rounded-lg",
             active ? "bg-[#A8E6CF]/30" : "bg-gray-50",
           ].join(" ")}
           aria-hidden
         >
           <Icon className="h-4 w-4 text-gray-700" />
         </span>
-        <span className="font-medium text-gray-900">{label}</span>
+        <span className="flex-1 min-w-0">
+          <span className="block font-medium text-gray-900">{label}</span>
+          {value === "non registry" ? (
+            <span className="block text-xs text-gray-500">Not from the registry</span>
+          ) : value === "monetary" ? (
+            <span className="block text-xs text-gray-500">Cash, check, gift card</span>
+          ) : value === "registry" ? (
+            <span className="block text-xs text-gray-500">From your registry</span>
+          ) : (
+            <span className="block text-xs text-gray-500">Group of items</span>
+          )}
+        </span>
       </button>
     );
   };
@@ -116,14 +119,26 @@ export function EditGiftDialog({
           </DialogHeader>
 
           <form
-            action={updateGift}
             className="mt-4 space-y-5"
-            onSubmit={(e) => {
-              if (isSubmitting) {
-                e.preventDefault();
-                return;
-              }
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (isSubmitting) return;
               setIsSubmitting(true);
+              try {
+                const updated = await updateGiftDirect({
+                  id: gift.id,
+                  guestName: guest.trim(),
+                  description: desc.trim(),
+                  giftType: type,
+                  dateReceived: date,
+                  thankYouSent: thank,
+                });
+                onUpdated(updated as UIGift);
+                setIsOpen(false);
+              } catch {
+              } finally {
+                setIsSubmitting(false);
+              }
             }}
           >
             <input type="hidden" name="id" value={gift.id} />
@@ -222,10 +237,13 @@ export function EditGiftDialog({
                 >
                   Cancel
                 </Button>
-                <SubmitButton
+                <Button
+                  type="submit"
                   disabled={!guest.trim() || !desc.trim() || isSubmitting}
-                  className="flex-1"
-                />
+                  className="flex-1 bg-[#A8E6CF] text-[#1f2937] hover:bg-[#98CFBA] disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? "Saving…" : "Save Changes"}
+                </Button>
               </div>
             </DialogFooter>
           </form>

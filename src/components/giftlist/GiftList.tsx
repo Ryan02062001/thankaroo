@@ -13,6 +13,7 @@ export function GiftList({
   onRemindGift,
   onComposeThankYou,
   onDeleteGift,
+  onToggleThankYou,
 }: {
   gifts: UIGift[];
   noteStatusMap: Map<string, "none" | "draft" | "sent">;
@@ -21,6 +22,7 @@ export function GiftList({
   onRemindGift: (g: UIGift) => void;
   onComposeThankYou: (g: UIGift) => void;
   onDeleteGift: (g: UIGift) => void;
+  onToggleThankYou: (g: UIGift) => void;
 }) {
   return gifts.length > 0 ? (
     <ul className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" role="list">
@@ -33,6 +35,7 @@ export function GiftList({
             onRemind={onRemindGift}
             onCompose={() => onComposeThankYou(gift)}
             onDelete={() => onDeleteGift(gift)}
+            onToggleThankYou={() => onToggleThankYou(gift)}
           />
         </li>
       ))}

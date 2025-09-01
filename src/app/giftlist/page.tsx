@@ -5,7 +5,7 @@ import { requireAuth } from "@/lib/auth";
 import GiftHubClient, { type ImportGiftItem } from "./gift-hub-client";
 import { Button } from "@/components/ui/button";
 import { ListSelector } from "@/components/ui/list-selector";
-import { revalidatePath } from "next/cache";
+import type { UIGift } from "@/components/giftlist/types";
 
 export default async function GiftListPage({
   searchParams,
@@ -95,12 +95,12 @@ export default async function GiftListPage({
     meta: typeof n.meta === "object" && n.meta !== null ? (n.meta as Record<string, unknown>) : null,
   }));
 
-  // -------- Server Action: Import gifts (CSV -> rows) --------
-  const importGiftsAction = async (items: ImportGiftItem[]) => {
+  // -------- Server Action: Import gifts (CSV -> rows) and return inserted UI rows --------
+  const importGiftsAction = async (items: ImportGiftItem[]): Promise<UIGift[]> => {
     "use server";
     const supabase = await createClient();
 
-    if (!Array.isArray(items) || items.length === 0) return;
+    if (!Array.isArray(items) || items.length === 0) return [];
 
     const rows = items.map((it) => ({
       list_id: currentListId,
@@ -111,11 +111,22 @@ export default async function GiftListPage({
       thank_you_sent: it.thankYouSent,
     }));
 
-    const { error } = await supabase.from("gifts").insert(rows);
+    const { data, error } = await supabase
+      .from("gifts")
+      .insert(rows)
+      .select("id, guest_name, description, gift_type, date_received, thank_you_sent")
+      .order("date_received", { ascending: false });
     if (error) throw new Error(error.message);
 
-    // Refresh page data after import
-    revalidatePath(`/giftlist?list=${encodeURIComponent(currentListId)}`);
+    const inserted: UIGift[] = (data ?? []).map((g) => ({
+      id: g.id as string,
+      guestName: g.guest_name as string,
+      description: g.description as string,
+      type: g.gift_type as "non registry" | "monetary" | "registry" | "multiple",
+      date: (g.date_received ?? new Date().toISOString().slice(0, 10)) as string,
+      thankYouSent: Boolean(g.thank_you_sent),
+    }));
+    return inserted;
   };
 
   return (
@@ -128,6 +139,7 @@ export default async function GiftListPage({
         ) : null}
 
         <GiftHubClient
+          key={currentListId}
           listId={currentListId}
           gifts={uiGifts}
           lists={lists ?? []}

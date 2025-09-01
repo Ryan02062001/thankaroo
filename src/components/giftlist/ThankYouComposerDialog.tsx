@@ -15,7 +15,7 @@ import type { Note } from "@/components/thankyous/types";
 import type { UIGift } from "@/components/giftlist/types";
 import { generateDraft } from "@/lib/draft-templates";
 import { generateThankYouDraft } from "@/app/actions/ai";
-import { saveThankYouDraftAction, sendThankYouNoteAction } from "@/app/actions/thankyous";
+import { saveThankYouDraftAction, sendThankYouNoteAction, saveThankYouDraftDirect, sendThankYouNoteDirect, type UINote } from "@/app/actions/thankyous";
 
 export function ThankYouComposerDialog({
   isOpen,
@@ -23,12 +23,16 @@ export function ThankYouComposerDialog({
   listId,
   gift,
   notes,
+  onSaved,
+  onSent,
 }: {
   isOpen: boolean;
   onOpenChange: (v: boolean) => void;
   listId: string;
   gift: UIGift;
   notes: Note[];
+  onSaved: (note: UINote) => void;
+  onSent: (note: UINote) => void;
 }) {
   const router = useRouter();
   // const { data: billing } = useBillingSummary();
@@ -64,20 +68,22 @@ export function ThankYouComposerDialog({
   }, [currentPersistedNote]);
 
   const saveDraft = async () => {
-    const form = new FormData();
-    form.set("note_id", currentPersistedNote?.id ?? "");
-    form.set("list_id", listId);
-    form.set("gift_id", gift.id);
-    form.set("channel", channel);
-    form.set("relationship", relationship);
-    form.set("tone", tone);
-    form.set("content", content);
-    form.set("occasion", occasion);
-    form.set("personal_touch", personalTouch);
-    await saveThankYouDraftAction(form);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 1200);
-    router.refresh();
+    try {
+      const saved = await saveThankYouDraftDirect({
+        id: currentPersistedNote?.id ?? undefined,
+        listId,
+        giftId: gift.id,
+        channel,
+        relationship,
+        tone,
+        content,
+        occasion,
+        personalTouch,
+      });
+      onSaved(saved);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1200);
+    } catch {}
   };
 
   const generateNote = async () => {
@@ -123,19 +129,21 @@ export function ThankYouComposerDialog({
   };
 
   const markSent = async () => {
-    const form = new FormData();
-    form.set("note_id", currentPersistedNote?.id ?? "");
-    form.set("list_id", listId);
-    form.set("gift_id", gift.id);
-    form.set("channel", channel);
-    form.set("relationship", relationship);
-    form.set("tone", tone);
-    form.set("content", content);
-    form.set("occasion", occasion);
-    form.set("personal_touch", personalTouch);
-    await sendThankYouNoteAction(form);
-    router.refresh();
-    onOpenChange(false);
+    try {
+      const { note } = await sendThankYouNoteDirect({
+        id: currentPersistedNote?.id ?? undefined,
+        listId,
+        giftId: gift.id,
+        channel,
+        relationship,
+        tone,
+        content,
+        occasion,
+        personalTouch,
+      });
+      onSent(note);
+      onOpenChange(false);
+    } catch {}
   };
 
   return (

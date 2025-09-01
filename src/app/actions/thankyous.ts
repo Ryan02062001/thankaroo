@@ -206,3 +206,154 @@ export async function deleteThankYouNoteAction(formData: FormData) {
   await deleteThankYouNote({ id, listId });
   revalidatePath(`/thankyou?list=${listId}`);
 }
+
+// ---------------- New programmatic server actions (no revalidate/redirect) ----------------
+
+export type UINote = {
+  id: string;
+  gift_id: string;
+  channel: Channel;
+  relationship: Relationship;
+  tone: Tone;
+  status: "draft" | "sent";
+  content: string;
+  meta: { occasion?: string | null; personalTouch?: string | null } | null;
+  created_at: string;
+  updated_at: string;
+  sent_at: string | null;
+};
+
+export async function saveThankYouDraftDirect(input: {
+  id?: string;
+  listId: string;
+  giftId: string;
+  channel: Channel;
+  relationship: Relationship;
+  tone: Tone;
+  content: string;
+  occasion?: string;
+  personalTouch?: string;
+}): Promise<UINote> {
+  const supabase = await createClient();
+  const user = await requireUserOrThrow(supabase);
+  await assertListOwnership(supabase, input.listId, user.id);
+
+  const meta = {
+    occasion: input.occasion ?? null,
+    personalTouch: input.personalTouch ?? null,
+  } as const;
+
+  if (input.id) {
+    const { data, error } = await supabase
+      .from("thank_you_notes")
+      .update({
+        channel: input.channel,
+        relationship: input.relationship,
+        tone: input.tone,
+        content: input.content,
+        meta,
+        status: "draft",
+      })
+      .eq("id", input.id)
+      .select("id, gift_id, channel, relationship, tone, status, content, meta, created_at, updated_at, sent_at")
+      .single();
+    if (error || !data) throw new Error(error?.message ?? "Failed to save draft");
+    return data as unknown as UINote;
+  }
+
+  const { data, error } = await supabase
+    .from("thank_you_notes")
+    .insert({
+      list_id: input.listId,
+      gift_id: input.giftId,
+      channel: input.channel,
+      relationship: input.relationship,
+      tone: input.tone,
+      content: input.content,
+      meta,
+      status: "draft",
+    })
+    .select("id, gift_id, channel, relationship, tone, status, content, meta, created_at, updated_at, sent_at")
+    .single();
+  if (error || !data) throw new Error(error?.message ?? "Failed to create draft");
+  return data as unknown as UINote;
+}
+
+export async function sendThankYouNoteDirect(input: {
+  id?: string;
+  listId: string;
+  giftId: string;
+  channel: Channel;
+  relationship: Relationship;
+  tone: Tone;
+  content: string;
+  occasion?: string;
+  personalTouch?: string;
+}): Promise<{ note: UINote; gift: { id: string; thankYouSent: boolean } }> {
+  const supabase = await createClient();
+  const user = await requireUserOrThrow(supabase);
+  await assertListOwnership(supabase, input.listId, user.id);
+
+  const now = new Date().toISOString();
+  const meta = {
+    occasion: input.occasion ?? null,
+    personalTouch: input.personalTouch ?? null,
+  } as const;
+
+  let noteRow: UINote | null = null;
+  if (input.id) {
+    const { data, error } = await supabase
+      .from("thank_you_notes")
+      .update({
+        channel: input.channel,
+        relationship: input.relationship,
+        tone: input.tone,
+        content: input.content,
+        meta,
+        status: "sent",
+        sent_at: now,
+      })
+      .eq("id", input.id)
+      .select("id, gift_id, channel, relationship, tone, status, content, meta, created_at, updated_at, sent_at")
+      .single();
+    if (error || !data) throw new Error(error?.message ?? "Failed to update note");
+    noteRow = data as unknown as UINote;
+  } else {
+    const { data, error } = await supabase
+      .from("thank_you_notes")
+      .insert({
+        list_id: input.listId,
+        gift_id: input.giftId,
+        channel: input.channel,
+        relationship: input.relationship,
+        tone: input.tone,
+        content: input.content,
+        meta,
+        status: "sent",
+        sent_at: now,
+      })
+      .select("id, gift_id, channel, relationship, tone, status, content, meta, created_at, updated_at, sent_at")
+      .single();
+    if (error || !data) throw new Error(error?.message ?? "Failed to create note");
+    noteRow = data as unknown as UINote;
+  }
+
+  const { error: giftErr } = await supabase
+    .from("gifts")
+    .update({ thank_you_sent: true, thank_you_sent_at: now })
+    .eq("id", input.giftId);
+  if (giftErr) throw new Error(giftErr.message);
+
+  return { note: noteRow!, gift: { id: input.giftId, thankYouSent: true } };
+}
+
+export async function deleteThankYouNoteDirect(input: { id: string; listId: string }): Promise<{ id: string }>
+{
+  const supabase = await createClient();
+  const user = await requireUserOrThrow(supabase);
+  await assertListOwnership(supabase, input.listId, user.id);
+
+  const { error } = await supabase.from("thank_you_notes").delete().eq("id", input.id);
+  if (error) throw new Error(error.message);
+  return { id: input.id };
+}

@@ -222,3 +222,154 @@ export async function deleteGift(formData: FormData) {
   revalidatePath(next);
   redirect(`${next}?list=${listId}`);
 }
+
+// ---------------- New programmatic server actions (no redirects/refresh) ----------------
+
+export type UIGift = {
+  id: string;
+  guestName: string;
+  description: string;
+  type: GiftType;
+  date: string; // YYYY-MM-DD
+  thankYouSent: boolean;
+};
+
+export async function createGiftDirect(input: {
+  listId: string;
+  guestName: string;
+  description: string;
+  giftType: GiftType;
+  dateReceived?: string | null;
+}): Promise<UIGift> {
+  const supabase = await createClient();
+  const user = await requireUserOrRedirect(supabase, "/giftlist");
+
+  const ownsList = await assertListOwnership(supabase, input.listId, user.id);
+  if (!ownsList) throw new Error("Forbidden: cannot modify this list");
+
+  const { limits } = await getCurrentPlanForUser();
+  if (typeof limits.maxGiftsPerList === "number") {
+    const { count } = await supabase
+      .from("gifts")
+      .select("id", { count: "exact", head: true })
+      .eq("list_id", input.listId);
+    if ((count ?? 0) >= limits.maxGiftsPerList) {
+      throw new Error(
+        "Gift limit reached for this list on your plan. Upgrade on the Pricing page to add more."
+      );
+    }
+  }
+
+  const { data, error } = await supabase
+    .from("gifts")
+    .insert({
+      list_id: input.listId,
+      guest_name: input.guestName,
+      description: input.description,
+      gift_type: input.giftType,
+      date_received: input.dateReceived || undefined,
+    })
+    .select("id, guest_name, description, gift_type, date_received, thank_you_sent")
+    .single();
+
+  if (error || !data) throw new Error(error?.message ?? "Failed to create gift");
+
+  return {
+    id: data.id as string,
+    guestName: data.guest_name as string,
+    description: data.description as string,
+    type: data.gift_type as GiftType,
+    date: (data.date_received ?? new Date().toISOString().slice(0, 10)) as string,
+    thankYouSent: Boolean(data.thank_you_sent),
+  };
+}
+
+export async function updateGiftDirect(input: {
+  id: string;
+  guestName: string;
+  description: string;
+  giftType: GiftType;
+  dateReceived?: string | null;
+  thankYouSent?: boolean;
+}): Promise<UIGift> {
+  const supabase = await createClient();
+  const user = await requireUserOrRedirect(supabase, "/giftlist");
+
+  const listId = await getGiftListId(supabase, input.id);
+  if (!listId) throw new Error("Gift not found");
+  const ownsList = await assertListOwnership(supabase, listId, user.id);
+  if (!ownsList) throw new Error("Forbidden: cannot modify this gift");
+
+  const { data, error } = await supabase
+    .from("gifts")
+    .update({
+      guest_name: input.guestName,
+      description: input.description,
+      gift_type: input.giftType,
+      date_received: input.dateReceived || undefined,
+      ...(typeof input.thankYouSent === "boolean"
+        ? {
+            thank_you_sent: input.thankYouSent,
+            thank_you_sent_at: input.thankYouSent ? new Date().toISOString() : null,
+          }
+        : {}),
+    })
+    .eq("id", input.id)
+    .select("id, guest_name, description, gift_type, date_received, thank_you_sent")
+    .single();
+
+  if (error || !data) throw new Error(error?.message ?? "Failed to update gift");
+
+  return {
+    id: data.id as string,
+    guestName: data.guest_name as string,
+    description: data.description as string,
+    type: data.gift_type as GiftType,
+    date: (data.date_received ?? new Date().toISOString().slice(0, 10)) as string,
+    thankYouSent: Boolean(data.thank_you_sent),
+  };
+}
+
+export async function toggleThankYouDirect(input: { id: string }): Promise<{ id: string; thankYouSent: boolean }>
+{
+  const supabase = await createClient();
+  const user = await requireUserOrRedirect(supabase, "/giftlist");
+
+  const listId = await getGiftListId(supabase, input.id);
+  if (!listId) throw new Error("Gift not found");
+  const ownsList = await assertListOwnership(supabase, listId, user.id);
+  if (!ownsList) throw new Error("Forbidden: cannot modify this gift");
+
+  const { data: row, error: fetchErr } = await supabase
+    .from("gifts")
+    .select("thank_you_sent")
+    .eq("id", input.id)
+    .single();
+  if (fetchErr || !row) throw new Error(fetchErr?.message ?? "Gift not found");
+
+  const newValue = !row.thank_you_sent;
+  const { error } = await supabase
+    .from("gifts")
+    .update({
+      thank_you_sent: newValue,
+      thank_you_sent_at: newValue ? new Date().toISOString() : null,
+    })
+    .eq("id", input.id);
+  if (error) throw new Error(error.message);
+
+  return { id: input.id, thankYouSent: newValue };
+}
+
+export async function deleteGiftDirect(input: { id: string }): Promise<{ id: string }> {
+  const supabase = await createClient();
+  const user = await requireUserOrRedirect(supabase, "/giftlist");
+
+  const listId = await getGiftListId(supabase, input.id);
+  if (!listId) throw new Error("Gift not found");
+  const ownsList = await assertListOwnership(supabase, listId, user.id);
+  if (!ownsList) throw new Error("Forbidden: cannot delete this gift");
+
+  const { error } = await supabase.from("gifts").delete().eq("id", input.id);
+  if (error) throw new Error(error.message);
+  return { id: input.id };
+}

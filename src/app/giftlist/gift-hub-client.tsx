@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import Papa from "papaparse";
 
 import { Button } from "@/components/ui/button";
@@ -15,11 +14,12 @@ import { ThankYouComposerDialog } from "@/components/giftlist/ThankYouComposerDi
 import { EditGiftDialog } from "@/components/giftlist/EditGiftDialog";
 import { AddGiftDialog } from "@/components/giftlist/AddGiftDialog";
 import { DeleteGiftDialog } from "@/components/giftlist/DeleteGiftDialog";
-import type { Note } from "@/components/thankyous/types";
 
 import { CompletionCard } from "@/components/giftlist/CompletionCard";
 import { KpiCard } from "@/components/giftlist/KpiCard";
 import type { UIGift, ImportGiftItem } from "@/components/giftlist/types";
+import type { Note } from "@/components/thankyous/types";
+import { toggleThankYouDirect } from "@/app/actions/gifts";
 
 export type { UIGift, ImportGiftItem };
 
@@ -36,11 +36,8 @@ export default function GiftHubClient({
   gifts: UIGift[];
   lists: List[];
   notes: Note[];
-  onImportGifts: (items: ImportGiftItem[]) => Promise<void>;
+  onImportGifts: (items: ImportGiftItem[]) => Promise<UIGift[]>;
 }) {
-  const router = useRouter();
-  // const { data: billing } = useBillingSummary();
-
   const [searchTerm, setSearchTerm] = React.useState("");
   const [filterType, setFilterType] = React.useState<UIGift["type"] | null>(null);
   const [filterThankYou, setFilterThankYou] = React.useState<boolean | null>(null);
@@ -62,18 +59,41 @@ export default function GiftHubClient({
   const [deleteGift, setDeleteGift] = React.useState<UIGift | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
 
+  const [giftsState, setGiftsState] = React.useState<UIGift[]>(gifts);
+  const [notesState, setNotesState] = React.useState<Note[]>(notes);
+
+  // Reset local state when listId changes to prevent stale data bleed
+  React.useEffect(() => {
+    setGiftsState(gifts);
+    setNotesState(notes);
+    setSearchTerm("");
+    setFilterType(null);
+    setFilterThankYou(null);
+    setFilterHasNote(null);
+    setSortMethod("");
+    setIsAddOpen(false);
+    setReminderGift(null);
+    setComposerGift(null);
+    setIsComposerOpen(false);
+    setEditGift(null);
+    setIsEditOpen(false);
+    setIsAddGiftOpen(false);
+    setDeleteGift(null);
+    setIsDeleteDialogOpen(false);
+  }, [listId, gifts, notes]);
+
   const noteStatusMap = React.useMemo(() => {
     const m = new Map<string, "none" | "draft" | "sent">();
-    for (const g of gifts) m.set(g.id, "none");
-    for (const n of notes) {
+    for (const g of giftsState) m.set(g.id, "none");
+    for (const n of notesState) {
       const prev = m.get(n.gift_id) ?? "none";
       if (n.status === "sent") m.set(n.gift_id, "sent");
       else if (prev !== "sent") m.set(n.gift_id, "draft");
     }
     return m;
-  }, [gifts, notes]);
+  }, [giftsState, notesState]);
 
-  const filtered = gifts.filter((gift) => {
+  const filtered = giftsState.filter((gift) => {
     const q = searchTerm.toLowerCase();
     const matchesSearch =
       gift.guestName.toLowerCase().includes(q) || gift.description.toLowerCase().includes(q);
@@ -126,12 +146,12 @@ export default function GiftHubClient({
   };
 
   const stats = React.useMemo(() => {
-    const total = gifts.length;
-    const thanked = gifts.filter((g) => g.thankYouSent).length;
+    const total = giftsState.length;
+    const thanked = giftsState.filter((g) => g.thankYouSent).length;
     const pending = Math.max(0, total - thanked);
     const progress = total > 0 ? Math.round((thanked / total) * 100) : 0;
     return { total, thanked, pending, progress };
-  }, [gifts]);
+  }, [giftsState]);
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [busy, startTransition] = React.useTransition();
@@ -165,8 +185,10 @@ export default function GiftHubClient({
         });
 
         startTransition(async () => {
-          await onImportGifts(items);
-          router.refresh();
+          const inserted = await onImportGifts(items);
+          if (inserted && inserted.length > 0) {
+            setGiftsState((prev) => [...inserted, ...prev]);
+          }
         });
       },
     });
@@ -175,7 +197,7 @@ export default function GiftHubClient({
   };
 
   const exportAsCSV = () => {
-    const rows = gifts.map((g) => ({
+    const rows = giftsState.map((g) => ({
       "Guest Name": g.guestName,
       "Gift Description": g.description,
       Type: g.type,
@@ -276,6 +298,12 @@ export default function GiftHubClient({
               onRemindGift={openGiftReminder}
               onComposeThankYou={openComposer}
               onDeleteGift={openDeleteGift}
+              onToggleThankYou={async (g) => {
+                try {
+                  const { thankYouSent } = await toggleThankYouDirect({ id: g.id });
+                  setGiftsState((prev) => prev.map((x) => (x.id === g.id ? { ...x, thankYouSent } : x)));
+                } catch {}
+              }}
             />
           </div>
         </section>
@@ -299,7 +327,30 @@ export default function GiftHubClient({
           onOpenChange={setIsComposerOpen}
           listId={listId}
           gift={composerGift}
-          notes={notes.filter((n) => n.gift_id === composerGift.id)}
+          notes={notesState.filter((n) => n.gift_id === composerGift.id)}
+          onSaved={(note) => {
+            setNotesState((prev) => {
+              const idx = prev.findIndex((n) => n.id === note.id);
+              if (idx >= 0) {
+                const next = [...prev];
+                next[idx] = note;
+                return next;
+              }
+              return [note, ...prev];
+            });
+          }}
+          onSent={(note) => {
+            setNotesState((prev) => {
+              const idx = prev.findIndex((n) => n.id === note.id);
+              if (idx >= 0) {
+                const next = [...prev];
+                next[idx] = note;
+                return next;
+              }
+              return [note, ...prev];
+            });
+            setGiftsState((prev) => prev.map((g) => (g.id === note.gift_id ? { ...g, thankYouSent: true } : g)));
+          }}
         />
       ) : null}
 
@@ -309,6 +360,7 @@ export default function GiftHubClient({
           gift={editGift}
           isOpen={isEditOpen}
           setIsOpen={setIsEditOpen}
+          onUpdated={(g) => setGiftsState((prev) => prev.map((x) => (x.id === g.id ? g : x)))}
         />
       ) : null}
 
@@ -316,6 +368,7 @@ export default function GiftHubClient({
         listId={listId}
         isOpen={isAddGiftOpen}
         setIsOpen={setIsAddGiftOpen}
+        onCreated={(gift) => setGiftsState((prev) => [gift, ...prev])}
       />
 
       {deleteGift ? (
@@ -324,6 +377,7 @@ export default function GiftHubClient({
           gift={{ id: deleteGift.id, guestName: deleteGift.guestName }}
           isOpen={isDeleteDialogOpen}
           setIsOpen={setIsDeleteDialogOpen}
+          onDeleted={(id) => setGiftsState((prev) => prev.filter((g) => g.id !== id))}
         />
       ) : null}
     </>

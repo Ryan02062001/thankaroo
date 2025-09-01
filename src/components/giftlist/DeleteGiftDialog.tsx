@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { deleteGift } from "@/app/actions/gifts";
+import { deleteGiftDirect } from "@/app/actions/gifts";
 import { usePathname } from "next/navigation";
 
 export function DeleteGiftDialog({
@@ -19,11 +19,13 @@ export function DeleteGiftDialog({
   gift,
   isOpen,
   setIsOpen,
+  onDeleted,
 }: {
   listId: string;
   gift: { id: string; guestName: string };
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
+  onDeleted: (id: string) => void;
 }) {
   const pathname = usePathname();
 
@@ -31,7 +33,8 @@ export function DeleteGiftDialog({
     formData.append("id", gift.id);
     formData.append("list_id", listId);
     formData.append("next", pathname);
-    await deleteGift(formData);
+    await deleteGiftDirect({ id: gift.id });
+    onDeleted(gift.id);
     setIsOpen(false);
   };
 

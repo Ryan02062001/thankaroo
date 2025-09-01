@@ -9,9 +9,7 @@ import {
   Bell,
   Edit,
 } from "lucide-react";
-import { toggleThankYou } from "@/app/actions/gifts";
 import type { UIGift } from "@/components/giftlist/types";
-import { usePathname } from "next/navigation";
 
 export function GiftCard({
   gift,
@@ -20,6 +18,7 @@ export function GiftCard({
   onRemind,
   onCompose,
   onDelete,
+  onToggleThankYou,
 }: {
   gift: UIGift;
   noteStatus: "none" | "draft" | "sent";
@@ -27,9 +26,8 @@ export function GiftCard({
   onRemind: (gift: UIGift) => void;
   onCompose: () => void;
   onDelete: () => void;
+  onToggleThankYou: () => void;
 }) {
-  const pathname = usePathname();
-
   const types = {
     "non registry": { label: "Non Registry", badge: "bg-[#EAFBF3] text-[#2F6D5A] border-[#A8E6CF]" },
     monetary: { label: "Monetary", badge: "bg-[#EAFBF3] text-[#2F6D5A] border-[#A8E6CF]" },
@@ -153,9 +151,7 @@ export function GiftCard({
               </div>
             </div>
 
-            <form action={toggleThankYou} className="mt-3">
-              <input type="hidden" name="id" value={gift.id} />
-              <input type="hidden" name="next" value={pathname} />
+            <div className="mt-3">
               <Button
                 size="sm"
                 className={`w-full h-11 rounded-xl font-medium transition-colors ${
@@ -163,7 +159,8 @@ export function GiftCard({
                     ? "border border-[#A8E6CF] bg-[#EAFBF3] text-[#2d2d2d] hover:bg-[#E1F6EE]"
                     : "border border-[#A8E6CF]/50 bg-transparent text-[#2d2d2d] hover:bg-[#EAFBF3]"
                 }`}
-                type="submit"
+                type="button"
+                onClick={onToggleThankYou}
               >
                 {gift.thankYouSent ? (
                   <>
@@ -177,7 +174,7 @@ export function GiftCard({
                   </>
                 )}
               </Button>
-            </form>
+            </div>
           </div>
         </CardContent>
         </article>
