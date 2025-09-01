@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 // import { QuotaBanner, useBillingSummary } from "@/components/QuotaBanner";
 import { ComposerToolbar } from "@/components/thankyous/ComposerToolbar";
@@ -34,7 +34,7 @@ export function ThankYouComposerDialog({
   onSaved: (note: UINote) => void;
   onSent: (note: UINote) => void;
 }) {
-  const router = useRouter();
+  // const router = useRouter();
   // const { data: billing } = useBillingSummary();
 
   const [channel, setChannel] = React.useState<Channel>("email");
