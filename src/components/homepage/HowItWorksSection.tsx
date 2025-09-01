@@ -8,7 +8,7 @@ import {
   type Variants,
   cubicBezier,
 } from "framer-motion"
-import { ArrowRight, GiftIcon as Gift2, PenTool, CheckCircle2 } from "lucide-react"
+import { ArrowRight, GiftIcon as Gift2, CheckCircle2, Sparkles } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
@@ -172,16 +172,16 @@ export default function HowItWorksSection() {
       icon: Gift2,
       title: "Log Your Gifts",
       description:
-        "Quickly capture gift details as you receive them. Add photos, notes, and guest information with our streamlined interface.",
-      features: ["Quick entry form", "Photo attachments", "Guest details"],
+        "Quickly capture gift details as you receive them. Add notes and set reminders with our streamlined interface.",
+      features: ["Quick entry form", "Set Reminders", "Guest details"],
     },
     {
       number: "02",
-      icon: PenTool,
-      title: "Write Thank-You Notes",
+      icon: Sparkles, // or keep PenTool
+      title: "Write Thank-You Notes with AI",
       description:
-        "Use our guided templates and personal touch suggestions to craft heartfelt thank-you messages that truly express your gratitude.",
-      features: ["Message templates", "Personal suggestions", "Custom notes"],
+        "Let AI draft thoughtful thank-you messages automatically, then add your personal touch before sending.",
+      features: ["AI-drafted messages", "Smart personalization", "Quick edit & send"],
     },
     {
       number: "03",

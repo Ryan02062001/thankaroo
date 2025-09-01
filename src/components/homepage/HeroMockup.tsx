@@ -177,7 +177,7 @@ export default function HeroMockup({}: HeroMockupProps) {
   const hoveredWidth = hovered ? widths[hovered] : undefined
 
   return (
-    <section className="relative">
+    <section className="relative hidden lg:block">
       <div className="mx-auto w-full max-w-[1600px] px-4">
         <div className="relative mx-auto w-full h-[640px] sm:h-[820px]">
           {cards.map((cfg) => (
