@@ -1,4 +1,4 @@
-import { ArrowRight, Heart, Sparkles, Star, ShieldCheck } from "lucide-react"
+import { ArrowRight, Heart, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
@@ -28,10 +28,10 @@ export default function FinalCTASection() {
               </div>
 
               <h2 className="text-3xl md:text-5xl font-bold tracking-tight bg-gradient-to-b from-gray-900 to-gray-700 bg-clip-text text-transparent p-2">
-                Ready to never miss a thank‑you note again?
+                Ready to save the headache of tracking gifts?
               </h2>
               <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
-                Join thousands of couples using Thankaroo to track gifts, draft heartfelt notes, and stay on top of gentle reminders — all in one place.
+                Join the couples already using Thankaroo to track gifts, draft heartfelt notes, and stay on top of gentle reminders — all in one place.
               </p>
 
               <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
@@ -44,35 +44,12 @@ export default function FinalCTASection() {
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
-
-              
               </div>
 
               <div className="mt-4 text-xs text-gray-500">
-                30‑day free trial. No credit card required. Cancel anytime.
+                Free trial. No credit card required.
               </div>
-
-              <div className="mt-10 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#A8E6CF]/40">
-                <div className="px-6 py-4">
-                  <div className="flex items-center justify-center gap-2 text-gray-900">
-                    <Star className="h-5 w-5 text-[#3EB489]" />
-                    <span className="text-2xl font-semibold">4.9</span>
-                    <span className="text-gray-500">/ 5</span>
-                  </div>
-                  <div className="mt-1 text-sm text-gray-600">Average rating</div>
-                </div>
-                <div className="px-6 py-4">
-                  <div className="text-2xl font-semibold text-gray-900">10,000+</div>
-                  <div className="mt-1 text-sm text-gray-600">Couples getting it done</div>
-                </div>
-                <div className="px-6 py-4">
-                  <div className="flex items-center justify-center gap-2 text-gray-900">
-                    <ShieldCheck className="h-5 w-5 text-[#3EB489]" />
-                    <span className="text-2xl font-semibold">30 days</span>
-                  </div>
-                  <div className="mt-1 text-sm text-gray-600">Free trial — risk‑free</div>
-                </div>
-              </div>
+      
             </div>
           </div>
         </div>
