@@ -16,16 +16,6 @@ export default function Footer() {
           <nav aria-label="Footer" className="flex items-center gap-6">
             <ul className="flex flex-wrap items-center gap-4 sm:gap-6 justify-center">
               <li>
-                <Link href="/dashboard" className="text-sm hover:underline">
-                  Dashboard
-                </Link>
-              </li>
-              <li>
-                <Link href="/thankyou" className="text-sm hover:underline">
-                  Thank Yous
-                </Link>
-              </li>
-              <li>
                 <Link href="/giftlist" className="text-sm hover:underline">
                   Gift List
                 </Link>

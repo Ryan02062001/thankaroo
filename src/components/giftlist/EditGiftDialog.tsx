@@ -104,7 +104,7 @@ export function EditGiftDialog({
         <span style={{ display: "none" }} />
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[520px] p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-[520px] p-0">
         <div className="h-1.5 w-full bg-gradient-to-r from-[#A8E6CF] via-[#98CFBA] to-[#8cc4b0]" />
 
         <div className="p-5 sm:p-6">

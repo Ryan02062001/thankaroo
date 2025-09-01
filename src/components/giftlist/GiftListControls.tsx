@@ -192,9 +192,8 @@ export function GiftListControls({
                 </TooltipTrigger>
                 <TooltipContent>Add a new gift to this list</TooltipContent>
               </Tooltip>
-            </ListSelector>
 
-            <div className="ml-0 md:ml-auto flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full md:w-auto shrink-0">
+              {/* Import / Export placed adjacent to Add Gift in the same row */}
               <Button
                 variant="outline"
                 size="sm"
@@ -218,7 +217,7 @@ export function GiftListControls({
                 <Download className="mr-2 h-4 w-4" />
                 Export CSV
               </Button>
-            </div>
+            </ListSelector>
           </div>
 
           <div className="-mx-6 my-4 hidden h-px bg-gray-200 md:block md:-mx-8" aria-hidden="true" />
