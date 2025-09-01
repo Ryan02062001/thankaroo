@@ -88,7 +88,7 @@ function PricingContent() {
       "Advanced reminder schedules & automations",
       "Bulk import & export",
       "Calendar export (.ics)",
-      "2 collaborator seats (roles)",
+  
     ],
     ctaOnClick: () => startCheckout({ lookup_key: "pro_monthly" }),
   }
@@ -105,7 +105,7 @@ function PricingContent() {
       "Advanced reminder schedules & automations",
       "Bulk import & export",
       "Calendar export (.ics)",
-      "2 collaborator seats (roles)",
+     
     ],
     ctaOnClick: () => startCheckout({ lookup_key: "pro_annual" }),
   }
