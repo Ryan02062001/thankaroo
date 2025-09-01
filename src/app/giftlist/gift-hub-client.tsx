@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Papa from "papaparse";
 
 import { Button } from "@/components/ui/button";
-import { QuotaBanner, useBillingSummary } from "@/components/QuotaBanner";
+// import { QuotaBanner, useBillingSummary } from "@/components/QuotaBanner";
 import { GiftList } from "@/components/giftlist/GiftList";
 import { GiftListControls } from "@/components/giftlist/GiftListControls";
 import { ReminderSettingsDialog } from "@/components/ReminderSettingsDialog";
@@ -39,7 +39,7 @@ export default function GiftHubClient({
   onImportGifts: (items: ImportGiftItem[]) => Promise<void>;
 }) {
   const router = useRouter();
-  const { data: billing } = useBillingSummary();
+  // const { data: billing } = useBillingSummary();
 
   const [searchTerm, setSearchTerm] = React.useState("");
   const [filterType, setFilterType] = React.useState<UIGift["type"] | null>(null);
@@ -197,7 +197,7 @@ export default function GiftHubClient({
   return (
     <>
       <div className="space-y-6">
-        {billing ? <QuotaBanner context="lists" /> : null}
+        {/* Quota warnings are shown only contextually on specific actions, not persistently */}
 
         <section aria-labelledby="dashboard-overview">
           <div>

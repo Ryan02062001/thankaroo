@@ -41,9 +41,11 @@ export function useBillingSummary() {
 export function QuotaBanner({
   context,
   listGiftCount,
+  showNear = false,
 }: {
   context: "lists" | "gifts" | "ai";
   listGiftCount?: number; // current list's gift count for gifts context
+  showNear?: boolean; // when true, show near-limit warnings; default: only show when at limit
 }) {
   const { data } = useBillingSummary();
   if (!data) return null;
@@ -55,7 +57,6 @@ export function QuotaBanner({
       if (typeof limits.maxLists === "number") {
         const used = usage.listsCount;
         const remaining = Math.max(0, limits.maxLists - used);
-        const near = remaining <= 1;
         if (remaining === 0) {
           return (
             <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 flex items-center gap-2">
@@ -64,7 +65,7 @@ export function QuotaBanner({
             </div>
           );
         }
-        if (near) {
+        if (showNear && remaining <= 1) {
           return (
             <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 flex items-center gap-2">
               <Info className="h-4 w-4" />
@@ -80,7 +81,6 @@ export function QuotaBanner({
       if (typeof limits.maxGiftsPerList === "number") {
         const used = listGiftCount ?? 0;
         const remaining = Math.max(0, limits.maxGiftsPerList - used);
-        const near = remaining <= 5;
         if (remaining === 0) {
           return (
             <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 flex items-center gap-2">
@@ -89,7 +89,7 @@ export function QuotaBanner({
             </div>
           );
         }
-        if (near) {
+        if (showNear && remaining <= 5) {
           return (
             <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 flex items-center gap-2">
               <Info className="h-4 w-4" />
@@ -105,7 +105,6 @@ export function QuotaBanner({
     if (typeof limits.maxAiDraftsPerMonth === "number") {
       const used = usage.aiDraftsThisMonth;
       const remaining = Math.max(0, limits.maxAiDraftsPerMonth - used);
-      const near = remaining <= 3;
       if (remaining === 0) {
         return (
           <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 flex items-center gap-2">
@@ -114,7 +113,7 @@ export function QuotaBanner({
           </div>
         );
       }
-      if (near) {
+      if (showNear && remaining <= 3) {
         return (
           <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 flex items-center gap-2">
             <Info className="h-4 w-4" />

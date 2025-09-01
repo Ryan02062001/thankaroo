@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { QuotaBanner, useBillingSummary } from "@/components/QuotaBanner";
+// import { QuotaBanner, useBillingSummary } from "@/components/QuotaBanner";
 import { ComposerToolbar } from "@/components/thankyous/ComposerToolbar";
 import { AdvancedOptions } from "@/components/thankyous/AdvancedOptions";
 import { MessageSurface } from "@/components/thankyous/MessageSurface";
@@ -31,7 +31,7 @@ export function ThankYouComposerDialog({
   notes: Note[];
 }) {
   const router = useRouter();
-  const { data: billing } = useBillingSummary();
+  // const { data: billing } = useBillingSummary();
 
   const [channel, setChannel] = React.useState<Channel>("email");
   const [relationship, setRelationship] = React.useState<Relationship>("friend");
@@ -145,7 +145,7 @@ export function ThankYouComposerDialog({
           <DialogTitle className="text-[#2d2d2d]">Compose Thank‑You</DialogTitle>
         </DialogHeader>
 
-        {billing ? <QuotaBanner context="ai" /> : null}
+        {/* Quota warnings appear only when actions hit a limit */}
 
         <div className="space-y-5">
           <GiftContextCard gift={gift} />
