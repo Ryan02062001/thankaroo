@@ -293,8 +293,7 @@ export default function GiftHubClient({
               gifts={sorted}
               noteStatusMap={noteStatusMap}
               onEditGift={openEditGift}
-              onAddGift={() => {}
-              }
+              onAddGift={openAddGift}
               onRemindGift={openGiftReminder}
               onComposeThankYou={openComposer}
               onDeleteGift={openDeleteGift}
