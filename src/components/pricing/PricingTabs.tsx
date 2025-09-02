@@ -12,14 +12,14 @@ export default function PricingTabs({ free, weddingPass, proMonthly, proAnnual }
       </TabsList>
 
       <TabsContent value="pay-once" className="mt-6 sm:mt-8">
-        <div className="mx-auto justify-items-center grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+        <div className="mx-auto grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 lg:gap-4">
           <PlanCard {...free} />
           <PlanCard {...weddingPass} />
         </div>
       </TabsContent>
 
       <TabsContent value="subscribe" className="mt-6 sm:mt-8">
-        <div className="mx-auto justify-items-center grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
           <PlanCard {...free} />
           <PlanCard {...proMonthly} />
           <PlanCard {...proAnnual} />

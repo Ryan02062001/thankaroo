@@ -24,7 +24,8 @@ export default function PlanCard(p: Plan) {
     <Card
       className={[
         "flex flex-col rounded-3xl border-2 text-gray-900 bg-white shadow-xl",
-        "w-full min-w-[16rem] sm:min-w-[20rem] max-w-[25rem]",
+        // Make cards shrink to fit tighter side-by-side
+        "w-full min-w-[14rem] sm:min-w-[18rem]",
         p.mostPopular ? "border-emerald-400/60 ring-emerald-400/40" : "border-gray-200",
       ].join(" ")}
     >
