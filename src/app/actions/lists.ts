@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { getCurrentPlanForUser } from "@/lib/plans";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/app/types/database";
 
 export async function createList(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
@@ -14,7 +16,8 @@ export async function createList(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const { data: auth } = await supabase.auth.getUser();
+  const typed = supabase as unknown as SupabaseClient<Database>;
+  const { data: auth } = await typed.auth.getUser();
   if (!auth.user) redirect(`/signin?next=${encodeURIComponent(redirectTo)}`);
 
   // Enforce plan limit: number of lists
@@ -33,9 +36,9 @@ export async function createList(formData: FormData) {
     }
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await typed
     .from("gift_lists")
-    .insert({ name, owner_id: auth.user.id })
+    .insert({ name, owner_id: auth.user.id } as Database["public"]["Tables"]["gift_lists"]["Insert"])
     .select("id")
     .single();
 
@@ -57,12 +60,13 @@ export async function renameList(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const { data: auth } = await supabase.auth.getUser();
+  const typed2 = supabase as unknown as SupabaseClient<Database>;
+  const { data: auth } = await typed2.auth.getUser();
   if (!auth.user) redirect('/signin');
   
-  const { error } = await supabase
+  const { error } = await typed2
     .from("gift_lists")
-    .update({ name })
+    .update({ name } as Database["public"]["Tables"]["gift_lists"]["Update"])
     .eq("id", id)
     .eq("owner_id", auth.user.id);
 
@@ -83,10 +87,11 @@ export async function deleteList(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const { data: auth } = await supabase.auth.getUser();
+  const typed3 = supabase as unknown as SupabaseClient<Database>;
+  const { data: auth } = await typed3.auth.getUser();
   if (!auth.user) redirect(`/signin?next=${encodeURIComponent(redirectTo)}`);
 
-  const { error } = await supabase
+  const { error } = await typed3
     .from("gift_lists")
     .delete()
     .eq("id", id)
