@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { requireAuth } from "@/lib/auth";
 import { createClient } from "@/utils/supabase/server";
 import RemindersClient from "@/app/reminders/reminders-client";
+import { getCurrentPlanForUserFast } from "@/lib/plans";
 import { Button } from "@/components/ui/button";
 import type { Database } from "@/app/types/database";
 
@@ -13,6 +14,31 @@ export default async function RemindersPage({
 }) {
   const user = await requireAuth("/reminders");
   const supabase = await createClient();
+
+  // Gate: Only paid plans (pro or wedding_pass) can access reminders
+  const { plan } = await getCurrentPlanForUserFast();
+  if (plan === "free") {
+    return (
+      <div className="min-h-screen bg-[#fefefe] pt-10">
+        <section aria-labelledby="reminders-heading" className=" w-full px-4 sm:px-6 lg:px-10 2xl:px-35 py-10 mx-auto">
+          <div className="mb-5 flex items-center space-x-7">
+            <h1 id="reminders-heading" className="text-4xl font-bold text-[#2d2d2d]">Reminders</h1>
+            <Link href="/pricing">
+              <Button size="sm" className="h-10 rounded-xl bg-[#3EB489] text-white hover:bg-[#2f9c79]">Upgrade</Button>
+            </Link>
+          </div>
+          <div className="mt-10 rounded-2xl border border-gray-200 bg-white p-6 text-[#2d2d2d]">
+            Reminders are available on paid plans. Upgrade to unlock scheduling and automated follow‑ups.
+            <div className="mt-4">
+              <Link href="/pricing">
+                <Button size="sm" className="h-12 w-[176px] rounded-xl bg-[#3EB489] text-white hover:bg-[#2f9c79]">See plans</Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   const { data: lists, error: listsErr } = await supabase
     .from("gift_lists")

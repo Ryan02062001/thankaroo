@@ -50,10 +50,8 @@ function PricingContent() {
     ctaHref: "/signup",
     features: [
       "Up to 50 gifts",
-      "1 event",
-      "Basic reminders",
+      "1 list",
       "20 AI draft notes",
-      "No CSV export",
       "Email support",
     ],
   }
@@ -67,9 +65,8 @@ function PricingContent() {
     oneTime: true,
     mostPopular: true,
     features: [
-      "1 wedding, unlimited gifts",
+      "4 lists, unlimited gifts",
       "Smart reminders that run for 12 months",
-      "CSV import & export",
       "1,000 AI thank‑you drafts (total)",
       "Priority email support",
     ],

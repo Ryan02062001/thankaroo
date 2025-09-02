@@ -116,7 +116,7 @@ export async function getCurrentPlanForUser(): Promise<PlanFull> {
   const { plan: internalPlan } = await getCurrentPlanForUserFast();
   const plan: PlanFull["plan"] = internalPlan === "pro" ? "pro" : internalPlan === "wedding_pass" ? "wedding" : "free";
   if (plan === "free") return { plan, limits: { maxLists: 1, maxGiftsPerList: 50, maxAiDraftsPerMonth: 20 } };
-  if (plan === "wedding") return { plan, limits: { maxLists: 1, maxGiftsPerList: null, maxAiDraftsPerMonth: 1000 } };
+  if (plan === "wedding") return { plan, limits: { maxLists: 4, maxGiftsPerList: null, maxAiDraftsPerMonth: 1000 } };
   return { plan, limits: { maxLists: null, maxGiftsPerList: null, maxAiDraftsPerMonth: null } };
 }
 
