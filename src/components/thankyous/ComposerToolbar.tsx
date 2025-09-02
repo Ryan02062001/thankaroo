@@ -22,9 +22,9 @@ export function ComposerToolbar({
     <section className="rounded-xl border bg-white/80 shadow-sm overflow-hidden" aria-labelledby="composer-toolbar-heading">
       <h2 id="composer-toolbar-heading" className="sr-only">Composer options</h2>
       <div className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur p-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <Tabs value={channel} onValueChange={(v) => setChannel(v as Channel)}>
-            <TabsList className="h-9 bg-gradient-to-r from-white to-gray-50">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2">
+          <Tabs value={channel} onValueChange={(v) => setChannel(v as Channel)} className="w-full sm:w-auto">
+            <TabsList className="h-10 w-full sm:w-auto bg-gradient-to-r from-white to-gray-50">
               {(["email", "text", "card"] as Channel[]).map((ch) => {
                 const Icon = getChannelIcon(ch);
                 return (
@@ -38,7 +38,7 @@ export function ComposerToolbar({
           </Tabs>
 
           <Select value={relationship} onValueChange={(v) => setRelationship(v as Relationship)}>
-            <SelectTrigger className="h-9 w-[140px]">
+            <SelectTrigger className="h-10 w-full sm:w-[160px]">
               <SelectValue placeholder="Relationship" />
             </SelectTrigger>
             <SelectContent>
@@ -50,7 +50,7 @@ export function ComposerToolbar({
           </Select>
 
           <Select value={tone} onValueChange={(v) => setTone(v as Tone)}>
-            <SelectTrigger className="h-9 w-[130px]">
+            <SelectTrigger className="h-10 w-full sm:w-[140px]">
               <SelectValue placeholder="Tone" />
             </SelectTrigger>
             <SelectContent>
@@ -63,7 +63,7 @@ export function ComposerToolbar({
           <Button
             type="button"
             variant="outline"
-            className="ml-auto gap-1 border-gray-300 hover:bg-gray-50"
+            className="sm:ml-auto gap-1 border-gray-300 hover:bg-gray-50 h-10 w-full sm:w-auto"
             onClick={toggleAdvanced}
           >
             <Settings2 className="h-4 w-4" />

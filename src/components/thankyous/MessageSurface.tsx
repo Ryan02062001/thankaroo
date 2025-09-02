@@ -22,12 +22,12 @@ export function MessageSurface({
   return (
     <section className="rounded-xl border border-gray-200 bg-white/90 shadow-sm" aria-labelledby="message-surface-heading">
       <h2 id="message-surface-heading" className="sr-only">Message</h2>
-      <div className="relative p-5 sm:p-6 max-h-[50vh] overflow-y-auto overscroll-contain">
+      <div className="relative p-4 sm:p-6 max-h-[55vh] sm:max-h-[60vh] overflow-y-auto overscroll-contain">
         {content && (
           <button
             type="button"
             onClick={() => setMode(mode === "edit" ? "preview" : "edit")}
-            className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white/90 text-gray-700 hover:bg-gray-50 shadow-sm"
+            className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white/90 text-gray-700 hover:bg-gray-50 shadow-sm"
             title={mode === "edit" ? "Preview" : "Edit"}
           >
             {mode === "edit" ? <Eye className="h-4 w-4" /> : <Pencil className="h-4 w-4" />}
@@ -47,7 +47,7 @@ export function MessageSurface({
             value={content}
             onChange={(e) => onChangeContent(e.target.value)}
             placeholder="Type or edit your message here..."
-            className="min-h-[220px] w-full max-h-[50vh] resize-y overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-words bg-white/90 font-serif text-[15px]"
+            className="min-h-[220px] w-full max-h-[55vh] sm:max-h-[60vh] resize-y overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-words bg-white/90 font-serif text-[16px] sm:text-[15px] leading-relaxed"
             disabled={!canEdit}
           />
         ) : content ? (

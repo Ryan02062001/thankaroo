@@ -148,14 +148,13 @@ export function ThankYouComposerDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl">
-        <DialogHeader>
-          <DialogTitle className="text-[#2d2d2d]">Compose Thank‑You</DialogTitle>
+      <DialogContent className="sm:max-w-3xl p-0 sm:p-6">
+        <DialogHeader className="sticky top-0 z-20 border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 px-4 py-3 sm:px-0 sm:py-0">
+          <DialogTitle className="text-[#2d2d2d] text-base sm:text-lg">Compose Thank‑You</DialogTitle>
         </DialogHeader>
 
-        {/* Quota warnings appear only when actions hit a limit */}
-
-        <div className="space-y-5">
+        {/* Scrollable content */}
+        <div className="px-4 sm:px-0 py-4 space-y-4 sm:space-y-5">
           <GiftContextCard gift={gift} />
 
           <ComposerToolbar
@@ -187,7 +186,10 @@ export function ThankYouComposerDialog({
             showEditHint={!currentPersistedNote}
             canEdit={!isGenerating}
           />
+        </div>
 
+        {/* Sticky actions at bottom */}
+        <div className="sticky bottom-0 z-20 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 border-t px-4 py-3 sm:px-0 pb-[calc(env(safe-area-inset-bottom)+0.5rem)]">
           <ActionsBar
             isGenerating={isGenerating}
             canGenerate={true}
