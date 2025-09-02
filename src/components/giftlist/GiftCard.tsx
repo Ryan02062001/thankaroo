@@ -64,7 +64,7 @@ export function GiftCard({
       <Card className="group relative overflow-hidden rounded-2xl border bg-tr border-gray-100 bg-white transition-shadow shadow-sm hover:shadow-md md:min-h-[320px] w-full py-3 md:py-6">
         <article aria-labelledby={`gift-${gift.id}-title`}>
           <div className={`absolute inset-y-0 left-0 w-1 ${gift.thankYouSent ? "bg-[#A8E6CF]" : "bg-gray-200"}`} />
-        <CardContent className="flex h-full flex-col p-4 md:p-5 relative">
+        <CardContent className="flex h-full flex-col p-4 pb-0 md:p-5 relative">
           {/* Summary header (click to toggle on mobile) */}
           <div
             role="button"
@@ -320,7 +320,7 @@ export function GiftCard({
               className="rounded-full p-1.5 hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-[#A8E6CF] focus-visible:outline-none"
             >
               <ChevronDown
-                className={`h-5 w-5 text-[#6B7280] transition-transform ${isOpen ? "rotate-180" : "rotate-0"}`}
+                className={`h-8 w-8 text-[#6B7280] transition-transform ${isOpen ? "rotate-180" : "rotate-0"}`}
                 aria-hidden="true"
               />
             </button>
