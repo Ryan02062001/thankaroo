@@ -34,12 +34,14 @@ export function ListSelector({
   className,
   onPrimaryWidth,
   children,
+  mobileThreeCol = false,
 }: {
   lists: List[];
   currentListId: string | null;
   className?: string;
   onPrimaryWidth?: (px: number) => void;
   children?: React.ReactNode;
+  mobileThreeCol?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -93,9 +95,15 @@ export function ListSelector({
     } catch {}
   }, [currentListId]);
 
+  const topContainerClasses = "mb-6 flex flex-col md:flex-row md:flex-wrap lg:flex-nowrap md:items-center gap-2 md:gap-3";
+
+  const primaryGroupClasses = mobileThreeCol
+    ? "grid grid-cols-3 items-stretch gap-2 md:flex md:flex-row md:flex-wrap lg:flex-nowrap md:items-center md:gap-3 w-full md:w-auto"
+    : "flex flex-col md:flex-row md:flex-wrap lg:flex-nowrap items-stretch md:items-center gap-2 md:gap-3 w-full md:w-auto";
+
   return (
-    <div className={cn("mb-6 flex flex-col md:flex-row md:flex-wrap lg:flex-nowrap md:items-center gap-2 md:gap-3", className)}>
-      <div ref={primaryRef} className="flex flex-col md:flex-row md:flex-wrap lg:flex-nowrap items-stretch md:items-center gap-2 md:gap-3 w-full md:w-auto">
+    <div className={cn(topContainerClasses, className)}>
+      <div ref={primaryRef} className={primaryGroupClasses}>
         <Select
           value={currentListId ?? ""}
           onValueChange={onChangeList}
