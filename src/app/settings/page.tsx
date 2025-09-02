@@ -18,7 +18,7 @@ export default async function SettingsPage() {
     );
   }
 
-  const { plan } = await getCurrentPlanForUser();
+  const { plan, limits } = await getCurrentPlanForUser();
 
   return (
     <div className="min-h-screen bg-[#fefefe] pt-20">
@@ -29,9 +29,13 @@ export default async function SettingsPage() {
           <div className="text-sm text-gray-600">Current plan</div>
           <div className="text-lg font-medium capitalize">{plan === "wedding" ? "Wedding Pass (one-time)" : plan}</div>
           <div className="text-sm text-gray-600">
-            {plan === "free" && "Includes up to 1 list, 100 gifts per list, 10 AI drafts/month."}
-            {plan === "wedding" && "Includes 3 lists, unlimited gifts, 100 AI drafts/month."}
-            {plan === "pro" && "Unlimited lists & gifts; generous AI allowance."}
+            {plan === "free" && (
+              <>Includes up to {limits.maxLists ?? 1} list, {limits.maxGiftsPerList ?? 50} gifts per list, {limits.maxAiDraftsPerMonth ?? 20} AI drafts/month.</>
+            )}
+            {plan === "wedding" && (
+              <>Includes {limits.maxLists ?? 1} list, unlimited gifts, up to {limits.maxAiDraftsPerMonth ?? 1000} AI drafts.</>
+            )}
+            {plan === "pro" && <>Unlimited lists & gifts; unlimited AI drafts.</>}
           </div>
           <form method="POST" action="/api/stripe/create-portal-session">
             <button className="mt-2 inline-flex items-center rounded-md border px-3 py-2 text-sm hover:bg-gray-50">
