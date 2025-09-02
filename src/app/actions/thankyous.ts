@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/utils/supabase/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/app/types/database";
 
 type Channel = "email" | "text" | "card";
 type Relationship = "friend" | "family" | "coworker" | "other";
@@ -39,6 +41,7 @@ export async function saveThankYouDraft(input: {
   personalTouch?: string;
 }) {
   const supabase = await createClient();
+  const supa = supabase as unknown as SupabaseClient<Database>;
   const user = await requireUserOrThrow(supabase);
   await assertListOwnership(supabase, input.listId, user.id);
 
@@ -48,7 +51,7 @@ export async function saveThankYouDraft(input: {
   } as const;
 
   if (input.id) {
-    const { data, error } = await supabase
+    const { data, error } = await supa
       .from("thank_you_notes")
       .update({
         channel: input.channel,
@@ -57,7 +60,7 @@ export async function saveThankYouDraft(input: {
         content: input.content,
         meta,
         status: "draft",
-      })
+      } satisfies Database["public"]["Tables"]["thank_you_notes"]["Update"])
       .eq("id", input.id)
       .select("id")
       .single();
@@ -66,7 +69,7 @@ export async function saveThankYouDraft(input: {
     return { id: data.id };
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await supa
     .from("thank_you_notes")
     .insert({
       list_id: input.listId,
@@ -77,7 +80,7 @@ export async function saveThankYouDraft(input: {
       content: input.content,
       meta,
       status: "draft",
-    })
+    } satisfies Database["public"]["Tables"]["thank_you_notes"]["Insert"])
     .select("id")
     .single();
   if (error || !data) throw new Error(error?.message ?? "Failed to create draft");
@@ -97,6 +100,7 @@ export async function sendThankYouNote(input: {
   personalTouch?: string;
 }) {
   const supabase = await createClient();
+  const supa = supabase as unknown as SupabaseClient<Database>;
   const user = await requireUserOrThrow(supabase);
   await assertListOwnership(supabase, input.listId, user.id);
 
@@ -109,7 +113,7 @@ export async function sendThankYouNote(input: {
   let noteId = input.id ?? null;
 
   if (noteId) {
-    const { error } = await supabase
+    const { error } = await supa
       .from("thank_you_notes")
       .update({
         channel: input.channel,
@@ -119,11 +123,11 @@ export async function sendThankYouNote(input: {
         meta,
         status: "sent",
         sent_at: now,
-      })
+      } satisfies Database["public"]["Tables"]["thank_you_notes"]["Update"])
       .eq("id", noteId);
     if (error) throw new Error(error.message);
   } else {
-    const { data, error } = await supabase
+    const { data, error } = await supa
       .from("thank_you_notes")
       .insert({
         list_id: input.listId,
@@ -135,7 +139,7 @@ export async function sendThankYouNote(input: {
         meta,
         status: "sent",
         sent_at: now,
-      })
+      } satisfies Database["public"]["Tables"]["thank_you_notes"]["Insert"])
       .select("id")
       .single();
     if (error || !data) throw new Error(error?.message ?? "Failed to create note");
@@ -143,9 +147,9 @@ export async function sendThankYouNote(input: {
   }
 
   // Mark gift as thanked
-  const { error: giftErr } = await supabase
+  const { error: giftErr } = await supa
     .from("gifts")
-    .update({ thank_you_sent: true, thank_you_sent_at: now })
+    .update({ thank_you_sent: true, thank_you_sent_at: now } satisfies Database["public"]["Tables"]["gifts"]["Update"])
     .eq("id", input.giftId);
   if (giftErr) throw new Error(giftErr.message);
 
@@ -155,10 +159,11 @@ export async function sendThankYouNote(input: {
 
 export async function deleteThankYouNote(input: { id: string; listId: string }) {
   const supabase = await createClient();
+  const supa = supabase as unknown as SupabaseClient<Database>;
   const user = await requireUserOrThrow(supabase);
   await assertListOwnership(supabase, input.listId, user.id);
 
-  const { error } = await supabase.from("thank_you_notes").delete().eq("id", input.id);
+  const { error } = await supa.from("thank_you_notes").delete().eq("id", input.id);
   if (error) throw new Error(error.message);
   revalidatePath(`/thankyou?list=${input.listId}`);
   return { ok: true };
@@ -235,6 +240,7 @@ export async function saveThankYouDraftDirect(input: {
   personalTouch?: string;
 }): Promise<UINote> {
   const supabase = await createClient();
+  const supa = supabase as unknown as SupabaseClient<Database>;
   const user = await requireUserOrThrow(supabase);
   await assertListOwnership(supabase, input.listId, user.id);
 
@@ -244,7 +250,7 @@ export async function saveThankYouDraftDirect(input: {
   } as const;
 
   if (input.id) {
-    const { data, error } = await supabase
+    const { data, error } = await supa
       .from("thank_you_notes")
       .update({
         channel: input.channel,
@@ -253,7 +259,7 @@ export async function saveThankYouDraftDirect(input: {
         content: input.content,
         meta,
         status: "draft",
-      })
+      } satisfies Database["public"]["Tables"]["thank_you_notes"]["Update"])
       .eq("id", input.id)
       .select("id, gift_id, channel, relationship, tone, status, content, meta, created_at, updated_at, sent_at")
       .single();
@@ -261,7 +267,7 @@ export async function saveThankYouDraftDirect(input: {
     return data as unknown as UINote;
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await supa
     .from("thank_you_notes")
     .insert({
       list_id: input.listId,
@@ -272,7 +278,7 @@ export async function saveThankYouDraftDirect(input: {
       content: input.content,
       meta,
       status: "draft",
-    })
+    } satisfies Database["public"]["Tables"]["thank_you_notes"]["Insert"])
     .select("id, gift_id, channel, relationship, tone, status, content, meta, created_at, updated_at, sent_at")
     .single();
   if (error || !data) throw new Error(error?.message ?? "Failed to create draft");
@@ -291,6 +297,7 @@ export async function sendThankYouNoteDirect(input: {
   personalTouch?: string;
 }): Promise<{ note: UINote; gift: { id: string; thankYouSent: boolean } }> {
   const supabase = await createClient();
+  const supa = supabase as unknown as SupabaseClient<Database>;
   const user = await requireUserOrThrow(supabase);
   await assertListOwnership(supabase, input.listId, user.id);
 
@@ -302,7 +309,7 @@ export async function sendThankYouNoteDirect(input: {
 
   let noteRow: UINote | null = null;
   if (input.id) {
-    const { data, error } = await supabase
+    const { data, error } = await supa
       .from("thank_you_notes")
       .update({
         channel: input.channel,
@@ -312,14 +319,14 @@ export async function sendThankYouNoteDirect(input: {
         meta,
         status: "sent",
         sent_at: now,
-      })
+      } satisfies Database["public"]["Tables"]["thank_you_notes"]["Update"])
       .eq("id", input.id)
       .select("id, gift_id, channel, relationship, tone, status, content, meta, created_at, updated_at, sent_at")
       .single();
     if (error || !data) throw new Error(error?.message ?? "Failed to update note");
     noteRow = data as unknown as UINote;
   } else {
-    const { data, error } = await supabase
+    const { data, error } = await supa
       .from("thank_you_notes")
       .insert({
         list_id: input.listId,
@@ -331,16 +338,16 @@ export async function sendThankYouNoteDirect(input: {
         meta,
         status: "sent",
         sent_at: now,
-      })
+      } satisfies Database["public"]["Tables"]["thank_you_notes"]["Insert"])
       .select("id, gift_id, channel, relationship, tone, status, content, meta, created_at, updated_at, sent_at")
       .single();
     if (error || !data) throw new Error(error?.message ?? "Failed to create note");
     noteRow = data as unknown as UINote;
   }
 
-  const { error: giftErr } = await supabase
+  const { error: giftErr } = await supa
     .from("gifts")
-    .update({ thank_you_sent: true, thank_you_sent_at: now })
+    .update({ thank_you_sent: true, thank_you_sent_at: now } satisfies Database["public"]["Tables"]["gifts"]["Update"])
     .eq("id", input.giftId);
   if (giftErr) throw new Error(giftErr.message);
 
@@ -350,10 +357,11 @@ export async function sendThankYouNoteDirect(input: {
 export async function deleteThankYouNoteDirect(input: { id: string; listId: string }): Promise<{ id: string }>
 {
   const supabase = await createClient();
+  const supa = supabase as unknown as SupabaseClient<Database>;
   const user = await requireUserOrThrow(supabase);
   await assertListOwnership(supabase, input.listId, user.id);
 
-  const { error } = await supabase.from("thank_you_notes").delete().eq("id", input.id);
+  const { error } = await supa.from("thank_you_notes").delete().eq("id", input.id);
   if (error) throw new Error(error.message);
   return { id: input.id };
 }
