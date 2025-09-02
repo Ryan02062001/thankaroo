@@ -29,7 +29,10 @@ export default async function RemindersPage({
   if (!currentListId) {
     const cookieHeader = await cookies();
     const cookieVal = cookieHeader.get("thankaroo_last_list_id")?.value ?? null;
-    if (cookieVal && (lists ?? []).some((l) => l.id === cookieVal)) {
+    if (
+      cookieVal &&
+      ((lists ?? []) as Pick<Database["public"]["Tables"]["gift_lists"]["Row"], "id">[]).some((l) => l.id === cookieVal)
+    ) {
       currentListId = cookieVal;
     }
   }

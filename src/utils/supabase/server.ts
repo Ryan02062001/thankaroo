@@ -1,7 +1,6 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import type { Database } from "@/app/types/database";
-import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
  * Next.js 15 + Supabase SSR cookie adapter
@@ -10,10 +9,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  * - In Server Actions / Route Handlers (where writes are allowed),
  *   cookieStore.set will succeed and persist the session.
  */
-export async function createClient(): Promise<SupabaseClient<Database, "public">> {
+export async function createClient() {
   const cookieStore = await cookies(); // Next 15 returns a Promise
 
-  return createServerClient<Database, "public">(
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {

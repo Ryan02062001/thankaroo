@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ListSelector } from "@/components/ui/list-selector";
 import type { UIGift } from "@/components/giftlist/types";
 import type { Database } from "@/app/types/database";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export default async function GiftListPage({
   searchParams,
@@ -31,7 +32,10 @@ export default async function GiftListPage({
   if (!currentListId) {
     const cookieHeader = await cookies();
     const cookieVal = cookieHeader.get("thankaroo_last_list_id")?.value ?? null;
-    if (cookieVal && (lists ?? []).some((l) => l.id === cookieVal)) {
+    if (
+      cookieVal &&
+      ((lists ?? []) as Pick<Database["public"]["Tables"]["gift_lists"]["Row"], "id">[]).some((l) => l.id === cookieVal)
+    ) {
       currentListId = cookieVal;
     }
   }
@@ -100,6 +104,7 @@ export default async function GiftListPage({
   const importGiftsAction = async (items: ImportGiftItem[]): Promise<UIGift[]> => {
     "use server";
     const supabase = await createClient();
+    const supa = supabase as unknown as SupabaseClient<Database>;
 
     if (!Array.isArray(items) || items.length === 0) return [];
 
@@ -112,7 +117,7 @@ export default async function GiftListPage({
       thank_you_sent: it.thankYouSent,
     })) as Database["public"]["Tables"]["gifts"]["Insert"][];
 
-    const { data, error } = await supabase
+    const { data, error } = await supa
       .from("gifts")
       .insert(rows)
       .select("id, guest_name, description, gift_type, date_received, thank_you_sent")

@@ -2,6 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import type { Database } from "@/app/types/database";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type SubscriptionLookupKey = "pro_monthly" | "pro_annual";
 export type OneTimeLookupKey = "wedding_plan";
@@ -50,18 +51,30 @@ export async function getAiDraftsThisMonth(): Promise<number> {
 
 export async function incrementAiDraftsThisMonth(by: number): Promise<void> {
   const supabase = await createClient();
+  const supa = supabase as unknown as SupabaseClient<Database>;
   const { data: auth } = await supabase.auth.getUser();
   const user = auth.user;
   if (!user) return;
   const period = currentPeriodMonthUTC();
   const used = await getAiDraftsThisMonth();
   const next = used + by;
-  await supabase
+  const { data: existing } = await supa
     .from("usage_monthly")
-    .upsert(
-      { user_id: user.id, period_month: period, ai_drafts: next } as Database["public"]["Tables"]["usage_monthly"]["Insert"],
-      { onConflict: "user_id,period_month" }
-    );
+    .select("user_id")
+    .eq("user_id", user.id)
+    .eq("period_month", period)
+    .maybeSingle();
+
+  const usageMonthly = supa.from("usage_monthly");
+  if (existing) {
+    await usageMonthly
+      .update({ ai_drafts: next })
+      .eq("user_id", user.id)
+      .eq("period_month", period);
+  } else {
+    await usageMonthly
+      .insert({ user_id: user.id, period_month: period, ai_drafts: next });
+  }
 }
 
 export async function getCurrentPlanForUserFast(): Promise<{ plan: PlanKey; limits: PlanLimits }> {

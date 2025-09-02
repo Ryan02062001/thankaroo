@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import type { GiftType, Database } from "@/app/types/database";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 type GiftsRow = Database["public"]["Tables"]["gifts"]["Row"];
 type GiftsInsert = Database["public"]["Tables"]["gifts"]["Insert"];
@@ -65,6 +66,7 @@ export async function createGift(formData: FormData) {
 
   const supabase = await createClient();
   const user = await requireUserOrRedirect(supabase, redirectTo);
+  const supa = supabase as unknown as SupabaseClient<Database>;
 
   const ownsList = await assertListOwnership(supabase, list_id, user.id);
   if (!ownsList) {
@@ -91,7 +93,7 @@ export async function createGift(formData: FormData) {
     }
   }
 
-  const { error } = await supabase
+  const { error } = await supa
     .from("gifts")
     .insert([
       {
@@ -128,6 +130,7 @@ export async function updateGift(formData: FormData) {
 
   const supabase = await createClient();
   const user = await requireUserOrRedirect(supabase, redirectTo);
+  const supa = supabase as unknown as SupabaseClient<Database>;
 
   const listId = await getGiftListId(supabase, id);
   if (!listId) {
@@ -139,7 +142,7 @@ export async function updateGift(formData: FormData) {
     redirect(`${redirectTo}?list=${encodeURIComponent(listId!)}&error=${encodeURIComponent("You do not have permission to modify this gift")}`);
   }
 
-  const { error } = await supabase
+  const { error } = await supa
     .from("gifts")
     .update({
       guest_name,
@@ -169,6 +172,7 @@ export async function toggleThankYou(formData: FormData) {
 
   const supabase = await createClient();
   const user = await requireUserOrRedirect(supabase, next);
+  const supa = supabase as unknown as SupabaseClient<Database>;
 
   const listId = await getGiftListId(supabase, id);
   if (!listId) redirect(next);
@@ -178,7 +182,7 @@ export async function toggleThankYou(formData: FormData) {
     redirect(`${next}?list=${encodeURIComponent(listId)}&error=${encodeURIComponent("You do not have permission to modify this gift")}`);
   }
 
-  const { data: row, error: fetchErr } = await supabase
+  const { data: row, error: fetchErr } = await supa
     .from("gifts")
     .select("thank_you_sent")
     .eq("id", id)
@@ -187,7 +191,7 @@ export async function toggleThankYou(formData: FormData) {
   if (fetchErr || !row) redirect(`${next}?list=${listId}`);
 
   const newValue = !(row as Pick<GiftsRow, "thank_you_sent">).thank_you_sent;
-  const { error } = await supabase
+  const { error } = await supa
     .from("gifts")
     .update({
       thank_you_sent: newValue,
@@ -251,13 +255,14 @@ export async function createGiftDirect(input: {
 }): Promise<UIGift> {
   const supabase = await createClient();
   const user = await requireUserOrRedirect(supabase, "/giftlist");
+  const supa = supabase as unknown as SupabaseClient<Database>;
 
   const ownsList = await assertListOwnership(supabase, input.listId, user.id);
   if (!ownsList) throw new Error("Forbidden: cannot modify this list");
 
   const { limits } = await getCurrentPlanForUser();
   if (typeof limits.maxGiftsPerList === "number") {
-    const { count } = await supabase
+    const { count } = await supa
       .from("gifts")
       .select("id", { count: "exact", head: true })
       .eq("list_id", input.listId);
@@ -268,7 +273,7 @@ export async function createGiftDirect(input: {
     }
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await supa
     .from("gifts")
     .insert([
       {
@@ -305,13 +310,14 @@ export async function updateGiftDirect(input: {
 }): Promise<UIGift> {
   const supabase = await createClient();
   const user = await requireUserOrRedirect(supabase, "/giftlist");
+  const supa = supabase as unknown as SupabaseClient<Database>;
 
   const listId = await getGiftListId(supabase, input.id);
   if (!listId) throw new Error("Gift not found");
   const ownsList = await assertListOwnership(supabase, listId, user.id);
   if (!ownsList) throw new Error("Forbidden: cannot modify this gift");
 
-  const { data, error } = await supabase
+  const { data, error } = await supa
     .from("gifts")
     .update({
       guest_name: input.guestName,
@@ -346,13 +352,14 @@ export async function toggleThankYouDirect(input: { id: string }): Promise<{ id:
 {
   const supabase = await createClient();
   const user = await requireUserOrRedirect(supabase, "/giftlist");
+  const supa = supabase as unknown as SupabaseClient<Database>;
 
   const listId = await getGiftListId(supabase, input.id);
   if (!listId) throw new Error("Gift not found");
   const ownsList = await assertListOwnership(supabase, listId, user.id);
   if (!ownsList) throw new Error("Forbidden: cannot modify this gift");
 
-  const { data: row3, error: fetchErr } = await supabase
+  const { data: row3, error: fetchErr } = await supa
     .from("gifts")
     .select("thank_you_sent")
     .eq("id", input.id)
@@ -360,7 +367,7 @@ export async function toggleThankYouDirect(input: { id: string }): Promise<{ id:
   if (fetchErr || !row3) throw new Error(fetchErr?.message ?? "Gift not found");
 
   const newValue = !(row3 as Pick<GiftsRow, "thank_you_sent">).thank_you_sent;
-  const { error } = await supabase
+  const { error } = await supa
     .from("gifts")
     .update({
       thank_you_sent: newValue,
@@ -375,13 +382,14 @@ export async function toggleThankYouDirect(input: { id: string }): Promise<{ id:
 export async function deleteGiftDirect(input: { id: string }): Promise<{ id: string }> {
   const supabase = await createClient();
   const user = await requireUserOrRedirect(supabase, "/giftlist");
+  const supa = supabase as unknown as SupabaseClient<Database>;
 
   const listId = await getGiftListId(supabase, input.id);
   if (!listId) throw new Error("Gift not found");
   const ownsList = await assertListOwnership(supabase, listId, user.id);
   if (!ownsList) throw new Error("Forbidden: cannot delete this gift");
 
-  const { error } = await supabase.from("gifts").delete().eq("id", input.id);
+  const { error } = await supa.from("gifts").delete().eq("id", input.id);
   if (error) throw new Error(error.message);
   return { id: input.id };
 }
