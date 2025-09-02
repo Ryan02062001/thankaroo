@@ -2,6 +2,8 @@
 
 import * as React from "react";
 import { supabase } from "@/utils/supabase/client";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/app/types/database";
 import type { Database } from "@/app/types/database";
 
 export type Channel = "email" | "text" | "card";
@@ -106,6 +108,7 @@ function addDays(baseYmd: string, days: number) {
 }
 
 export function ReminderProvider({ children }: { children: React.ReactNode }) {
+  const supa = supabase as unknown as SupabaseClient<Database>;
   const [state, setState] = React.useState<State>({ settingsByList: {}, reminders: [], drafts: [] });
 
   // Hydrate from localStorage after mount to avoid SSR/client mismatch
@@ -140,7 +143,7 @@ export function ReminderProvider({ children }: { children: React.ReactNode }) {
       }));
       void (async () => {
         try {
-          await supabase
+          await supa
             .from("reminder_settings")
             .upsert(
               {
@@ -207,7 +210,9 @@ export function ReminderProvider({ children }: { children: React.ReactNode }) {
             created_at: r.createdAt,
             gift_snapshot: r.giftSnapshot,
           }));
-          await supabase.from("reminders").insert(rows);
+          await supa
+            .from("reminders")
+            .insert(rows as Database["public"]["Tables"]["reminders"]["Insert"][]);
         } catch {}
       })();
 
@@ -264,7 +269,10 @@ export function ReminderProvider({ children }: { children: React.ReactNode }) {
     }));
     void (async () => {
       try {
-        await supabase.from("reminders").update({ due_at: newDueYmd }).eq("id", reminderId);
+        await supa
+          .from("reminders")
+          .update({ due_at: newDueYmd } as Database["public"]["Tables"]["reminders"]["Update"]) 
+          .eq("id", reminderId);
       } catch {}
     })();
   }, []);
@@ -278,7 +286,10 @@ export function ReminderProvider({ children }: { children: React.ReactNode }) {
     }));
     void (async () => {
       try {
-        await supabase.from("reminders").update({ sent: true }).in("id", reminderIds);
+        await supa
+          .from("reminders")
+          .update({ sent: true } as Database["public"]["Tables"]["reminders"]["Update"]) 
+          .in("id", reminderIds);
       } catch {}
     })();
   }, []);
@@ -292,7 +303,7 @@ export function ReminderProvider({ children }: { children: React.ReactNode }) {
     }));
     void (async () => {
       try {
-        await supabase.from("reminders").delete().in("id", reminderIds);
+        await supa.from("reminders").delete().in("id", reminderIds);
       } catch {}
     })();
   }, []);
@@ -306,7 +317,10 @@ export function ReminderProvider({ children }: { children: React.ReactNode }) {
     }));
     void (async () => {
       try {
-        await supabase.from("reminders").update({ sent: true }).eq("id", reminderId);
+        await supa
+          .from("reminders")
+          .update({ sent: true } as Database["public"]["Tables"]["reminders"]["Update"]) 
+          .eq("id", reminderId);
       } catch {}
     })();
   }, []);
@@ -318,7 +332,10 @@ export function ReminderProvider({ children }: { children: React.ReactNode }) {
     }));
     void (async () => {
       try {
-        await supabase.from("reminders").update({ sent }).eq("id", reminderId);
+        await supa
+          .from("reminders")
+          .update({ sent } as Database["public"]["Tables"]["reminders"]["Update"]) 
+          .eq("id", reminderId);
       } catch {}
     })();
   }, []);
@@ -330,7 +347,7 @@ export function ReminderProvider({ children }: { children: React.ReactNode }) {
     }));
     void (async () => {
       try {
-        await supabase.from("reminders").delete().eq("id", reminderId);
+        await supa.from("reminders").delete().eq("id", reminderId);
       } catch {}
     })();
   }, []);
@@ -373,7 +390,7 @@ export function ReminderProvider({ children }: { children: React.ReactNode }) {
     upsertDraft,
     hydrateListReminders: async (listId: string) => {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supa
           .from("reminders")
           .select("id, list_id, gift_id, due_at, channel, sent, created_at, gift_snapshot")
           .eq("list_id", listId)
@@ -400,7 +417,7 @@ export function ReminderProvider({ children }: { children: React.ReactNode }) {
     },
     hydrateListSettings: async (listId: string) => {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supa
           .from("reminder_settings")
           .select("list_id, default_intervals_days, default_channel, auto_generate_drafts, timezone")
           .eq("list_id", listId)
@@ -452,7 +469,9 @@ export function ReminderProvider({ children }: { children: React.ReactNode }) {
           created_at: r.createdAt,
           gift_snapshot: r.giftSnapshot,
         }));
-        await supabase.from("reminders").insert(rows);
+        await supa
+          .from("reminders")
+          .insert(rows as Database["public"]["Tables"]["reminders"]["Insert"][]);
       } catch {}
 
       if (autoGenerate) {
