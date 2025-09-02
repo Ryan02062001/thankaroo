@@ -10,6 +10,7 @@ import { useReminders, type Channel } from "@/app/contexts/ReminderContext";
 import { supabase } from "@/utils/supabase/client";
 import { Calendar, Search, Plus, X } from "lucide-react";
 import { channelBadgeClasses } from "@/lib/theme";
+import type { Database } from "@/app/types/database";
 
 type Gift = {
   id: string;
@@ -17,6 +18,11 @@ type Gift = {
   description: string;
   date: string; // YYYY-MM-DD
 };
+
+type DBGiftRow = Pick<
+  Database["public"]["Tables"]["gifts"]["Row"],
+  "id" | "guest_name" | "description" | "date_received"
+>;
 
 function ymd(d: Date) {
   return d.toISOString().slice(0, 10);
@@ -80,7 +86,8 @@ export function AddReminderDialog({
         .order("date_received", { ascending: false });
       setLoading(false);
       if (error) return;
-      const mapped: Gift[] = (data ?? []).map((g) => ({
+      const rows = (data ?? []) as DBGiftRow[];
+      const mapped: Gift[] = rows.map((g) => ({
         id: g.id,
         guestName: g.guest_name,
         description: g.description,
