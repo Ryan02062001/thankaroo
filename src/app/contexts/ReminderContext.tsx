@@ -4,7 +4,6 @@ import * as React from "react";
 import { supabase } from "@/utils/supabase/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/app/types/database";
-import type { Database } from "@/app/types/database";
 
 export type Channel = "email" | "text" | "card";
 export type Relationship = "friend" | "family" | "coworker" | "other";
