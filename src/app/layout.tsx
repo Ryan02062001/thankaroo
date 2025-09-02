@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/header";
 import { ReminderProvider } from "@/app/contexts/ReminderContext";
 import Footer from "@/components/Footer";
+import { Analytics } from "@vercel/analytics/next"
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ReminderProvider>
             {children}
           </ReminderProvider>
+          <Analytics />
         </main>
         <Footer />
       </body>

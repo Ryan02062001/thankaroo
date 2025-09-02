@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
-import type { GiftType } from "@/app/types/database";
+import type { GiftType, Database } from "@/app/types/database";
+
+type GiftsRow = Database["public"]["Tables"]["gifts"]["Row"];
+type GiftsInsert = Database["public"]["Tables"]["gifts"]["Insert"];
+type GiftsUpdate = Database["public"]["Tables"]["gifts"]["Update"];
 import { getCurrentPlanForUser } from "@/lib/plans";
 
 async function requireUserOrRedirect(supabase: Awaited<ReturnType<typeof createClient>>, nextUrl: string) {
@@ -40,7 +44,7 @@ async function getGiftListId(
     .eq("id", giftId)
     .single();
   if (error || !data) return null;
-  return data.list_id as string;
+  return (data as Pick<GiftsRow, "list_id">).list_id as string;
 }
 
 export async function createGift(formData: FormData) {
@@ -87,13 +91,17 @@ export async function createGift(formData: FormData) {
     }
   }
 
-  const { error } = await supabase.from("gifts").insert({
-    list_id,
-    guest_name,
-    description,
-    gift_type,
-    date_received: date_received || undefined,
-  });
+  const { error } = await supabase
+    .from("gifts")
+    .insert([
+      {
+        list_id,
+        guest_name,
+        description,
+        gift_type,
+        date_received: date_received || undefined,
+      } satisfies GiftsInsert,
+    ]);
 
   if (error) {
     redirect(
@@ -140,7 +148,7 @@ export async function updateGift(formData: FormData) {
       date_received: date_received || undefined,
       thank_you_sent,
       thank_you_sent_at: thank_you_sent ? new Date().toISOString() : null,
-    })
+    } satisfies GiftsUpdate)
     .eq("id", id);
 
   if (error) {
@@ -178,13 +186,13 @@ export async function toggleThankYou(formData: FormData) {
 
   if (fetchErr || !row) redirect(`${next}?list=${listId}`);
 
-  const newValue = !row.thank_you_sent;
+  const newValue = !(row as Pick<GiftsRow, "thank_you_sent">).thank_you_sent;
   const { error } = await supabase
     .from("gifts")
     .update({
       thank_you_sent: newValue,
       thank_you_sent_at: newValue ? new Date().toISOString() : null,
-    })
+    } satisfies GiftsUpdate)
     .eq("id", id);
 
   if (error) {
@@ -262,25 +270,28 @@ export async function createGiftDirect(input: {
 
   const { data, error } = await supabase
     .from("gifts")
-    .insert({
-      list_id: input.listId,
-      guest_name: input.guestName,
-      description: input.description,
-      gift_type: input.giftType,
-      date_received: input.dateReceived || undefined,
-    })
+    .insert([
+      {
+        list_id: input.listId,
+        guest_name: input.guestName,
+        description: input.description,
+        gift_type: input.giftType,
+        date_received: input.dateReceived || undefined,
+      } satisfies GiftsInsert,
+    ])
     .select("id, guest_name, description, gift_type, date_received, thank_you_sent")
     .single();
 
   if (error || !data) throw new Error(error?.message ?? "Failed to create gift");
 
+  const row = data as Pick<GiftsRow, "id" | "guest_name" | "description" | "gift_type" | "date_received" | "thank_you_sent">;
   return {
-    id: data.id as string,
-    guestName: data.guest_name as string,
-    description: data.description as string,
-    type: data.gift_type as GiftType,
-    date: (data.date_received ?? new Date().toISOString().slice(0, 10)) as string,
-    thankYouSent: Boolean(data.thank_you_sent),
+    id: row.id as string,
+    guestName: row.guest_name as string,
+    description: row.description as string,
+    type: row.gift_type as GiftType,
+    date: (row.date_received ?? new Date().toISOString().slice(0, 10)) as string,
+    thankYouSent: Boolean(row.thank_you_sent),
   };
 }
 
@@ -313,20 +324,21 @@ export async function updateGiftDirect(input: {
             thank_you_sent_at: input.thankYouSent ? new Date().toISOString() : null,
           }
         : {}),
-    })
+    } satisfies GiftsUpdate)
     .eq("id", input.id)
     .select("id, guest_name, description, gift_type, date_received, thank_you_sent")
     .single();
 
   if (error || !data) throw new Error(error?.message ?? "Failed to update gift");
 
+  const row2 = data as Pick<GiftsRow, "id" | "guest_name" | "description" | "gift_type" | "date_received" | "thank_you_sent">;
   return {
-    id: data.id as string,
-    guestName: data.guest_name as string,
-    description: data.description as string,
-    type: data.gift_type as GiftType,
-    date: (data.date_received ?? new Date().toISOString().slice(0, 10)) as string,
-    thankYouSent: Boolean(data.thank_you_sent),
+    id: row2.id as string,
+    guestName: row2.guest_name as string,
+    description: row2.description as string,
+    type: row2.gift_type as GiftType,
+    date: (row2.date_received ?? new Date().toISOString().slice(0, 10)) as string,
+    thankYouSent: Boolean(row2.thank_you_sent),
   };
 }
 
@@ -340,20 +352,20 @@ export async function toggleThankYouDirect(input: { id: string }): Promise<{ id:
   const ownsList = await assertListOwnership(supabase, listId, user.id);
   if (!ownsList) throw new Error("Forbidden: cannot modify this gift");
 
-  const { data: row, error: fetchErr } = await supabase
+  const { data: row3, error: fetchErr } = await supabase
     .from("gifts")
     .select("thank_you_sent")
     .eq("id", input.id)
     .single();
-  if (fetchErr || !row) throw new Error(fetchErr?.message ?? "Gift not found");
+  if (fetchErr || !row3) throw new Error(fetchErr?.message ?? "Gift not found");
 
-  const newValue = !row.thank_you_sent;
+  const newValue = !(row3 as Pick<GiftsRow, "thank_you_sent">).thank_you_sent;
   const { error } = await supabase
     .from("gifts")
     .update({
       thank_you_sent: newValue,
       thank_you_sent_at: newValue ? new Date().toISOString() : null,
-    })
+    } satisfies GiftsUpdate)
     .eq("id", input.id);
   if (error) throw new Error(error.message);
 

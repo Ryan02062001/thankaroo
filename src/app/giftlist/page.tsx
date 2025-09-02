@@ -6,6 +6,7 @@ import GiftHubClient, { type ImportGiftItem } from "./gift-hub-client";
 import { Button } from "@/components/ui/button";
 import { ListSelector } from "@/components/ui/list-selector";
 import type { UIGift } from "@/components/giftlist/types";
+import type { Database } from "@/app/types/database";
 
 export default async function GiftListPage({
   searchParams,
@@ -35,7 +36,7 @@ export default async function GiftListPage({
     }
   }
 
-  if (!currentListId) currentListId = lists?.[0]?.id ?? null;
+  if (!currentListId) currentListId = (lists as Database["public"]["Tables"]["gift_lists"]["Row"][] | null)?.[0]?.id ?? null;
 
   if (!currentListId) {
     return (
@@ -71,11 +72,11 @@ export default async function GiftListPage({
     .order("date_received", { ascending: false });
   if (giftsErr) throw new Error(giftsErr.message);
 
-  const uiGifts = (gifts ?? []).map((g) => ({
-    id: g.id,
+  const uiGifts: UIGift[] = ((gifts ?? []) as Pick<Database["public"]["Tables"]["gifts"]["Row"], "id" | "guest_name" | "description" | "gift_type" | "date_received" | "thank_you_sent">[]).map((g) => ({
+    id: g.id as string,
     guestName: g.guest_name as string,
     description: g.description as string,
-    type: g.gift_type as "non registry" | "monetary" | "registry" | "multiple",
+    type: g.gift_type as UIGift["type"],
     date: (g.date_received ?? new Date().toISOString().slice(0, 10)) as string,
     thankYouSent: Boolean(g.thank_you_sent),
   }));
@@ -90,7 +91,7 @@ export default async function GiftListPage({
     .order("created_at", { ascending: false });
   if (notesErr) throw new Error(notesErr.message);
 
-  const safeNotes = (notesRaw ?? []).map((n) => ({
+  const safeNotes = ((notesRaw ?? []) as Database["public"]["Tables"]["thank_you_notes"]["Row"][]).map((n) => ({
     ...n,
     meta: typeof n.meta === "object" && n.meta !== null ? (n.meta as Record<string, unknown>) : null,
   }));
@@ -103,13 +104,13 @@ export default async function GiftListPage({
     if (!Array.isArray(items) || items.length === 0) return [];
 
     const rows = items.map((it) => ({
-      list_id: currentListId,
+      list_id: currentListId as string,
       guest_name: it.guestName,
       description: it.description,
       gift_type: it.type,
       date_received: it.date,
       thank_you_sent: it.thankYouSent,
-    }));
+    })) as Database["public"]["Tables"]["gifts"]["Insert"][];
 
     const { data, error } = await supabase
       .from("gifts")
@@ -118,11 +119,11 @@ export default async function GiftListPage({
       .order("date_received", { ascending: false });
     if (error) throw new Error(error.message);
 
-    const inserted: UIGift[] = (data ?? []).map((g) => ({
+    const inserted: UIGift[] = ((data ?? []) as Pick<Database["public"]["Tables"]["gifts"]["Row"], "id" | "guest_name" | "description" | "gift_type" | "date_received" | "thank_you_sent">[]).map((g) => ({
       id: g.id as string,
       guestName: g.guest_name as string,
       description: g.description as string,
-      type: g.gift_type as "non registry" | "monetary" | "registry" | "multiple",
+      type: g.gift_type as UIGift["type"],
       date: (g.date_received ?? new Date().toISOString().slice(0, 10)) as string,
       thankYouSent: Boolean(g.thank_you_sent),
     }));

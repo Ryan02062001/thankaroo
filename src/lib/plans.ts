@@ -1,6 +1,7 @@
 // src/lib/plans.ts
 
 import { createClient } from "@/utils/supabase/server";
+import type { Database } from "@/app/types/database";
 
 export type SubscriptionLookupKey = "pro_monthly" | "pro_annual";
 export type OneTimeLookupKey = "wedding_plan";
@@ -41,9 +42,10 @@ export async function getAiDraftsThisMonth(): Promise<number> {
   const { data } = await supabase
     .from("usage_monthly")
     .select("ai_drafts")
+    .eq("user_id", user.id)
     .eq("period_month", period)
     .maybeSingle();
-  return data?.ai_drafts ?? 0;
+  return (data as Pick<Database["public"]["Tables"]["usage_monthly"]["Row"], "ai_drafts"> | null)?.ai_drafts ?? 0;
 }
 
 export async function incrementAiDraftsThisMonth(by: number): Promise<void> {
@@ -56,7 +58,10 @@ export async function incrementAiDraftsThisMonth(by: number): Promise<void> {
   const next = used + by;
   await supabase
     .from("usage_monthly")
-    .upsert({ user_id: user.id, period_month: period, ai_drafts: next }, { onConflict: "user_id,period_month" });
+    .upsert(
+      { user_id: user.id, period_month: period, ai_drafts: next } as Database["public"]["Tables"]["usage_monthly"]["Insert"],
+      { onConflict: "user_id,period_month" }
+    );
 }
 
 export async function getCurrentPlanForUserFast(): Promise<{ plan: PlanKey; limits: PlanLimits }> {
@@ -69,16 +74,18 @@ export async function getCurrentPlanForUserFast(): Promise<{ plan: PlanKey; limi
     supabase
       .from("billing_subscriptions")
       .select("status, price_lookup_key, cancel_at_period_end")
+      .eq("user_id", user.id)
       .maybeSingle(),
     supabase
       .from("billing_entitlements")
-      .select("product_lookup_key, active"),
+      .select("product_lookup_key, active")
+      .eq("user_id", user.id),
   ]);
 
   let plan: PlanKey = "free";
-  if (sub && (sub.status === "active" || sub.status === "trialing")) {
+  if (sub && ((sub as Database["public"]["Tables"]["billing_subscriptions"]["Row"]).status === "active" || (sub as Database["public"]["Tables"]["billing_subscriptions"]["Row"]).status === "trialing")) {
     plan = "pro";
-  } else if ((ents ?? []).some((e) => (e.product_lookup_key === "wedding_plan" || e.product_lookup_key === "wedding_pass") && e.active)) {
+  } else if ((ents ?? []).some((e) => (((e as Database["public"]["Tables"]["billing_entitlements"]["Row"]).product_lookup_key === "wedding_plan" || (e as Database["public"]["Tables"]["billing_entitlements"]["Row"]).product_lookup_key === "wedding_pass") && (e as Database["public"]["Tables"]["billing_entitlements"]["Row"]).active))) {
     plan = "wedding_pass";
   }
 

@@ -4,6 +4,7 @@ import { requireAuth } from "@/lib/auth";
 import { createClient } from "@/utils/supabase/server";
 import RemindersClient from "@/app/reminders/reminders-client";
 import { Button } from "@/components/ui/button";
+import type { Database } from "@/app/types/database";
 
 export default async function RemindersPage({
   searchParams,
@@ -33,7 +34,7 @@ export default async function RemindersPage({
     }
   }
 
-  if (!currentListId) currentListId = lists?.[0]?.id ?? null;
+  if (!currentListId) currentListId = (lists as Database["public"]["Tables"]["gift_lists"]["Row"][] | null)?.[0]?.id ?? null;
 
   if (!currentListId) {
     return (
