@@ -141,7 +141,7 @@ export default function HeroSection() {
             {/* Headline (no underline/shimmer) */}
             <motion.h1
               variants={item}
-              className="text-3xl font-bold tracking-tight sm:text-6xl md:text-6xl lg:text-8xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent leading-tight"
+              className="text-5xl font-bold tracking-tight sm:text-6xl md:text-6xl lg:text-8xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent leading-tight"
             >
               Wedding Ready
               <span className="block text-[#3EB489] relative">

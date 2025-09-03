@@ -49,9 +49,9 @@ function PricingContent() {
     ctaLabel: "Start free",
     ctaHref: "/signup",
     features: [
-      "Up to 50 gifts",
+      "Up to 10 gifts",
       "1 list",
-      "20 AI draft notes",
+      "10 AI note drafts",
       "Email support",
     ],
   }
