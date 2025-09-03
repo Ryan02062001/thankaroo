@@ -117,6 +117,20 @@ export default function HeroSection() {
         viewport={{ once: true, amount: 0.35 }}
       >
         <div className="mx-auto max-w-4xl text-center space-y-8">
+        <motion.div
+            variants={item}
+            className="mx-auto max-w-xl flex items-center justify-center gap-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg"
+            initial={{ y: 16, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+          >
+            <Clock className="w-5 h-5 text-yellow-600" />
+            <div className="text-sm">
+              <span className="font-semibold text-yellow-800">Wedding season is here!</span>
+              <span className="text-yellow-700 ml-1">Get started for free before the gift rush begins. Get set up in 20 seconds!</span>
+            </div>
+          </motion.div>
           <motion.div className="flex items-center justify-center gap-2" variants={item}>
             <motion.div variants={item}>
               <Badge
@@ -154,20 +168,7 @@ Worry Free                <Heart className="absolute -top-2 -right-8 w-6 h-6 tex
 Don&apos;t be the couple that forgets!            </motion.p>
           </div>
 
-          <motion.div
-            variants={item}
-            className="mx-auto max-w-xl flex items-center justify-center gap-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg"
-            initial={{ y: 16, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-          >
-            <Clock className="w-5 h-5 text-yellow-600" />
-            <div className="text-sm">
-              <span className="font-semibold text-yellow-800">Wedding season is here!</span>
-              <span className="text-yellow-700 ml-1">Get started for free before the gift rush begins. Get set up in 20 seconds!</span>
-            </div>
-          </motion.div>
+        
 
           <motion.div variants={item} className="space-y-3">
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center max-w-lg w-full mx-auto">
