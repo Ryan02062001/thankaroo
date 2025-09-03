@@ -117,7 +117,7 @@ export default function HeroSection() {
         viewport={{ once: true, amount: 0.35 }}
       >
         <div className="mx-auto max-w-4xl text-center space-y-8">
-          <motion.div className="flex items-center justify-center gap-2" variants={item}>
+          <motion.div className="hidden md:flex items-center justify-center gap-2" variants={item}>
             <motion.div variants={item}>
               <Badge
                 variant="secondary"
