@@ -151,7 +151,7 @@ export default function HeroSection() {
             </motion.h1>
 
             <motion.p variants={item} className="text-lg md:text-xl text-gray-600 leading-relaxed">
-            Track wedding gifts and draft beautiful thank-you notes in minutes—so nothing slips. Don&apos;t be the couple that forgets!     </motion.p>
+            Track wedding gifts and draft beautiful thank-you notes in seconds so nothing slips. </motion.p>
           </div>
 
           <motion.div
