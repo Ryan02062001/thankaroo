@@ -141,7 +141,7 @@ export default function HeroSection() {
             {/* Headline (no underline/shimmer) */}
             <motion.h1
               variants={item}
-              className="text-5xl font-bold tracking-tight sm:text-6xl md:text-6xl lg:text-8xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent leading-tight"
+              className="text-4xl font-bold tracking-tight sm:text-6xl md:text-6xl lg:text-8xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent leading-tight"
             >
               Wedding Ready
               <span className="block text-[#3EB489] relative">
@@ -150,7 +150,7 @@ Worry Free                <Heart className="absolute -top-2 -right-8 w-6 h-6 tex
             
             </motion.h1>
 
-            <motion.p variants={item} className="text-xl text-gray-600 leading-relaxed">
+            <motion.p variants={item} className="text-lg md:text-xl text-gray-600 leading-relaxed">
 Don&apos;t be the couple that forgets!            </motion.p>
           </div>
 
