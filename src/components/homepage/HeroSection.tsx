@@ -132,7 +132,7 @@ export default function HeroSection() {
                 variant="secondary"
                 className="bg-orange-100 text-orange-600 hover:bg-orange-100 border-orange-200 px-3 py-1 text-sm"
               >
-                Join the couples who trust us
+                Thank-you Notes
               </Badge>
             </motion.div>
           </motion.div>
@@ -143,18 +143,15 @@ export default function HeroSection() {
               variants={item}
               className="text-3xl font-bold tracking-tight sm:text-6xl md:text-6xl lg:text-8xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent leading-tight"
             >
-              Never Miss A
+              Wedding Ready
               <span className="block text-[#3EB489] relative">
-                Thank-You Note
-                <Heart className="absolute -top-2 -right-8 w-6 h-6 text-[#A8E6CF] fill-current animate-pulse" />
+Worry Free                <Heart className="absolute -top-2 -right-8 w-6 h-6 text-[#A8E6CF] fill-current animate-pulse" />
               </span>
-              Again
+            
             </motion.h1>
 
             <motion.p variants={item} className="text-xl text-gray-600 leading-relaxed">
-              Track gifts in one place, send beautiful thank-you notes in minutes, and stay on top
-              of reminders — from engagement party to wedding day.
-            </motion.p>
+Don&apos;t be the couple that forgets!            </motion.p>
           </div>
 
           <motion.div
@@ -168,7 +165,7 @@ export default function HeroSection() {
             <Clock className="w-5 h-5 text-yellow-600" />
             <div className="text-sm">
               <span className="font-semibold text-yellow-800">Wedding season is here!</span>
-              <span className="text-yellow-700 ml-1">Start your free trial before the gift rush begins.</span>
+              <span className="text-yellow-700 ml-1">Get started for free before the gift rush begins. Get set up in 20 seconds!</span>
             </div>
           </motion.div>
 
@@ -180,7 +177,7 @@ export default function HeroSection() {
                     size="lg"
                     className="h-12 px-6 bg-[#2f9c79] hover:bg-[#258868] text-white shadow-lg hover:shadow-xl transition-all w-full"
                   >
-                    Start Free Trial
+                    Sign Up For Free
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </motion.div>
@@ -188,7 +185,7 @@ export default function HeroSection() {
 
              
             </div>
-            <p className="text-sm text-gray-500">100% free trial. No credit card required.</p>
+            <p className="text-sm text-gray-500">100% free. No credit card required.</p>
           </motion.div>
 
           <motion.ul
