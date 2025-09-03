@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 function fullLimitsFor(plan: "free" | "wedding" | "pro") {
   if (plan === "free") return { maxLists: 1, maxGiftsPerList: 50, maxAiDraftsPerMonth: 20 } as const;
-  if (plan === "wedding") return { maxLists: 1, maxGiftsPerList: null, maxAiDraftsPerMonth: 1000 } as const;
+  if (plan === "wedding") return { maxLists: 1, maxGiftsPerList: null, maxAiDraftsPerMonth: 500 } as const;
   return { maxLists: null, maxGiftsPerList: null, maxAiDraftsPerMonth: null } as const; // pro
 }
 

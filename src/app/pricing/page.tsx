@@ -40,7 +40,7 @@ function PricingContent() {
     }
   }
 
-  // === Plans (updated to the new model) ===
+  // === Plans (simplified: Free + Wedding Plus one-time) ===
 
   const free: Plan = {
     name: "Free",
@@ -57,54 +57,21 @@ function PricingContent() {
   }
 
   const weddingPass: Plan = {
-    name: "Wedding Pass",
-    tagline: "Everything for one wedding — 12 months. No subscription.",
-    price: "$59",
-    ctaLabel: "Get Wedding Pass",
+    name: "Wedding Plus",
+    tagline: "Everything you need for a stress‑free wedding thank‑you workflow.",
+    price: "$19",
+    ctaLabel: "Get Wedding Plus",
     ctaHref: "#",
     oneTime: true,
     mostPopular: true,
     features: [
-      "4 lists, unlimited gifts",
-      "Smart reminders that run for 12 months",
-      "1,000 AI thank‑you drafts (total)",
-      "Priority email support",
+      "One List — Unlimited gifts",
+      "500 AI note drafts",
+      "Reminders",
+      "Full export (CSV)",
+      "Priority support",
     ],
-    ctaOnClick: () => startCheckout({ lookup_key: "wedding_plan" }),
-  }
-
-  const proMonthly: Plan = {
-    name: "Pro (All Events)",
-    tagline: "For planners & power users.",
-    price: "$24",
-    priceNote: "/month • 3‑month minimum",
-    ctaLabel: "Get Pro Monthly",
-    ctaHref: "#",
-    features: [
-      "Unlimited events & gifts",
-      "Advanced reminder schedules & automations",
-      "Bulk import & export",
-      "Calendar export (.ics)",
-  
-    ],
-    ctaOnClick: () => startCheckout({ lookup_key: "pro_monthly" }),
-  }
-
-  const proAnnual: Plan = {
-    name: "Pro Annual (All Events)",
-    tagline: "Best value for planners.",
-    price: "$144",
-    priceNote: "/year (~$12/mo)",
-    ctaLabel: "Get Pro Annual",
-    ctaHref: "#",
-    features: [
-      "Unlimited events & gifts",
-      "Advanced reminder schedules & automations",
-      "Bulk import & export",
-      "Calendar export (.ics)",
-     
-    ],
-    ctaOnClick: () => startCheckout({ lookup_key: "pro_annual" }),
+    ctaOnClick: () => startCheckout({ lookup_key: "wedding_pro" }),
   }
 
   return (
@@ -125,11 +92,9 @@ function PricingContent() {
                 Simple, honest pricing
               </div>
               <h1 id="pricing-heading" className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-900">
-                Start free. Pick a one‑time pass or subscribe.
+                Start free. Upgrade once when you’re ready.
               </h1>
-              <p className="text-base sm:text-lg text-gray-600">
-                No credit card required. Wedding Pass covers 12 months. Pro monthly has a 3‑month minimum.
-              </p>
+              <p className="text-base sm:text-lg text-gray-600">Simple, honest pricing. No subscriptions.</p>
 
               <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm sm:text-base text-gray-700">
                 <div className="inline-flex items-center gap-2">
@@ -148,7 +113,7 @@ function PricingContent() {
             </div>
 
             <div className="mx-auto mt-8 sm:mt-10 lg:w-10/12 w-full">
-              <PricingTabs free={free} weddingPass={weddingPass} proMonthly={proMonthly} proAnnual={proAnnual} />
+              <PricingTabs free={free} weddingPass={weddingPass} />
             </div>
 
             <HighlightsGrid />

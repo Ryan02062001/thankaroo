@@ -6,12 +6,12 @@ export default function HighlightsGrid() {
         Try it first, upgrade later.
       </div>
       <div className="rounded-lg border border-[#A8E6CF]/60 bg-white p-4">
-        <div className="font-semibold text-gray-900">3‑month minimum (Monthly)</div>
-        Cancel anytime after the minimum.
+        <div className="font-semibold text-gray-900">Pay once</div>
+        No subscriptions. Yours for the event.
       </div>
       <div className="rounded-lg border border-[#A8E6CF]/60 bg-white p-4">
-        <div className="font-semibold text-gray-900">Wedding Pass covers 12 months</div>
-        Automations run for a full year.
+        <div className="font-semibold text-gray-900">Focused on weddings</div>
+        Everything you need for thank‑yous.
       </div>
     </div>
   );

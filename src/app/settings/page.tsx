@@ -27,13 +27,13 @@ export default async function SettingsPage() {
 
         <div className="rounded border bg-white p-6 text-[#2d2d2d] space-y-3">
           <div className="text-sm text-gray-600">Current plan</div>
-          <div className="text-lg font-medium capitalize">{plan === "wedding" ? "Wedding Pass (one-time)" : plan}</div>
+          <div className="text-lg font-medium capitalize">{plan === "wedding" ? "Wedding Plus (one-time)" : plan}</div>
           <div className="text-sm text-gray-600">
             {plan === "free" && (
               <>Includes up to {limits.maxLists ?? 1} list, {limits.maxGiftsPerList ?? 50} gifts per list, {limits.maxAiDraftsPerMonth ?? 20} AI drafts/month.</>
             )}
             {plan === "wedding" && (
-              <>Includes {limits.maxLists ?? 1} list, unlimited gifts, up to {limits.maxAiDraftsPerMonth ?? 1000} AI drafts.</>
+              <>Includes {limits.maxLists ?? 1} list, unlimited gifts, up to {limits.maxAiDraftsPerMonth ?? 500} AI drafts.</>
             )}
             {plan === "pro" && <>Unlimited lists & gifts; unlimited AI drafts.</>}
           </div>

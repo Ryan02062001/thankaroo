@@ -127,7 +127,7 @@ export async function syncStripeStateForCustomer(
       const liPrice = (s as unknown as { line_items?: { data?: Array<{ price?: { lookup_key?: string } }> } }).line_items?.data?.[0]?.price;
       const liLookup = (liPrice?.lookup_key ?? "") as string;
       const lookup = metaLookup || liLookup;
-      if (lookup === "wedding_plan" || lookup === "wedding_pass" || lookup === "wedding_pass_") {
+      if (lookup === "wedding_plan" || lookup === "wedding_pro" || lookup === "wedding_pass" || lookup === "wedding_pass_") {
         await admin
           .from("billing_entitlements")
           .upsert(

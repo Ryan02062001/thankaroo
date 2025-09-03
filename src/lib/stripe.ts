@@ -46,6 +46,8 @@ export async function resolvePriceByLookupKey(lookupKey: string): Promise<{ id: 
     lookupKey,
     lookupKey.replace(/_+$/, ""), // strip trailing underscores
     `${lookupKey}_`,
+    lookupKey === "wedding_pro" ? "wedding_plan" : "",
+    lookupKey === "wedding_plan" ? "wedding_pro" : "",
   ]);
   for (const alias of normalizedAliases) {
     const found = priceCache!.byLookupKey[alias];
@@ -128,7 +130,7 @@ export async function getOrCreateCustomerIdForCurrentUser(): Promise<string> {
 }
 
 export function deriveModeFromLookupKey(lookupKey: string): "payment" | "subscription" {
-  if (lookupKey === "wedding_plan" || lookupKey === "wedding_pass" || lookupKey === "wedding_pass_") return "payment";
+  if (lookupKey === "wedding_plan" || lookupKey === "wedding_pro" || lookupKey === "wedding_pass" || lookupKey === "wedding_pass_") return "payment";
   if (lookupKey === "pro_monthly" || lookupKey === "pro_annual") return "subscription";
   // Default to subscription if unknown but recurring price will correct us at creation time
   return "subscription";
