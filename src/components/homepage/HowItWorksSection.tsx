@@ -143,8 +143,8 @@ export default function HowItWorksSection() {
       icon: Gift,
       title: "Import or log gifts",
       description:
-        "Capture gifts and addresses in one place — clear, tidy, and fast to update.",
-      features: ["Quick entry", "Guest linking", "CSV/registry import"],
+        "Capture gifts in one place, clear, tidy, and fast to update.",
+      features: ["Quick entry", "Guest linking", "Advanced Filters"],
     },
     {
       number: "02",
@@ -159,7 +159,7 @@ export default function HowItWorksSection() {
       icon: CheckCircle2,
       title: "Track who’s been thanked",
       description:
-        "Progress at a glance so nothing slips — never wonder “did we thank them?” again.",
+        "Progress at a glance so nothing slips, never wonder “did we thank them?” again.",
       features: ["Status tracking", "Gentle reminders", "Zero duplicates"],
     },
   ]
