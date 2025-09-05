@@ -165,7 +165,7 @@ export default function HowItWorksSection() {
   ]
 
   return (
-    <section id="how-it-works" className="py-20 md:py-28 relative overflow-hidden bg-gradient-to-b from-white to-[#F0FDFB]">
+    <section id="how-it-works" className="py-20 md:py-28 relative overflow-hidden bg-gradient-to-b from-white to-[#F0FDFB] scroll-mt-24">
       {/* Header */}
       <motion.div
         variants={headerVariants}

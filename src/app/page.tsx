@@ -1,7 +1,7 @@
 "use client"
 
 import HeroSection from "@/components/homepage/HeroSection"
-// import FeaturesSection from "@/components/homepage/FeaturesSection"
+import FeaturesSection from "@/components/homepage/FeaturesSection"
 import HowItWorksSection from "@/components/homepage/HowItWorksSection"
 // import PrivacySection from "@/components/PrivacySection"
 import FAQSection from "@/components/homepage/FAQSection"
@@ -21,6 +21,7 @@ export default function Home() {
 {/* Mobile/Tablet: single iPhone mockup */}
 <IphonePairMockup className="block md:hidden" />
         <HowItWorksSection />
+        <FeaturesSection />
         {/* <PrivacySection /> */}
         <FAQSection />
         <CallToActionSection />

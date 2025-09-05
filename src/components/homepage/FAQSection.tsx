@@ -11,8 +11,8 @@ export default function FAQSection() {
       a: "Yes. Most couples set up in under a minute, log gifts in seconds, and let AI draft notes they can personalize. The tracker shows exactly who’s been thanked.",
     },
     {
-      q: "Can we import from any registry?",
-      a: "Yep. Import gifts or add them manually. Everything ends up in one organized list with clear progress tracking.",
+      q: "Does Thankaroo work on mobile?",
+      a: "Yes—it's fully responsive, so you can add gifts and manage notes from your phone, tablet, or desktop.",
     },
     {
       q: "Do we need a credit card to start?",
@@ -21,7 +21,7 @@ export default function FAQSection() {
   ] as const
 
   return (
-    <section id="faq" className="bg-gradient-to-b from-[#F0FDFB] to-white py-16 md:py-24">
+    <section id="faq" className="bg-gradient-to-b from-white to-[#F0FDFB] py-16 md:py-24 scroll-mt-24">
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 rounded-full bg-[#E0FFF4] px-4 py-2 text-sm font-medium text-[#2f9c79]">

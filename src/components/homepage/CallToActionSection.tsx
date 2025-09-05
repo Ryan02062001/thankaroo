@@ -6,7 +6,7 @@ import Link from "next/link"
 
 export default function FinalCTASection() {
   return (
-    <section className="relative overflow-hidden py-20 bg-gradient-to-b from-white to-[#F0FDFB]">
+    <section className="relative overflow-hidden py-20 bg-gradient-to-b from-[#F0FDFB] to-white">
       <div className="container mx-auto px-4 text-center max-w-4xl">
         <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-[#A8E6CF]/60 bg-[#E0FFF4]/60 px-4 py-1.5 text-sm text-[#2f9c79]">
           <Sparkles className="h-4 w-4" />

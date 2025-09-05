@@ -162,7 +162,7 @@ export default function FeaturesSection() {
   ]
 
   return (
-    <section className="py-20 md:py-32  bg-gradient-to-b from-[#F0FDFB] to-white">
+    <section id="features" className="py-20 md:py-32 bg-gradient-to-b from-[#F0FDFB] to-white scroll-mt-24">
       <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div
@@ -202,20 +202,18 @@ export default function FeaturesSection() {
           initial="hidden"
           whileInView="show"
           viewport={{ amount: 0.25, once: false }}
-          className="mt-14 flex flex-col items-center gap-3"
+          className="mt-14 flex flex-col items-center gap-3 "
           style={{ willChange: "transform, opacity" }}
         >
-          <div className="text-sm text-gray-500">
-            Start free today — it only takes a few seconds.
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/signup" aria-label="Start free trial">
-              <Button className="bg-[#3EB489] hover:bg-[#2d9970] text-white">
-                Start Free Trial
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
+          <div className="mt-6 max-w-md w-full mx-auto">
+          <Link href="/signup" aria-label="Start free in 20s" className="block">
+            <Button className="h-12 w-full bg-[linear-gradient(135deg,#2f9c79_0%,#39b184_60%,#E6FFF7_120%)]
+           hover:bg-[linear-gradient(135deg,#39b184_0%,#51caa0_60%,#F7FFFC_120%)] text-white">
+              Start free in 20s <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
+          <div className="mt-2 text-xs text-gray-500 text-center">Free to start. No credit card.</div>
+        </div>
         </motion.div>
       </div>
     </section>
