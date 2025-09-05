@@ -185,7 +185,7 @@ export function GiftCard({
                   aria-label={`Compose thank you for ${gift.guestName}`}
                 >
                   <Mail className="h-4 w-4 mr-1.5 text-[#2F6D5A]" />
-                  Compose
+                  Note Draft
                 </Button>
               </div>
             </div>

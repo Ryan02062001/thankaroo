@@ -110,9 +110,9 @@ function StepRow({
           variants={visualVariants}
           initial="hidden"
           animate={inView ? "show" : "hide"}
-          className="flex-1 flex justify-center"
+          className="w-full lg:flex-1 flex justify-center"
         >
-          <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-[#F0FDFB] w-full max-w-sm">
+          <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-[#F0FDFB] w-full md:max-w-sm">
             <CardContent className="p-8">
               <div className="text-center space-y-3">
                 <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-[#3EB489] to-[#A8E6CF] grid place-items-center">
@@ -144,7 +144,7 @@ export default function HowItWorksSection() {
       title: "Import or log gifts",
       description:
         "Capture gifts in one place, clear, tidy, and fast to update.",
-      features: ["Quick entry", "Guest linking", "Advanced Filters"],
+      features: ["Quick entry", "Simple To Use", "Advanced Filters"],
     },
     {
       number: "02",

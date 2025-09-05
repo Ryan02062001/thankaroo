@@ -15,7 +15,7 @@ export default function IphonePairMockup({
   return (
     <div
       className={[
-        "mx-auto w-full max-w-5xl px-4 lg:hidden", // hide on desktop by default
+        "mx-auto w-full max-w-5xl px-4 lg:hidden bg-gradient-to-b from-[#F0FDFB] to-white", // hide on desktop by default
         className,
       ]
         .filter(Boolean)
