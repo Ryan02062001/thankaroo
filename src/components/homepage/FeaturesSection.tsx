@@ -185,7 +185,8 @@ export default function FeaturesSection() {
           </h2>
           <p className="text-lg md:text-xl text-gray-600">
             Designed for clarity and speed — scannable features with real benefits so you can
-            track gifts and send notes without the overwhelm.
+            track gifts and send notes without the overwhelm. Early users say Thankaroo made finishing thank‑you notes way faster.
+
           </p>
         </motion.div>
 
@@ -208,11 +209,11 @@ export default function FeaturesSection() {
           <div className="mt-6 max-w-md w-full mx-auto">
           <Link href="/signup" aria-label="Start free in 20s" className="block">
             <Button className="h-12 w-full bg-[linear-gradient(135deg,#2f9c79_0%,#39b184_60%,#E6FFF7_120%)]
-           hover:bg-[linear-gradient(135deg,#39b184_0%,#51caa0_60%,#F7FFFC_120%)] text-white">
+           hover:bg-[linear-gradient(135deg,#39b184_0%,#51caa0_60%,#F7FFFC_120%)] text-white shadow-lg hover:shadow-xl">
               Start free in 20s <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
-          <div className="mt-2 text-xs text-gray-500 text-center">Free to start. No credit card.</div>
+          <div className="mt-2 text-xs text-gray-500 text-center">Free trial • No credit card required • One‑time upgrade • Privacy-first</div>
         </div>
         </motion.div>
       </div>

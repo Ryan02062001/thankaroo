@@ -26,13 +26,13 @@ export default function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-white to-[#F0FDFB]">
       <motion.div
-        className="container relative mx-auto px-4 pt-16 md:pt-24 lg:pt-28 pb-20 md:pb-28 z-10"
+        className="container relative mx-auto px-4 pt-5 md:pt-24 lg:pt-28 pb-20 md:pb-28 z-10"
         variants={container}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.35 }}
       >
-        <div className="mx-auto max-w-4xl text-center space-y-8">
+        <div className="mx-auto max-w-4xl text-center space-y-6">
           {/* non-clickable labels; no nav/options */}
           <motion.div className="hidden md:flex items-center justify-center gap-2" variants={item}>
             <Badge className="bg-[#E0FFF4] text-[#3EB489] border-[#A8E6CF]/50 px-4 py-2">
@@ -57,15 +57,16 @@ export default function HeroSection() {
               </span>
             </motion.h1>
 
-            <motion.p variants={item} className="text-lg md:text-xl text-gray-600 leading-relaxed">
+            <motion.p variants={item} className="text-md md:text-xl text-gray-600 leading-relaxed">
               Track wedding gifts and draft beautiful thank-you notes in minutes so nothing slips.
             </motion.p>
+       
           </div>
 
           {/* urgency bar */}
           <motion.div
             variants={item}
-            className="mx-auto max-w-xl flex items-center justify-center gap-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg"
+            className="mx-auto max-w-xl flex items-center justify-center gap-4 p-2 bg-yellow-50 border border-yellow-200 rounded-lg"
           >
             <Clock className="w-5 h-5 text-yellow-600" />
             <div className="text-sm">
@@ -76,6 +77,11 @@ export default function HeroSection() {
 
           {/* single CTA only */}
           <motion.div variants={item} className="space-y-3">
+            <div className="max-w-md w-full mx-auto">
+              <Badge className="bg-[#E0FFF4] text-[#2f9c79] border-[#A8E6CF]/60 px-4 py-1.5 text-sm whitespace-normal break-words w-full sm:w-auto text-center">
+                New & growing — built with engaged couples in private beta. Now open to all.
+              </Badge>
+            </div>
             <div className="max-w-md w-full mx-auto">
               <Link href="/signup" aria-label="Start free in 20s" className="block">
                 <Button
@@ -89,7 +95,9 @@ export default function HeroSection() {
                 </Button>
               </Link>
             </div>
-            <p className="text-sm text-gray-500">Free to start. No credit card.</p>
+            <div className="max-w-md w-full mx-auto text-center">
+              <p className="text-sm text-gray-500">Free trial • No credit card required • One‑time upgrade • Privacy-first</p>
+            </div>
           </motion.div>
 
           {/* three tight support points */}
