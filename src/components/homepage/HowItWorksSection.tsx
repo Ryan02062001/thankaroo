@@ -141,7 +141,7 @@ export default function HowItWorksSection() {
     {
       number: "01",
       icon: Gift,
-      title: "Import or log gifts",
+      title: "Log gifts",
       description:
         "Capture gifts in one place, clear, tidy, and fast to update.",
       features: ["Quick entry", "Simple To Use", "Advanced Filters"],
