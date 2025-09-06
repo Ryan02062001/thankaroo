@@ -50,6 +50,9 @@ export default function HeroSection() {
               variants={item}
               className="text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent leading-tight"
             >
+              <span className="block text-[#2f9c79] relative">
+                Save time. Stop Stress.
+              </span>
               Every gift remembered.
               <span className="block text-[#2f9c79] relative">
                 Every thank-you done.
@@ -58,7 +61,7 @@ export default function HeroSection() {
             </motion.h1>
 
             <motion.p variants={item} className="text-md md:text-xl text-gray-600 leading-relaxed">
-              Track wedding gifts and draft beautiful thank-you notes in minutes so nothing slips.
+              Track gifts and draft beautiful thank-you notes in seconds so nothing slips.
             </motion.p>
        
           </div>
