@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, CheckCircle, Heart, Sparkles, Clock } from "lucide-react"
+import { ArrowRight, CheckCircle, Heart, Sparkles } from "lucide-react"
 import { motion, useReducedMotion, type Variants } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -48,7 +48,7 @@ export default function HeroSection() {
           <div className="space-y-6">
             <motion.h1
               variants={item}
-              className="text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent leading-tight"
+              className="text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent leading-tight"
             >
               Every gift remembered.
               <span className="block text-[#2f9c79] relative">
@@ -64,7 +64,7 @@ export default function HeroSection() {
           </div>
 
           {/* urgency bar */}
-          <motion.div
+          {/* <motion.div
             variants={item}
             className="mx-auto max-w-xl flex items-center justify-center gap-4 p-2 bg-[#E0FFF4] border border-[#A8E6CF] rounded-lg"
           >
@@ -73,7 +73,7 @@ export default function HeroSection() {
               <span className="font-semibold text-[#2f9c79]">Wedding season is here!</span>
               <span className="text-[#2f9c79] ml-1">Set up your tracker in ~20 seconds.</span>
             </div>
-          </motion.div>
+          </motion.div> */}
 
           {/* single CTA only */}
           <motion.div variants={item} className="space-y-3">
