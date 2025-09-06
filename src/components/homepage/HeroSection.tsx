@@ -121,14 +121,91 @@ export default function HeroSection() {
         </div>
       </motion.div>
 
-      {/* subtle product peek */}
-      <motion.div
-        aria-hidden
-        animate={prefersReduced ? {} : { y: [0, -4, 0] }}
-        transition={{ duration: 10, repeat: Infinity, ease: [0.42, 0, 0.58, 1] }}
-      >
-      
-      </motion.div>
+      {/* subtle floating hearts */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        {/* Center, behind content - very subtle */}
+        <motion.span
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[#E0FFF4]"
+          animate={prefersReduced ? {} : { scale: [1, 1.05, 1], opacity: [0.06, 0.12, 0.06] }}
+          transition={{ duration: 4.2, repeat: Infinity, ease: [0.42, 0, 0.58, 1] }}
+        >
+          <Heart className="w-28 h-28 fill-current" />
+        </motion.span>
+
+        {/* Slightly offset from center */}
+        <motion.span
+          className="absolute left-[62%] top-[46%] -translate-x-1/2 -translate-y-1/2 text-[#A8E6CF]"
+          animate={prefersReduced ? {} : { scale: [1, 1.07, 1], opacity: [0.07, 0.14, 0.07] }}
+          transition={{ duration: 3.6, repeat: Infinity, delay: 0.6, ease: [0.42, 0, 0.58, 1] }}
+        >
+          <Heart className="w-20 h-20 fill-current" />
+        </motion.span>
+
+        <motion.span
+          className="absolute top-8 left-6 text-[#A8E6CF]"
+          animate={prefersReduced ? {} : { scale: [1, 1.12, 1], opacity: [0.18, 0.28, 0.18] }}
+          transition={{ duration: 2.6, repeat: Infinity, ease: [0.42, 0, 0.58, 1] }}
+        >
+          <Heart className="w-8 h-8 fill-current" />
+        </motion.span>
+
+        <motion.span
+          className="absolute top-24 right-10 text-[#E0FFF4]"
+          animate={prefersReduced ? {} : { scale: [1, 1.08, 1], opacity: [0.12, 0.2, 0.12] }}
+          transition={{ duration: 3.0, repeat: Infinity, delay: 0.5, ease: [0.42, 0, 0.58, 1] }}
+        >
+          <Heart className="w-12 h-12 fill-current" />
+        </motion.span>
+
+        <motion.span
+          className="absolute bottom-24 left-20 text-[#8ed0be]"
+          animate={prefersReduced ? {} : { scale: [1, 1.15, 1], opacity: [0.12, 0.22, 0.12] }}
+          transition={{ duration: 3.4, repeat: Infinity, delay: 0.9, ease: [0.42, 0, 0.58, 1] }}
+        >
+          <Heart className="w-6 h-6 fill-current" />
+        </motion.span>
+
+        <motion.span
+          className="absolute bottom-10 right-24 text-[#A8E6CF]"
+          animate={prefersReduced ? {} : { scale: [1, 1.1, 1], opacity: [0.14, 0.24, 0.14] }}
+          transition={{ duration: 2.8, repeat: Infinity, delay: 1.2, ease: [0.42, 0, 0.58, 1] }}
+        >
+          <Heart className="w-10 h-10 fill-current" />
+        </motion.span>
+
+        {/* Additional gentle hearts */}
+        <motion.span
+          className="absolute left-[22%] top-[30%] text-[#E0FFF4]"
+          animate={prefersReduced ? {} : { scale: [1, 1.09, 1], opacity: [0.07, 0.13, 0.07] }}
+          transition={{ duration: 3.2, repeat: Infinity, delay: 0.4, ease: [0.42, 0, 0.58, 1] }}
+        >
+          <Heart className="w-12 h-12 fill-current" />
+        </motion.span>
+
+        <motion.span
+          className="absolute right-[18%] top-[32%] text-[#8ed0be]"
+          animate={prefersReduced ? {} : { scale: [1, 1.1, 1], opacity: [0.08, 0.15, 0.08] }}
+          transition={{ duration: 3.0, repeat: Infinity, delay: 0.8, ease: [0.42, 0, 0.58, 1] }}
+        >
+          <Heart className="w-11 h-11 fill-current" />
+        </motion.span>
+
+        <motion.span
+          className="absolute left-[28%] bottom-[22%] text-[#A8E6CF]"
+          animate={prefersReduced ? {} : { scale: [1, 1.08, 1], opacity: [0.08, 0.16, 0.08] }}
+          transition={{ duration: 3.6, repeat: Infinity, delay: 1.1, ease: [0.42, 0, 0.58, 1] }}
+        >
+          <Heart className="w-10 h-10 fill-current" />
+        </motion.span>
+
+        <motion.span
+          className="absolute right-[26%] bottom-[18%] text-[#E0FFF4]"
+          animate={prefersReduced ? {} : { scale: [1, 1.06, 1], opacity: [0.06, 0.12, 0.06] }}
+          transition={{ duration: 3.8, repeat: Infinity, delay: 1.4, ease: [0.42, 0, 0.58, 1] }}
+        >
+          <Heart className="w-12 h-12 fill-current" />
+        </motion.span>
+      </div>
     </section>
   )
 }
