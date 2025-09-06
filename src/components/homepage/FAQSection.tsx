@@ -44,8 +44,8 @@ export default function FAQSection() {
 
         <div className="mt-10 max-w-md mx-auto text-center">
           <Link href="/signup" aria-label="Start free in 20s" className="block">
-            <Button className="h-12 w-full bg-[linear-gradient(135deg,#2f9c79_0%,#39b184_60%,#E6FFF7_120%)]
-           hover:bg-[linear-gradient(135deg,#39b184_0%,#51caa0_60%,#F7FFFC_120%)] text-white shadow-lg hover:shadow-xl">
+            <Button className="h-12 w-full bg-[linear-gradient(135deg,#B4893E_0%,#D6AE69_60%,#FFF3E4_120%)]
+           hover:bg-[linear-gradient(135deg,#C79A4D_0%,#E6BF7D_60%,#FFF8ED_120%)] text-white shadow-lg hover:shadow-xl">
               Start free in 20s <HelpCircle className="ml-2 h-5 w-5" />
             </Button>
           </Link>

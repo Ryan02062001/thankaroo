@@ -39,7 +39,7 @@ export default function HeroSection() {
               <Sparkles className="w-3 h-3 mr-1" />
               Gift Tracker
             </Badge>
-            <Badge className="bg-orange-100 text-orange-600 border-orange-200 px-3 py-1 text-sm">
+            <Badge className="bg-[#E0FFF4] text-[#3EB489] border-[#A8E6CF]/50 px-3 py-1 text-sm">
               Thank-you Notes
             </Badge>
           </motion.div>
@@ -66,29 +66,27 @@ export default function HeroSection() {
           {/* urgency bar */}
           <motion.div
             variants={item}
-            className="mx-auto max-w-xl flex items-center justify-center gap-4 p-2 bg-yellow-50 border border-yellow-200 rounded-lg"
+            className="mx-auto max-w-xl flex items-center justify-center gap-4 p-2 bg-[#E0FFF4] border border-[#A8E6CF] rounded-lg"
           >
-            <Clock className="w-5 h-5 text-yellow-600" />
+            <Clock className="w-5 h-5 text-[#2f9c79]" />
             <div className="text-sm">
-              <span className="font-semibold text-yellow-800">Wedding season is here!</span>
-              <span className="text-yellow-700 ml-1">Set up your tracker in ~20 seconds.</span>
+              <span className="font-semibold text-[#2f9c79]">Wedding season is here!</span>
+              <span className="text-[#2f9c79] ml-1">Set up your tracker in ~20 seconds.</span>
             </div>
           </motion.div>
 
           {/* single CTA only */}
           <motion.div variants={item} className="space-y-3">
-            <div className="max-w-md w-full mx-auto">
-              <Badge className="bg-[#E0FFF4] text-[#2f9c79] border-[#A8E6CF]/60 px-4 py-1.5 text-sm whitespace-normal break-words w-full sm:w-auto text-center">
+            <div className="max-w-md w-full mx-auto font-bold text-sm">
                 New & growing — built with engaged couples in private beta. Now open to all.
-              </Badge>
             </div>
             <div className="max-w-md w-full mx-auto">
               <Link href="/signup" aria-label="Start free in 20s" className="block">
                 <Button
                   variant="default"
                   size="lg"
-                  className="rounded-md h-12 w-full px-6 bg-[linear-gradient(135deg,#2f9c79_0%,#39b184_60%,#E6FFF7_120%)]
-           hover:bg-[linear-gradient(135deg,#39b184_0%,#51caa0_60%,#F7FFFC_120%)] text-white shadow-lg hover:shadow-xl"
+                  className="rounded-md h-12 w-full px-6 bg-[linear-gradient(135deg,#B4893E_0%,#D6AE69_60%,#FFF3E4_120%)]
+           hover:bg-[linear-gradient(135deg,#C79A4D_0%,#E6BF7D_60%,#FFF8ED_120%)] text-white shadow-lg hover:shadow-xl"
                 >
                   Start free in 20s
                   <ArrowRight className="ml-2 h-5 w-5" />
