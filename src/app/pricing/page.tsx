@@ -68,7 +68,6 @@ function PricingContent() {
       "One List — Unlimited gifts",
       "500 AI note drafts",
       "Reminders",
-      "Full export (CSV)",
       "Priority support",
     ],
     ctaOnClick: () => startCheckout({ lookup_key: "wedding_pro" }),
