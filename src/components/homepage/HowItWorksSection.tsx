@@ -202,8 +202,8 @@ export default function HowItWorksSection() {
       <div className="mt-8 md:mt-10 text-center px-4">
         <div className="max-w-md mx-auto">
           <Link href={CTA_HREF} aria-label={CTA_LABEL} className="block">
-            <Button className="h-12 w-full bg-[linear-gradient(135deg,#B4893E_0%,#D6AE69_60%,#FFF3E4_120%)]
-           hover:bg-[linear-gradient(135deg,#C79A4D_0%,#E6BF7D_60%,#FFF8ED_120%)] text-white shadow-lg hover:shadow-xl">
+            <Button className="h-16 w-full px-6 bg-[linear-gradient(135deg,#B4893E_0%,#D6AE69_60%,#FFF3E4_120%)]
+           hover:bg-[linear-gradient(135deg,#C79A4D_0%,#E6BF7D_60%,#FFF8ED_120%)] text-white text-lg font-bold shadow-lg hover:shadow-xl">
               {CTA_LABEL} <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>

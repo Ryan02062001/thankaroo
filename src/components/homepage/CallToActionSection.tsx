@@ -22,8 +22,8 @@ export default function FinalCTASection() {
 
         <div className="mt-6 max-w-md mx-auto">
           <Link href="/signup" aria-label="Start free in 20s" className="block">
-            <Button className="h-12 w-full bg-[linear-gradient(135deg,#B4893E_0%,#D6AE69_60%,#FFF3E4_120%)]
-           hover:bg-[linear-gradient(135deg,#C79A4D_0%,#E6BF7D_60%,#FFF8ED_120%)] text-white shadow-lg hover:shadow-xl">
+            <Button className="h-16 w-full px-6 bg-[linear-gradient(135deg,#B4893E_0%,#D6AE69_60%,#FFF3E4_120%)]
+           hover:bg-[linear-gradient(135deg,#C79A4D_0%,#E6BF7D_60%,#FFF8ED_120%)] text-white text-lg font-bold shadow-lg hover:shadow-xl">
               Start free in 20s <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>

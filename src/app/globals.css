@@ -50,7 +50,21 @@
     boxShadow: 0 0 0 8px var(--pulse-color);
     }
   }
-}
+  --animate-shimmer-slide: shimmer-slide var(--speed) ease-in-out infinite alternate;
+  --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear
+;
+  @keyframes shimmer-slide {
+  to {
+    transform: translate(calc(100cqw - 100%), 0);}}
+  @keyframes spin-around {
+  0% {
+    transform: translateZ(0) rotate(0);}
+  15%, 35% {
+    transform: translateZ(0) rotate(90deg);}
+  65%, 85% {
+    transform: translateZ(0) rotate(270deg);}
+  100% {
+    transform: translateZ(0) rotate(360deg);}}}
 
 :root {
   /* Increase base radius so derived tokens (sm/md/lg/xl) are > 0 */
@@ -134,4 +148,34 @@
 ::view-transition-old(root), ::view-transition-new(root) {
     animation: none;
     mix-blend-mode: normal;
+}
+
+/* Smooth, subtle gradient outline shimmer for CTA buttons */
+@keyframes outline-rotate {
+  to { transform: rotate(1turn); }
+}
+
+.shimmer-outline {
+  position: relative;
+}
+.shimmer-outline::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px; /* border thickness */
+  background: conic-gradient(
+    from 0deg,
+    #B4893E 0%,
+    #D6AE69 25%,
+    #FFF3E4 50%,
+    #D6AE69 75%,
+    #B4893E 100%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: outline-rotate 12s linear infinite;
+  opacity: 0.6;
+  pointer-events: none;
 }
