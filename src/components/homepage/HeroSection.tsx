@@ -48,7 +48,7 @@ export default function HeroSection() {
           <div className="space-y-6">
             <motion.h1
               variants={item}
-              className="text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent leading-tight"
+              className="text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent leading-tight"
             >
               <span className="block text-[#2f9c79] relative">
                 Save time. Stop Stress.
