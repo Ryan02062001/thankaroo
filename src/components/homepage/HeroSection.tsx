@@ -53,7 +53,7 @@ export default function HeroSection() {
               
               Track Every Gift &
               <span className="block text-[#A8E6CF] relative">
-              Generate Thank-Yous In One Place
+              Generate Thank-Yous In Seconds
                 <Heart className="absolute -top-2 -right-8 w-6 h-6 text-[#A8E6CF] fill-current" />
               </span>
             </motion.h1>
