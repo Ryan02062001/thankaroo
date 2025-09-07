@@ -208,9 +208,9 @@ export default function FeaturesSection() {
         >
           <div className="mt-6 max-w-md w-full mx-auto">
           <Link href="/signup" aria-label="Start free in 20s" className="block">
-            <Button className="h-16 w-full px-6 bg-[linear-gradient(135deg,#B4893E_0%,#D6AE69_60%,#FFF3E4_120%)]
-           hover:bg-[linear-gradient(135deg,#C79A4D_0%,#E6BF7D_60%,#FFF8ED_120%)] text-white text-lg font-bold shadow-lg hover:shadow-xl">
-              Start free in 20s <ArrowRight className="ml-2 h-5 w-5" />
+            <Button className="h-16 w-full px-6 bg-[linear-gradient(135deg,#A8E6CF_0%,#D4F3E7_60%,#F7FFFC_120%)]
+           hover:bg-[linear-gradient(135deg,#B6ECD8_0%,#E1F7EE_60%,#FFFFFF_120%)] text-[#1a1a1a] text-lg font-bold shadow-lg hover:shadow-xl">
+              START FREE IN 20s <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
           <div className="mt-2 text-xs text-gray-500 text-center">Free trial • No credit card required • One‑time upgrade • Privacy-first</div>

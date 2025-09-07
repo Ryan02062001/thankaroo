@@ -50,19 +50,17 @@ export default function HeroSection() {
               variants={item}
               className="text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent leading-tight"
             >
-              <span className="block text-[#2f9c79] relative">
-                Save time. Stop Stress.
-              </span>
-              Every gift remembered.
-              <span className="block text-[#2f9c79] relative">
-                Every thank-you done.
+              
+              Track Every Gift &
+              <span className="block text-[#A8E6CF] relative">
+              Generate Thank-Yous In One Place
                 <Heart className="absolute -top-2 -right-8 w-6 h-6 text-[#A8E6CF] fill-current" />
               </span>
             </motion.h1>
 
             <motion.p variants={item} className="text-md md:text-xl text-gray-600 leading-relaxed">
-              Track gifts and draft beautiful thank-you notes in seconds so nothing slips.
-            </motion.p>
+            Stop spreadsheets. Remember every gift. Send perfect thank-yous. All in seconds.
+                        </motion.p>
        
           </div>
 
@@ -85,9 +83,9 @@ export default function HeroSection() {
             </div>
             <div className="max-w-md w-full mx-auto">
              <Link href="/signup" aria-label="Start free in 20s" className="block">
-                <Button className="h-16 w-full px-6 bg-[linear-gradient(135deg,#B4893E_0%,#D6AE69_60%,#FFF3E4_120%)]
-           hover:bg-[linear-gradient(135deg,#C79A4D_0%,#E6BF7D_60%,#FFF8ED_120%)] text-white text-lg font-bold shadow-lg hover:shadow-xl">
-                  Start free in 20s
+                <Button className="h-16 w-full px-6 bg-[linear-gradient(135deg,#A8E6CF_0%,#D4F3E7_60%,#F7FFFC_120%)]
+           hover:bg-[linear-gradient(135deg,#B6ECD8_0%,#E1F7EE_60%,#FFFFFF_120%)] text-[#1a1a1a] text-lg font-bold shadow-lg hover:shadow-xl">
+                  START FREE IN 20s
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
