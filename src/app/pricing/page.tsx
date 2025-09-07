@@ -40,7 +40,7 @@ function PricingContent() {
     }
   }
 
-  // === Plans (simplified: Free + Wedding Plus one-time) ===
+  // === Plans (simplified: Free + Tracker Pro one-time) ===
 
   const free: Plan = {
     name: "Free",
@@ -57,10 +57,10 @@ function PricingContent() {
   }
 
   const weddingPass: Plan = {
-    name: "Wedding Plus",
-    tagline: "Everything you need for a stress‑free wedding thank‑you workflow.",
-    price: "$19",
-    ctaLabel: "Get Wedding Plus",
+    name: "Tracker Pro",
+    tagline: "All the wedding thank‑you tracking power in one purchase.",
+    price: "$29",
+    ctaLabel: "Get Tracker Pro",
     ctaHref: "#",
     oneTime: true,
     mostPopular: true,
@@ -70,7 +70,7 @@ function PricingContent() {
       "Reminders",
       "Priority support",
     ],
-    ctaOnClick: () => startCheckout({ lookup_key: "wedding_pro" }),
+    ctaOnClick: () => startCheckout({ lookup_key: "tracker_pro" }),
   }
 
   return (

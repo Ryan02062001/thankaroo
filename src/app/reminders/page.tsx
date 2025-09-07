@@ -15,7 +15,7 @@ export default async function RemindersPage({
   const user = await requireAuth("/reminders");
   const supabase = await createClient();
 
-  // Gate: Only paid plans (pro or wedding_pass) can access reminders
+  // Gate: Only paid plans (pro or tracker_pro) can access reminders
   const { plan } = await getCurrentPlanForUserFast();
   if (plan === "free") {
     return (

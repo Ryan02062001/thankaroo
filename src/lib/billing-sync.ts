@@ -127,11 +127,11 @@ export async function syncStripeStateForCustomer(
       const liPrice = (s as unknown as { line_items?: { data?: Array<{ price?: { lookup_key?: string } }> } }).line_items?.data?.[0]?.price;
       const liLookup = (liPrice?.lookup_key ?? "") as string;
       const lookup = metaLookup || liLookup;
-      if (lookup === "wedding_plan" || lookup === "wedding_pro" || lookup === "wedding_pass" || lookup === "wedding_pass_") {
+      if (lookup === "tracker_pro") {
         await admin
           .from("billing_entitlements")
           .upsert(
-            { user_id: userId, product_lookup_key: "wedding_plan", active: true },
+            { user_id: userId, product_lookup_key: "tracker_pro", active: true },
             { onConflict: "user_id,product_lookup_key" }
           );
       }

@@ -29,7 +29,7 @@ export async function GET() {
     ]);
 
     const plan: "free" | "wedding" | "pro" =
-      internalPlan === "pro" ? "pro" : internalPlan === "wedding_pass" ? "wedding" : "free";
+      internalPlan === "pro" ? "pro" : internalPlan === "tracker_pro" ? "wedding" : "free";
 
     const limits = fullLimitsFor(plan);
     const usage = {

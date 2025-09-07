@@ -87,25 +87,21 @@ If you use the CLI, export the provided signing secret to `STRIPE_WEBHOOK_SECRET
 
 Ensure your Stripe Prices use the lookup keys referenced in `src/app/pricing/page.tsx`.
 
-Supported lookup keys (new preferred, legacy still work via aliasing):
+Supported lookup keys:
 
 ```
-New canonical keys:
-- wedding_pass_
+One-time:
+- tracker_pro
+
+Subscriptions (if used):
 - pro_monthly
 - pro_annual
-
-Legacy keys still accepted:
-- wedding_pass
-- thank_you_pro_monthly
-- pro_yearly
-- thank_you_pro_yearly
 ```
 
 Diagnostics:
 
 ```
-GET /api/stripe/prices?keys=pro_monthly,pro_annual,wedding_pass,wedding_pass_
+GET /api/stripe/prices?keys=tracker_pro,pro_monthly,pro_annual
 ```
 
 This endpoint lists active prices for those lookup keys in your current Stripe mode (test vs live) to help verify configuration.

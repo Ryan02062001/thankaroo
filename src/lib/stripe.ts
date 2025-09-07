@@ -41,18 +41,7 @@ export async function resolvePriceByLookupKey(lookupKey: string): Promise<{ id: 
   // Try exact key
   const exact = priceCache!.byLookupKey[lookupKey];
   if (exact) return exact;
-  // Try common aliases (e.g., wedding_pass vs wedding_pass_)
-  const normalizedAliases = new Set<string>([
-    lookupKey,
-    lookupKey.replace(/_+$/, ""), // strip trailing underscores
-    `${lookupKey}_`,
-    lookupKey === "wedding_pro" ? "wedding_plan" : "",
-    lookupKey === "wedding_plan" ? "wedding_pro" : "",
-  ]);
-  for (const alias of normalizedAliases) {
-    const found = priceCache!.byLookupKey[alias];
-    if (found) return found;
-  }
+  // No legacy aliases anymore: only exact keys are supported
   // As a last resort, refetch now (in case dashboard was just updated)
   await refreshPriceCache();
   return priceCache!.byLookupKey[lookupKey] ?? null;
@@ -130,7 +119,8 @@ export async function getOrCreateCustomerIdForCurrentUser(): Promise<string> {
 }
 
 export function deriveModeFromLookupKey(lookupKey: string): "payment" | "subscription" {
-  if (lookupKey === "wedding_plan" || lookupKey === "wedding_pro" || lookupKey === "wedding_pass" || lookupKey === "wedding_pass_") return "payment";
+  // One-time purchase for Tracker Pro; all others default to subscription if used
+  if (lookupKey === "tracker_pro") return "payment";
   if (lookupKey === "pro_monthly" || lookupKey === "pro_annual") return "subscription";
   // Default to subscription if unknown but recurring price will correct us at creation time
   return "subscription";

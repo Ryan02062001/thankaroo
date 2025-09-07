@@ -5,18 +5,18 @@ import type { Database } from "@/app/types/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type SubscriptionLookupKey = "pro_monthly" | "pro_annual";
-export type OneTimeLookupKey = "wedding_plan" | "wedding_pro";
+export type OneTimeLookupKey = "tracker_pro";
 
 export const SUBSCRIPTION_LOOKUP_KEYS: SubscriptionLookupKey[] = [
   "pro_monthly",
   "pro_annual",
 ];
 
-export const ONE_TIME_LOOKUP_KEYS: OneTimeLookupKey[] = ["wedding_plan", "wedding_pro"];
+export const ONE_TIME_LOOKUP_KEYS: OneTimeLookupKey[] = ["tracker_pro"];
 
 export type AllLookupKey = SubscriptionLookupKey | OneTimeLookupKey;
 
-export type PlanKey = "free" | "pro" | "wedding_pass";
+export type PlanKey = "free" | "pro" | "tracker_pro";
 export type PlanLimits = {
   // If undefined, treat as unlimited for the app's purposes
   maxAiDraftsPerMonth?: number;
@@ -98,14 +98,14 @@ export async function getCurrentPlanForUserFast(): Promise<{ plan: PlanKey; limi
   let plan: PlanKey = "free";
   if (sub && ((sub as Database["public"]["Tables"]["billing_subscriptions"]["Row"]).status === "active" || (sub as Database["public"]["Tables"]["billing_subscriptions"]["Row"]).status === "trialing")) {
     plan = "pro";
-  } else if ((ents ?? []).some((e) => (((e as Database["public"]["Tables"]["billing_entitlements"]["Row"]).product_lookup_key === "wedding_plan" || (e as Database["public"]["Tables"]["billing_entitlements"]["Row"]).product_lookup_key === "wedding_pass" || (e as Database["public"]["Tables"]["billing_entitlements"]["Row"]).product_lookup_key === "wedding_pro") && (e as Database["public"]["Tables"]["billing_entitlements"]["Row"]).active))) {
-    plan = "wedding_pass";
+  } else if ((ents ?? []).some((e) => ((e as Database["public"]["Tables"]["billing_entitlements"]["Row"]).product_lookup_key === "tracker_pro" && (e as Database["public"]["Tables"]["billing_entitlements"]["Row"]).active))) {
+    plan = "tracker_pro";
   }
 
   const limits: PlanLimits =
     plan === "free"
       ? { maxAiDraftsPerMonth: 10 }
-      : plan === "wedding_pass"
+      : plan === "tracker_pro"
       ? { maxAiDraftsPerMonth: 500 }
       : { maxAiDraftsPerMonth: undefined };
 
@@ -114,7 +114,7 @@ export async function getCurrentPlanForUserFast(): Promise<{ plan: PlanKey; limi
 
 export async function getCurrentPlanForUser(): Promise<PlanFull> {
   const { plan: internalPlan } = await getCurrentPlanForUserFast();
-  const plan: PlanFull["plan"] = internalPlan === "pro" ? "pro" : internalPlan === "wedding_pass" ? "wedding" : "free";
+  const plan: PlanFull["plan"] = internalPlan === "pro" ? "pro" : internalPlan === "tracker_pro" ? "wedding" : "free";
   if (plan === "free") return { plan, limits: { maxLists: 1, maxGiftsPerList: 10, maxAiDraftsPerMonth: 10 } };
   if (plan === "wedding") return { plan, limits: { maxLists: 1, maxGiftsPerList: null, maxAiDraftsPerMonth: 500 } };
   return { plan, limits: { maxLists: null, maxGiftsPerList: null, maxAiDraftsPerMonth: null } };
