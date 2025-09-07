@@ -59,7 +59,7 @@ export default function HeroSection() {
             </motion.h1>
 
             <motion.p variants={item} className="text-md md:text-xl text-gray-600 leading-relaxed">
-            Stop spreadsheets. Remember every gift. Send perfect thank-yous. All in seconds.
+            Stop spreadsheets. Remember every gift. Generate perfect thank-yous. Quicker than ever before.
                         </motion.p>
        
           </div>
