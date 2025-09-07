@@ -16,7 +16,7 @@ import { ArrowRight, Gift, Mail, CheckCircle2, Sparkles } from "lucide-react"
 const easeOutExpo = cubicBezier(0.22, 1, 0.36, 1)
 
 // One message + one path (frequency)
-const CTA_LABEL = "START TRACKING FREE"
+const CTA_LABEL = "SIGN UP & START TRACKING FREE"
 const CTA_HREF = "/signup"
 
 // Keep your pleasing alternating layout,

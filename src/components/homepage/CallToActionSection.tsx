@@ -24,10 +24,17 @@ export default function FinalCTASection() {
           <Link href="/signup" aria-label="Start free in 20s" className="block">
           <Button className="h-16 w-full px-6 bg-[linear-gradient(135deg,#5BBFA4_0%,#A7DBCE_60%,#D8F3EB_120%)]
            hover:bg-[linear-gradient(135deg,#6BC9AE_0%,#B9E6D9_60%,#E8FCF6_120%)] text-[#fefefe] text-lg font-bold shadow-lg hover:shadow-xl">
-                  START TRACKING FREE <ArrowRight className="ml-2 h-5 w-5" />
+                  SIGN UP & START TRACKING FREE <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
           <div className="mt-2 text-xs text-gray-500">Free trial • No credit card required • One‑time upgrade • Privacy-first</div>
+          <div className="mt-4 text-sm text-gray-600">
+            Questions? Email
+            {" "}
+            <a href="mailto:thankarootracker@gmail.com" className="text-[#2f9c79] underline-offset-4 hover:underline">
+              thankarootracker@gmail.com
+            </a>
+          </div>
         </div>
 
         <div className="mt-6 flex items-center justify-center gap-2 text-[#2f9c79]">
