@@ -26,7 +26,7 @@ export default function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-white to-[#F0FDFB]">
       <motion.div
-        className="container relative mx-auto px-4 pt-5 md:pt-24 lg:pt-28 pb-20 md:pb-28 z-10"
+        className="container relative mx-auto px-4 pt-5 md:pt-18 lg:pt-20 pb-20 md:pb-18 lg:pb-20 z-10"
         variants={container}
         initial="hidden"
         whileInView="show"

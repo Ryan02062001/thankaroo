@@ -85,7 +85,7 @@ export default async function SignUpPage({
 
   return (
     <div className="min-h-screen bg-[#fefefe]">
-      <div className="mx-auto flex min-h-screen w-full max-w-5xl items-center justify-center px-4" role="region" aria-labelledby="signup-heading">
+      <div className=" self-start pt-10 mx-auto flex min-h-screen w-full max-w-5xl items-start justify-start px-4" role="region" aria-labelledby="signup-heading">
         <div className="grid w-full overflow-hidden rounded-2xl border bg-[#fefefe] shadow-xl md:grid-cols-2">
           <Card className="border-0 rounded-none">
             <CardContent className="p-8 md:p-10">
