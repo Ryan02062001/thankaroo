@@ -1,6 +1,24 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "./src/utils/supabase/middleware";
 
+const SESSION_AWARE_PREFIXES = [
+  "/giftlist",
+  "/reminders",
+  "/settings",
+  "/signin",
+  "/signup",
+  "/forgot-password",
+  "/auth",
+  "/api/billing",
+  "/api/stripe",
+];
+
+function shouldRefreshSession(pathname: string) {
+  return SESSION_AWARE_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+}
+
 /**
  * Refreshes Supabase auth cookies before Server Components run.
  * Do not put route protection here; do that with `supabase.auth.getUser()` in server components.
@@ -22,6 +40,10 @@ export async function middleware(request: NextRequest) {
     if (type) redirectUrl.searchParams.set("type", type);
     redirectUrl.searchParams.set("next", nextParam);
     return NextResponse.redirect(redirectUrl);
+  }
+
+  if (!shouldRefreshSession(url.pathname)) {
+    return NextResponse.next();
   }
 
   return updateSession(request);

@@ -6,8 +6,6 @@ import { ReminderProvider } from "@/app/contexts/ReminderContext";
 import Footer from "@/components/Footer";
 import { Analytics } from "@vercel/analytics/next"
 import Script from "next/script";
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: "Thankaroo – Wedding Gift Tracker & Thank-You Manager",
