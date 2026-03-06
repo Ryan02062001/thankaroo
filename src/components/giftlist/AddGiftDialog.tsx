@@ -3,19 +3,18 @@
 import * as React from "react";
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
-  DialogFooter, DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { createGiftDirect } from "@/app/actions/gifts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-// import { usePathname } from "next/navigation";
 import {
   Gift as GiftIcon, DollarSign, Package, Boxes,
   CalendarDays
 } from "lucide-react";
-// import { useFormStatus } from "react-dom";
+import { todayYmd } from "@/lib/date";
 
 type GiftType = "non registry" | "monetary" | "registry" | "multiple";
 
@@ -26,21 +25,30 @@ export function AddGiftDialog({
   isOpen,
   setIsOpen,
   onCreated,
+  guestMode,
+  createGuestGift,
 }: {
   listId: string;
   isOpen: boolean;
   setIsOpen: (v: boolean) => void;
   onCreated: (gift: { id: string; guestName: string; description: string; type: GiftType; date: string; thankYouSent: boolean }) => void;
+  guestMode?: boolean;
+  createGuestGift?: (input: {
+    listId: string;
+    guestName: string;
+    description: string;
+    giftType: GiftType;
+    dateReceived?: string | null;
+  }) => Promise<{ id: string; guestName: string; description: string; type: GiftType; date: string; thankYouSent: boolean }>;
 }) {
-  // const pathname = usePathname();
-
   const [guest, setGuest] = React.useState("");
   const [desc, setDesc] = React.useState("");
   const [type, setType] = React.useState<GiftType>("non registry");
-  const [date, setDate] = React.useState<string>(() => new Date().toISOString().slice(0, 10));
+  const [date, setDate] = React.useState<string>(() => todayYmd());
   const [errors, setErrors] = React.useState<{ guest?: string; desc?: string }>({});
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayYmd();
 
   const validate = React.useCallback(() => {
     const next: typeof errors = {};
@@ -56,30 +64,42 @@ export function AddGiftDialog({
     e.preventDefault();
     if (!validate() || submitting) return;
     setSubmitting(true);
+    setSubmitError(null);
     try {
-      const newGift = await createGiftDirect({
-        listId,
-        guestName: guest.trim(),
-        description: desc.trim(),
-        giftType: type,
-        dateReceived: date,
-      });
-      onCreated({
-        id: newGift.id,
-        guestName: newGift.guestName,
-        description: newGift.description,
-        type: newGift.type,
-        date: newGift.date,
-        thankYouSent: newGift.thankYouSent,
-      });
+      if (guestMode && createGuestGift) {
+        const g = await createGuestGift({
+          listId,
+          guestName: guest.trim(),
+          description: desc.trim(),
+          giftType: type,
+          dateReceived: date,
+        });
+        onCreated(g);
+      } else {
+        const newGift = await createGiftDirect({
+          listId,
+          guestName: guest.trim(),
+          description: desc.trim(),
+          giftType: type,
+          dateReceived: date,
+        });
+        onCreated({
+          id: newGift.id,
+          guestName: newGift.guestName,
+          description: newGift.description,
+          type: newGift.type,
+          date: newGift.date,
+          thankYouSent: newGift.thankYouSent,
+        });
+      }
       setIsOpen(false);
       setGuest("");
       setDesc("");
       setType("non registry");
-      setDate(new Date().toISOString().slice(0, 10));
+      setDate(todayYmd());
       setErrors({});
-    } catch {
-      // swallow error; validation toast could be added
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Unable to add this gift right now.");
     } finally {
       setSubmitting(false);
     }
@@ -130,11 +150,20 @@ export function AddGiftDialog({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <span style={{ display: "none" }} />
-      </DialogTrigger>
-
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open) {
+          setGuest("");
+          setDesc("");
+          setType("non registry");
+          setDate(todayYmd());
+          setSubmitError(null);
+          setErrors({});
+        }
+      }}
+    >
       <DialogContent className="sm:max-w-[520px] p-0">
         <div className="h-1.5 w-full bg-gradient-to-r from-[#A8E6CF] via-[#98CFBA] to-[#8cc4b0]" />
 
@@ -217,25 +246,33 @@ export function AddGiftDialog({
               </div>
             </div>
 
-            <DialogFooter className="mt-2">
-              <div className="flex w-full gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsOpen(false)}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={!guest.trim() || !desc.trim() || submitting}
-                  className="flex-1 bg-[#A8E6CF] text-[#1f2937] hover:bg-[#98CFBA] disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {submitting ? "Adding…" : "Add Gift"}
-                </Button>
+            {submitError ? (
+              <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {submitError}
               </div>
-            </DialogFooter>
+            ) : null}
+
+            <DialogFooter
+  className="sticky bottom-0 z-20 border-t bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 py-6"
+>
+  <div className="flex w-full gap-2">
+    <Button
+      type="button"
+      variant="outline"
+      onClick={() => setIsOpen(false)}
+      className="h-[48px] flex-1"
+    >
+      Cancel
+    </Button>
+    <Button
+      type="submit"
+      disabled={!guest.trim() || !desc.trim() || submitting}
+      className="h-[48px] flex-1 bg-[#A8E6CF] text-[#1f2937] hover:bg-[#98CFBA] disabled:opacity-60 disabled:cursor-not-allowed"
+    >
+      {submitting ? "Adding…" : "Add Gift"}
+    </Button>
+  </div>
+</DialogFooter>
           </form>
         </div>
       </DialogContent>

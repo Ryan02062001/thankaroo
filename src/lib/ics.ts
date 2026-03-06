@@ -1,3 +1,5 @@
+import { addDaysToYmd } from "@/lib/date";
+
 // Lightweight ICS file generator for reminders
 // Produces a string suitable for download as text/calendar
 
@@ -38,9 +40,7 @@ export function generateIcs(reminders: IcsReminderEvent[], calendarName = "Thank
     // All-day event uses DTSTART/DTEND with VALUE=DATE; DTEND is non-inclusive next day
     lines.push(`DTSTART;VALUE=DATE:${dt}`);
     // Compute next day YYYYMMDD quickly
-    const d = new Date(r.dateYmd + "T00:00:00Z");
-    d.setUTCDate(d.getUTCDate() + 1);
-    const nextYmd = d.toISOString().slice(0, 10).replaceAll("-", "");
+    const nextYmd = addDaysToYmd(r.dateYmd, 1).replaceAll("-", "");
     lines.push(`DTEND;VALUE=DATE:${nextYmd}`);
     lines.push(`SUMMARY:${escape(r.title)}`);
     if (r.description) lines.push(`DESCRIPTION:${escape(r.description)}`);
@@ -50,5 +50,4 @@ export function generateIcs(reminders: IcsReminderEvent[], calendarName = "Thank
   lines.push("END:VCALENDAR");
   return lines.join("\r\n");
 }
-
 

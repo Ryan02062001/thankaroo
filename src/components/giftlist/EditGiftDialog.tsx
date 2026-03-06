@@ -1,47 +1,90 @@
+// path: /components/giftlist/EditGiftDialog.tsx
 "use client";
 
 import * as React from "react";
 import {
-  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
-  DialogFooter, DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { updateGiftDirect } from "@/app/actions/gifts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { usePathname } from "next/navigation";
 import {
-  Gift as GiftIcon, DollarSign, Package, Boxes,
-  CalendarDays, BadgeCheck
+  Gift as GiftIcon,
+  DollarSign,
+  Package,
+  Boxes,
+  CalendarDays,
+  BadgeCheck
 } from "lucide-react";
 import type { UIGift } from "@/components/giftlist/types";
-// import { useFormStatus } from "react-dom";
-
-// removed unused SubmitButton
+import { todayYmd } from "@/lib/date";
 
 export function EditGiftDialog({
-  listId,
   gift,
   isOpen,
   setIsOpen,
   onUpdated,
+  guestMode,
+  updateGuestGift,
 }: {
-  listId: string;
   gift: UIGift;
   isOpen: boolean;
   setIsOpen: (v: boolean) => void;
   onUpdated: (gift: UIGift) => void;
+  guestMode?: boolean;
+  updateGuestGift?: (input: {
+    id: string;
+    guestName: string;
+    description: string;
+    giftType: UIGift["type"];
+    dateReceived?: string | null;
+    thankYouSent?: boolean;
+  }) => Promise<UIGift>;
 }) {
-  const pathname = usePathname();
+  // Local state mirrors the current `gift` prop
   const [guest, setGuest] = React.useState(gift.guestName);
   const [desc, setDesc] = React.useState(gift.description);
   const [type, setType] = React.useState<UIGift["type"]>(gift.type);
   const [date, setDate] = React.useState(gift.date);
   const [thank, setThank] = React.useState(gift.thankYouSent);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [errors, setErrors] = React.useState<{ guest?: string; desc?: string }>({});
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayYmd();
+
+  // --- FIX: Ensure dialog fields always reflect the *currently selected* gift.
+  // Reinitialize local state whenever the dialog opens for a gift, or when the gift changes.
+  const initFromGift = React.useCallback(() => {
+    setGuest(gift.guestName);
+    setDesc(gift.description);
+    setType(gift.type);
+    setDate(gift.date);
+    setThank(gift.thankYouSent);
+    setErrors({});
+    setSubmitError(null);
+  }, [gift]);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      initFromGift();
+    }
+  }, [isOpen, initFromGift, gift.id]);
+
+  const validate = React.useCallback(() => {
+    const next: typeof errors = {};
+    if (!guest.trim()) next.guest = "Please enter the guest’s name.";
+    if (!desc.trim()) next.desc = "Please describe the gift.";
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  }, [desc, guest]);
 
   const TypeTile = ({
     value,
@@ -61,7 +104,7 @@ export function EditGiftDialog({
         aria-checked={active}
         className={[
           "flex items-center gap-2 rounded-xl border p-3 text-left transition-all",
-          "w-full min-h-[88px] h-full", // equal, comfortable tap targets on mobile
+          "w-full min-h-[88px] h-full",
           "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A8E6CF] focus-visible:ring-offset-2",
           active
             ? "border-[#A8E6CF] bg-[#A8E6CF]/10 shadow-sm"
@@ -100,13 +143,10 @@ export function EditGiftDialog({
         setIsOpen(open);
         if (!open) {
           setIsSubmitting(false);
+          setSubmitError(null);
         }
       }}
     >
-      <DialogTrigger asChild>
-        <span style={{ display: "none" }} />
-      </DialogTrigger>
-
       <DialogContent className="sm:max-w-[520px] p-0">
         <div className="h-1.5 w-full bg-gradient-to-r from-[#A8E6CF] via-[#98CFBA] to-[#8cc4b0]" />
 
@@ -122,31 +162,42 @@ export function EditGiftDialog({
             className="mt-4 space-y-5"
             onSubmit={async (e) => {
               e.preventDefault();
-              if (isSubmitting) return;
+              if (isSubmitting || !validate()) return;
               setIsSubmitting(true);
+              setSubmitError(null);
               try {
-                const updated = await updateGiftDirect({
-                  id: gift.id,
-                  guestName: guest.trim(),
-                  description: desc.trim(),
-                  giftType: type,
-                  dateReceived: date,
-                  thankYouSent: thank,
-                });
-                onUpdated(updated as UIGift);
-                setIsOpen(false);
-              } catch {
+                if (guestMode && updateGuestGift) {
+                  const updated = await updateGuestGift({
+                    id: gift.id,
+                    guestName: guest.trim(),
+                    description: desc.trim(),
+                    giftType: type,
+                    dateReceived: date,
+                    thankYouSent: thank,
+                  });
+                  onUpdated(updated);
+                  setIsOpen(false);
+                } else {
+                  const updated = await updateGiftDirect({
+                    id: gift.id,
+                    guestName: guest.trim(),
+                    description: desc.trim(),
+                    giftType: type,
+                    dateReceived: date,
+                    thankYouSent: thank,
+                  });
+                  onUpdated(updated as UIGift);
+                  setIsOpen(false);
+                }
+              } catch (error) {
+                setSubmitError(
+                  error instanceof Error ? error.message : "Unable to update this gift right now."
+                );
               } finally {
                 setIsSubmitting(false);
               }
             }}
           >
-            <input type="hidden" name="id" value={gift.id} />
-            <input type="hidden" name="list_id" value={listId} />
-            <input type="hidden" name="redirect_to" value={pathname} />
-            <input type="hidden" name="gift_type" value={type} />
-            <input type="hidden" name="thank_you_sent" value={thank.toString()} />
-
             <div className="space-y-2">
               <Label htmlFor="guest_name">Guest name</Label>
               <Input
@@ -154,8 +205,13 @@ export function EditGiftDialog({
                 name="guest_name"
                 value={guest}
                 onChange={(e) => setGuest(e.target.value)}
+                aria-invalid={!!errors.guest}
+                aria-describedby={errors.guest ? "edit_guest_name_error" : undefined}
                 placeholder="e.g., Alex Johnson"
               />
+              {errors.guest ? (
+                <p id="edit_guest_name_error" className="text-xs text-red-600">{errors.guest}</p>
+              ) : null}
             </div>
 
             <div className="space-y-2">
@@ -181,9 +237,14 @@ export function EditGiftDialog({
                 name="description"
                 value={desc}
                 onChange={(e) => setDesc(e.target.value)}
+                aria-invalid={!!errors.desc}
+                aria-describedby={errors.desc ? "edit_desc_error" : undefined}
                 className="min-h-[88px] resize-y"
                 maxLength={500}
               />
+              {errors.desc ? (
+                <p id="edit_desc_error" className="text-xs text-red-600">{errors.desc}</p>
+              ) : null}
               <div className="text-xs text-gray-500 flex justify-end">{desc.length}/500</div>
             </div>
 
@@ -221,31 +282,40 @@ export function EditGiftDialog({
                     onChange={() => setThank(true)}
                     className="accent-[#2d2d2d]"
                   />
-                  <BadgeCheck className="h-4 w-4 text-[#2d2d2d]" />
-                  Sent
+                    <BadgeCheck className="h-4 w-4 text-[#2d2d2d]" />
+                    Sent
                 </label>
               </div>
             </div>
 
-            <DialogFooter className="mt-2">
-              <div className="flex w-full gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsOpen(false)}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={!guest.trim() || !desc.trim() || isSubmitting}
-                  className="flex-1 bg-[#A8E6CF] text-[#1f2937] hover:bg-[#98CFBA] disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? "Saving…" : "Save Changes"}
-                </Button>
+            {submitError ? (
+              <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {submitError}
               </div>
-            </DialogFooter>
+            ) : null}
+
+            <DialogFooter
+  className="sticky bottom-0 z-20 border-t bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 py-6"
+  
+>
+  <div className="flex w-full gap-2">
+    <Button
+      type="button"
+      variant="outline"
+      onClick={() => setIsOpen(false)}
+      className="h-[48px] flex-1 "
+    >
+      Cancel
+    </Button>
+    <Button
+      type="submit"
+      disabled={!guest.trim() || !desc.trim() || isSubmitting}
+      className="h-[48px] flex-1  bg-[#A8E6CF] text-[#1f2937] hover:bg-[#98CFBA] disabled:opacity-60 disabled:cursor-not-allowed"
+    >
+      {isSubmitting ? "Saving…" : "Save Changes"}
+    </Button>
+  </div>
+</DialogFooter>
           </form>
         </div>
       </DialogContent>

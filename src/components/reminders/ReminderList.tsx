@@ -2,15 +2,14 @@
 
 import * as React from "react";
 import ReminderRow, { type ReminderRowData } from "./ReminderRow";
+import { formatYmd, parseYmd, todayYmd } from "@/lib/date";
 
-function ymd(d: Date) { return d.toISOString().slice(0, 10); }
 function formatMonthLabel(ymdStr: string) {
-  const dt = new Date(ymdStr + "T00:00:00Z");
-  return dt.toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+  return formatYmd(ymdStr, { month: "long", year: "numeric" });
 }
 function formatDayParts(ymdStr: string) {
-  const dt = new Date(ymdStr + "T00:00:00Z");
-  return { dow: dt.toLocaleString("en-US", { weekday: "short", timeZone: "UTC" }), day: dt.getUTCDate() } as const;
+  const dt = parseYmd(ymdStr);
+  return { dow: dt.toLocaleString("en-US", { weekday: "short" }), day: dt.getDate() } as const;
 }
 
 export default function ReminderList({ reminders, onDraft, onMarkDone, onReschedToday, onReschedPlusMonth, onDelete }: {
@@ -21,7 +20,7 @@ export default function ReminderList({ reminders, onDraft, onMarkDone, onResched
   onReschedPlusMonth: (id: string, dueYmd: string) => void;
   onDelete: (id: string) => void;
 }) {
-  const todayYmd = ymd(new Date());
+  const today = todayYmd();
 
   const grouped = React.useMemo(() => {
     const map = new Map<string, ReminderRowData[]>();
@@ -48,7 +47,7 @@ export default function ReminderList({ reminders, onDraft, onMarkDone, onResched
           <h2 id={`month-${group.month.replace(/\s+/g, '-')}`} className="px-1 mt-12 mb-6 text-2xl md:text-3xl font-semibold text-slate-700">{group.month}</h2>
           {group.days.map(({ ymd, items }) => {
             const { dow, day } = formatDayParts(ymd);
-            const isToday = ymd === todayYmd;
+            const isToday = ymd === today;
             return (
               <React.Fragment key={ymd}>
                 {items.map((r) => (

@@ -11,6 +11,7 @@ import { supabase } from "@/utils/supabase/client";
 import { Calendar, Search, Plus, X } from "lucide-react";
 import { channelBadgeClasses } from "@/lib/theme";
 import type { Database } from "@/app/types/database";
+import { addDaysToYmd, formatYmd, normalizeYmd, parseYmd, todayYmd } from "@/lib/date";
 
 type Gift = {
   id: string;
@@ -24,25 +25,8 @@ type DBGiftRow = Pick<
   "id" | "guest_name" | "description" | "date_received"
 >;
 
-function ymd(d: Date) {
-  return d.toISOString().slice(0, 10);
-}
-
-function addDaysYmd(dateYmd: string, days: number) {
-  const d = new Date(dateYmd + "T00:00:00Z");
-  d.setUTCDate(d.getUTCDate() + days);
-  return ymd(d);
-}
-
 function nextNDays(startYmd: string, n: number) {
-  const arr: string[] = [];
-  const start = new Date(startYmd + "T00:00:00Z");
-  for (let i = 0; i < n; i++) {
-    const d = new Date(start);
-    d.setUTCDate(start.getUTCDate() + i);
-    arr.push(ymd(d));
-  }
-  return arr;
+  return Array.from({ length: n }, (_, index) => addDaysToYmd(startYmd, index));
 }
 
 export function AddReminderDialog({
@@ -91,7 +75,7 @@ export function AddReminderDialog({
         id: g.id,
         guestName: g.guest_name,
         description: g.description,
-        date: g.date_received ?? new Date().toISOString().slice(0, 10),
+        date: normalizeYmd(g.date_received, todayYmd()),
       }));
       setGifts(mapped);
       if (initialGiftId) setSelectedGiftIds(new Set([initialGiftId]));
@@ -102,7 +86,7 @@ export function AddReminderDialog({
     `${g.guestName} ${g.description}`.toLowerCase().includes(giftQuery.toLowerCase())
   );
 
-  const today = ymd(new Date());
+  const today = todayYmd();
   const calendarDays = nextNDays(today, 42);
 
   const toggleGift = (id: string) => {
@@ -126,7 +110,7 @@ export function AddReminderDialog({
     setSelectedDates((prev) => {
       const next = new Set(prev);
       for (const off of offsets) {
-        next.add(addDaysYmd(base, off));
+        next.add(addDaysToYmd(base, off));
       }
       return next;
     });
@@ -193,7 +177,9 @@ export function AddReminderDialog({
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-[#2d2d2d]">{g.guestName}</span>
-                          <Badge variant="outline" className={`border ${channelBadgeClasses[channel]}`}>{new Date(g.date + "T00:00:00Z").toLocaleDateString("en-US")}</Badge>
+                          <Badge variant="outline" className={`border ${channelBadgeClasses[channel]}`}>
+                            {formatYmd(g.date, { year: "numeric", month: "numeric", day: "numeric" })}
+                          </Badge>
                         </div>
                         <div className="text-xs text-[#2d2d2d] truncate">{g.description}</div>
                       </div>
@@ -235,7 +221,7 @@ export function AddReminderDialog({
                       onClick={() => toggleDate(d)}
                       className={`rounded border p-2 text-xs transition-colors hover:bg-gray-50 ${isSelected ? "bg-[#A8E6CF]/40 border-[#A8E6CF]" : "bg-white"}`}
                     >
-                      {new Date(d + "T00:00:00Z").getUTCDate()}
+                      {parseYmd(d).getDate()}
                     </button>
                   );
                 })}
@@ -245,7 +231,7 @@ export function AddReminderDialog({
                 <div className="mt-2 flex flex-wrap gap-2">
                   {Array.from(selectedDates).sort().map((d) => (
                     <span key={d} className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs">
-                      {new Date(d + "T00:00:00Z").toLocaleDateString("en-US")}
+                      {formatYmd(d, { year: "numeric", month: "numeric", day: "numeric" })}
                       <button onClick={() => toggleDate(d)} aria-label="remove date" className="text-gray-500"><X className="h-3 w-3" /></button>
                     </span>
                   ))}
@@ -290,5 +276,3 @@ export function AddReminderDialog({
     </Dialog>
   );
 }
-
-

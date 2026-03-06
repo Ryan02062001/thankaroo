@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import type { GiftType, Database } from "@/app/types/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { normalizeYmd, todayYmd } from "@/lib/date";
+import { sanitizeGiftFields } from "@/lib/gifts";
 
 type GiftsRow = Database["public"]["Tables"]["gifts"]["Row"];
 type GiftsInsert = Database["public"]["Tables"]["gifts"]["Insert"];
@@ -48,15 +50,58 @@ async function getGiftListId(
   return (data as Pick<GiftsRow, "list_id">).list_id as string;
 }
 
+async function getGiftMeta(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  giftId: string
+) {
+  const { data, error } = await supabase
+    .from("gifts")
+    .select("list_id, thank_you_sent")
+    .eq("id", giftId)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  const row = data as Pick<GiftsRow, "list_id" | "thank_you_sent">;
+  return {
+    listId: row.list_id as string,
+    thankYouSent: Boolean(row.thank_you_sent),
+  };
+}
+
+function getThankYouTimestampPatch(currentValue: boolean, nextValue: boolean): Partial<GiftsUpdate> {
+  if (currentValue === nextValue) {
+    return {};
+  }
+
+  return {
+    thank_you_sent_at: nextValue ? new Date().toISOString() : null,
+  };
+}
+
+function revalidateGiftPages() {
+  revalidatePath("/giftlist");
+  revalidatePath("/reminders");
+}
+
 export async function createGift(formData: FormData) {
   const list_id = String(formData.get("list_id") ?? "");
-  const guest_name = String(formData.get("guest_name") ?? "").trim();
-  const description = String(formData.get("description") ?? "").trim();
-  const gift_type = (String(formData.get("gift_type") ?? "non registry") as GiftType);
-  const date_received = String(formData.get("date_received") ?? "");
+  const {
+    guestName,
+    description,
+    giftType,
+    dateReceived,
+  } = sanitizeGiftFields({
+    guestName: String(formData.get("guest_name") ?? ""),
+    description: String(formData.get("description") ?? ""),
+    giftType: String(formData.get("gift_type") ?? "non registry"),
+    dateReceived: String(formData.get("date_received") ?? ""),
+  });
   const redirectTo = String(formData.get("redirect_to") ?? "/giftlist");
 
-  if (!list_id || !guest_name || !description) {
+  if (!list_id || !guestName || !description) {
     redirect(
       `${redirectTo}?list=${encodeURIComponent(list_id)}&error=${encodeURIComponent(
         "Guest, description and list are required"
@@ -98,10 +143,10 @@ export async function createGift(formData: FormData) {
     .insert([
       {
         list_id,
-        guest_name,
+        guest_name: guestName,
         description,
-        gift_type,
-        date_received: date_received || undefined,
+        gift_type: giftType,
+        date_received: dateReceived,
       } satisfies GiftsInsert,
     ]);
 
@@ -117,10 +162,17 @@ export async function createGift(formData: FormData) {
 
 export async function updateGift(formData: FormData) {
   const id = String(formData.get("id") ?? "");
-  const guest_name = String(formData.get("guest_name") ?? "").trim();
-  const description = String(formData.get("description") ?? "").trim();
-  const gift_type = (String(formData.get("gift_type") ?? "non registry") as GiftType);
-  const date_received = String(formData.get("date_received") ?? "");
+  const {
+    guestName,
+    description,
+    giftType,
+    dateReceived,
+  } = sanitizeGiftFields({
+    guestName: String(formData.get("guest_name") ?? ""),
+    description: String(formData.get("description") ?? ""),
+    giftType: String(formData.get("gift_type") ?? "non registry"),
+    dateReceived: String(formData.get("date_received") ?? ""),
+  });
   const thank_you_sent = String(formData.get("thank_you_sent") ?? "") === "true";
   const redirectTo = String(formData.get("redirect_to") ?? "/giftlist");
 
@@ -128,40 +180,44 @@ export async function updateGift(formData: FormData) {
     redirect(`${redirectTo}?error=${encodeURIComponent("Missing gift id")}`);
   }
 
+  if (!guestName || !description) {
+    redirect(`${redirectTo}?error=${encodeURIComponent("Guest and description are required")}`);
+  }
+
   const supabase = await createClient();
   const user = await requireUserOrRedirect(supabase, redirectTo);
   const supa = supabase as unknown as SupabaseClient<Database>;
 
-  const listId = await getGiftListId(supabase, id);
-  if (!listId) {
+  const giftMeta = await getGiftMeta(supabase, id);
+  if (!giftMeta) {
     redirect(`${redirectTo}?error=${encodeURIComponent("Gift not found")}`);
   }
 
-  const ownsList = await assertListOwnership(supabase, listId!, user.id);
+  const ownsList = await assertListOwnership(supabase, giftMeta!.listId, user.id);
   if (!ownsList) {
-    redirect(`${redirectTo}?list=${encodeURIComponent(listId!)}&error=${encodeURIComponent("You do not have permission to modify this gift")}`);
+    redirect(`${redirectTo}?list=${encodeURIComponent(giftMeta!.listId)}&error=${encodeURIComponent("You do not have permission to modify this gift")}`);
   }
 
   const { error } = await supa
     .from("gifts")
     .update({
-      guest_name,
+      guest_name: guestName,
       description,
-      gift_type,
-      date_received: date_received || undefined,
+      gift_type: giftType,
+      date_received: dateReceived,
       thank_you_sent,
-      thank_you_sent_at: thank_you_sent ? new Date().toISOString() : null,
+      ...getThankYouTimestampPatch(giftMeta!.thankYouSent, thank_you_sent),
     } satisfies GiftsUpdate)
     .eq("id", id);
 
   if (error) {
     redirect(
-      `${redirectTo}?list=${encodeURIComponent(listId!)}&error=${encodeURIComponent(error.message)}`
+      `${redirectTo}?list=${encodeURIComponent(giftMeta!.listId)}&error=${encodeURIComponent(error.message)}`
     );
   }
 
   revalidatePath(redirectTo);
-  redirect(`${redirectTo}?list=${listId!}`);
+  redirect(`${redirectTo}?list=${giftMeta!.listId}`);
 }
 
 export async function toggleThankYou(formData: FormData) {
@@ -253,6 +309,17 @@ export async function createGiftDirect(input: {
   giftType: GiftType;
   dateReceived?: string | null;
 }): Promise<UIGift> {
+  const safeInput = sanitizeGiftFields({
+    guestName: input.guestName,
+    description: input.description,
+    giftType: input.giftType,
+    dateReceived: input.dateReceived,
+  });
+
+  if (!safeInput.guestName || !safeInput.description) {
+    throw new Error("Guest and description are required");
+  }
+
   const supabase = await createClient();
   const user = await requireUserOrRedirect(supabase, "/giftlist");
   const supa = supabase as unknown as SupabaseClient<Database>;
@@ -278,10 +345,10 @@ export async function createGiftDirect(input: {
     .insert([
       {
         list_id: input.listId,
-        guest_name: input.guestName,
-        description: input.description,
-        gift_type: input.giftType,
-        date_received: input.dateReceived || undefined,
+        guest_name: safeInput.guestName,
+        description: safeInput.description,
+        gift_type: safeInput.giftType,
+        date_received: safeInput.dateReceived,
       } satisfies GiftsInsert,
     ])
     .select("id, guest_name, description, gift_type, date_received, thank_you_sent")
@@ -289,13 +356,15 @@ export async function createGiftDirect(input: {
 
   if (error || !data) throw new Error(error?.message ?? "Failed to create gift");
 
+  revalidateGiftPages();
+
   const row = data as Pick<GiftsRow, "id" | "guest_name" | "description" | "gift_type" | "date_received" | "thank_you_sent">;
   return {
     id: row.id as string,
     guestName: row.guest_name as string,
     description: row.description as string,
     type: row.gift_type as GiftType,
-    date: (row.date_received ?? new Date().toISOString().slice(0, 10)) as string,
+    date: normalizeYmd(row.date_received, todayYmd()),
     thankYouSent: Boolean(row.thank_you_sent),
   };
 }
@@ -308,26 +377,38 @@ export async function updateGiftDirect(input: {
   dateReceived?: string | null;
   thankYouSent?: boolean;
 }): Promise<UIGift> {
+  const safeInput = sanitizeGiftFields({
+    guestName: input.guestName,
+    description: input.description,
+    giftType: input.giftType,
+    dateReceived: input.dateReceived,
+    thankYouSent: input.thankYouSent,
+  });
+
+  if (!safeInput.guestName || !safeInput.description) {
+    throw new Error("Guest and description are required");
+  }
+
   const supabase = await createClient();
   const user = await requireUserOrRedirect(supabase, "/giftlist");
   const supa = supabase as unknown as SupabaseClient<Database>;
 
-  const listId = await getGiftListId(supabase, input.id);
-  if (!listId) throw new Error("Gift not found");
-  const ownsList = await assertListOwnership(supabase, listId, user.id);
+  const giftMeta = await getGiftMeta(supabase, input.id);
+  if (!giftMeta) throw new Error("Gift not found");
+  const ownsList = await assertListOwnership(supabase, giftMeta.listId, user.id);
   if (!ownsList) throw new Error("Forbidden: cannot modify this gift");
 
   const { data, error } = await supa
     .from("gifts")
     .update({
-      guest_name: input.guestName,
-      description: input.description,
-      gift_type: input.giftType,
-      date_received: input.dateReceived || undefined,
+      guest_name: safeInput.guestName,
+      description: safeInput.description,
+      gift_type: safeInput.giftType,
+      date_received: safeInput.dateReceived,
       ...(typeof input.thankYouSent === "boolean"
         ? {
-            thank_you_sent: input.thankYouSent,
-            thank_you_sent_at: input.thankYouSent ? new Date().toISOString() : null,
+            thank_you_sent: safeInput.thankYouSent,
+            ...getThankYouTimestampPatch(giftMeta.thankYouSent, safeInput.thankYouSent),
           }
         : {}),
     } satisfies GiftsUpdate)
@@ -337,13 +418,15 @@ export async function updateGiftDirect(input: {
 
   if (error || !data) throw new Error(error?.message ?? "Failed to update gift");
 
+  revalidateGiftPages();
+
   const row2 = data as Pick<GiftsRow, "id" | "guest_name" | "description" | "gift_type" | "date_received" | "thank_you_sent">;
   return {
     id: row2.id as string,
     guestName: row2.guest_name as string,
     description: row2.description as string,
     type: row2.gift_type as GiftType,
-    date: (row2.date_received ?? new Date().toISOString().slice(0, 10)) as string,
+    date: normalizeYmd(row2.date_received, todayYmd()),
     thankYouSent: Boolean(row2.thank_you_sent),
   };
 }
@@ -376,6 +459,8 @@ export async function toggleThankYouDirect(input: { id: string }): Promise<{ id:
     .eq("id", input.id);
   if (error) throw new Error(error.message);
 
+  revalidateGiftPages();
+
   return { id: input.id, thankYouSent: newValue };
 }
 
@@ -391,5 +476,7 @@ export async function deleteGiftDirect(input: { id: string }): Promise<{ id: str
 
   const { error } = await supa.from("gifts").delete().eq("id", input.id);
   if (error) throw new Error(error.message);
+
+  revalidateGiftPages();
   return { id: input.id };
 }

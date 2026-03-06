@@ -24,6 +24,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 type List = { id: string; name: string };
@@ -35,6 +36,7 @@ export function ListSelector({
   onPrimaryWidth,
   children,
   mobileThreeCol = false,
+  disabled = false,
 }: {
   lists: List[];
   currentListId: string | null;
@@ -42,6 +44,7 @@ export function ListSelector({
   onPrimaryWidth?: (px: number) => void;
   children?: React.ReactNode;
   mobileThreeCol?: boolean;
+  disabled?: boolean; // guest mode or otherwise locked
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -60,11 +63,18 @@ export function ListSelector({
   }, [currentListId, lists]);
 
   const onChangeList = (id: string) => {
+    if (id === currentListId) {
+      return;
+    }
+
     const params = new URLSearchParams(search.toString());
     params.set("list", id);
+    params.delete("error");
     router.push(`${pathname}?${params.toString()}`);
     try {
-      document.cookie = `thankaroo_last_list_id=${encodeURIComponent(id)}; Path=/; Max-Age=31536000; SameSite=Lax`;
+      document.cookie = `thankaroo_last_list_id=${encodeURIComponent(
+        id
+      )}; Path=/; Max-Age=31536000; SameSite=Lax`;
     } catch {}
   };
 
@@ -91,29 +101,46 @@ export function ListSelector({
   React.useEffect(() => {
     if (!currentListId) return;
     try {
-      document.cookie = `thankaroo_last_list_id=${encodeURIComponent(currentListId)}; Path=/; Max-Age=31536000; SameSite=Lax`;
+      document.cookie = `thankaroo_last_list_id=${encodeURIComponent(
+        currentListId
+      )}; Path=/; Max-Age=31536000; SameSite=Lax`;
     } catch {}
   }, [currentListId]);
 
-  const topContainerClasses = "mb-6 flex flex-col md:flex-row md:flex-wrap lg:flex-nowrap md:items-center gap-2 md:gap-3";
+  const topContainerClasses =
+    "mb-6 flex flex-col md:flex-row md:flex-wrap lg:flex-nowrap md:items-center gap-2 md:gap-3";
 
   const primaryGroupClasses = mobileThreeCol
     ? "grid grid-cols-3 items-stretch gap-2 md:flex md:flex-row md:flex-wrap lg:flex-nowrap md:items-center md:gap-3 w-full md:w-auto"
     : "flex flex-col md:flex-row md:flex-wrap lg:flex-nowrap items-stretch md:items-center gap-2 md:gap-3 w-full md:w-auto";
 
+  const tooltipMsg = "Available after you create an account";
+
   return (
     <div className={cn(topContainerClasses, className)}>
       <div ref={primaryRef} className={primaryGroupClasses}>
+        {/* List select (tooltip only when locked by `disabled`) */}
         <Select
           value={currentListId ?? ""}
           onValueChange={onChangeList}
-          disabled={!hasLists}
+          disabled={disabled || !hasLists}
         >
-          <SelectTrigger size="lg" className="w-full sm:w-[176px] rounded-xl border-slate-200 bg-white text-slate-800">
-            <SelectValue
-              placeholder={hasLists ? "Select a list" : "No lists yet"}
-            />
-          </SelectTrigger>
+          <Tooltip open={disabled ? undefined : false}>
+            <TooltipTrigger asChild>
+              <SelectTrigger
+                size="lg"
+                className="w-full sm:w-[176px] rounded-xl border-slate-200 bg-white text-slate-800"
+              >
+                <SelectValue
+                  placeholder={hasLists ? "Select a list" : "No lists yet"}
+                />
+              </SelectTrigger>
+            </TooltipTrigger>
+            {disabled && (
+              <TooltipContent side="top">{tooltipMsg}</TooltipContent>
+            )}
+          </Tooltip>
+
           <SelectContent>
             {lists.map((l) => (
               <SelectItem key={l.id} value={l.id}>
@@ -123,16 +150,27 @@ export function ListSelector({
           </SelectContent>
         </Select>
 
+        {/* New List (tooltip when locked by `disabled`) */}
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-12 w-full sm:w-[176px] rounded-xl border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
-            >
-              New List
-            </Button>
-          </DialogTrigger>
+          <Tooltip open={disabled ? undefined : false}>
+            <TooltipTrigger asChild>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-12 w-full sm:w-[176px] rounded-xl border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
+                  disabled={disabled}
+                  aria-disabled={disabled}
+                >
+                  New List
+                </Button>
+              </DialogTrigger>
+            </TooltipTrigger>
+            {disabled && (
+              <TooltipContent side="top">{tooltipMsg}</TooltipContent>
+            )}
+          </Tooltip>
+
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle className="text-[#2d2d2d]">Create New List</DialogTitle>
@@ -180,17 +218,27 @@ export function ListSelector({
           </DialogContent>
         </Dialog>
 
+        {/* Rename (disabled like the selector & new list; tooltip applied) */}
         <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
-          <DialogTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-12 w-full sm:w-[176px] rounded-xl border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
-              disabled={!currentListId}
-            >
-              Rename
-            </Button>
-          </DialogTrigger>
+          <Tooltip open={disabled ? undefined : false}>
+            <TooltipTrigger asChild>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-12 w-full sm:w-[176px] rounded-xl border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
+                  disabled={disabled || !currentListId}
+                  aria-disabled={disabled || !currentListId}
+                >
+                  Rename
+                </Button>
+              </DialogTrigger>
+            </TooltipTrigger>
+            {disabled && (
+              <TooltipContent side="top">{tooltipMsg}</TooltipContent>
+            )}
+          </Tooltip>
+
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle className="text-[#2d2d2d]">Rename List</DialogTitle>

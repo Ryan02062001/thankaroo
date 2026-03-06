@@ -4,6 +4,7 @@ import * as React from "react";
 import { supabase } from "@/utils/supabase/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/app/types/database";
+import { addDaysToYmd } from "@/lib/date";
 
 export type Channel = "email" | "text" | "card";
 export type Relationship = "friend" | "family" | "coworker" | "other";
@@ -87,6 +88,7 @@ type Ctx = {
 
 const STORAGE_KEY = "thankarooRemindersV1";
 const ReminderContext = React.createContext<Ctx | undefined>(undefined);
+const supa = supabase as unknown as SupabaseClient<Database>;
 
 const genId = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -100,14 +102,7 @@ const DEFAULT_SETTINGS: ReminderSettings = {
   timezone: "UTC",
 };
 
-function addDays(baseYmd: string, days: number) {
-  const d = new Date(baseYmd + "T00:00:00Z");
-  d.setUTCDate(d.getUTCDate() + days);
-  return d.toISOString().slice(0, 10);
-}
-
 export function ReminderProvider({ children }: { children: React.ReactNode }) {
-  const supa = supabase as unknown as SupabaseClient<Database>;
   const [state, setState] = React.useState<State>({ settingsByList: {}, reminders: [], drafts: [] });
 
   // Hydrate from localStorage after mount to avoid SSR/client mismatch
@@ -181,7 +176,7 @@ export function ReminderProvider({ children }: { children: React.ReactNode }) {
         id: genId(),
         listId,
         giftId: gift.id,
-        dueAt: addDays(gift.date, days),
+        dueAt: addDaysToYmd(gift.date, days),
         channel,
         sent: false,
         createdAt: new Date().toISOString(),

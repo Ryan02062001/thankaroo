@@ -12,6 +12,7 @@ import Header from "@/components/reminders/Header";
 import FiltersBar, { type ChannelFilter } from "@/components/reminders/FiltersBar";
 import ReminderList from "@/components/reminders/ReminderList";
 import type { ReminderRowData } from "@/components/reminders/ReminderRow";
+import { parseYmd, toYmd } from "@/lib/date";
 
 type List = { id: string; name: string };
 
@@ -77,9 +78,9 @@ export default function RemindersClient({ listId, lists }: { listId: string; lis
   };
 
   const reschedulePlusOneMonth = (reminderId: string, dueYmd: string) => {
-    const d = new Date(dueYmd + "T00:00:00Z");
-    const next = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1));
-    rescheduleReminder(reminderId, ymd(next));
+    const dueDate = parseYmd(dueYmd);
+    const next = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 1, 12);
+    rescheduleReminder(reminderId, toYmd(next));
   };
 
   const exportIcs = () => {
@@ -135,5 +136,4 @@ export default function RemindersClient({ listId, lists }: { listId: string; lis
     </>
   );
 }
-
 

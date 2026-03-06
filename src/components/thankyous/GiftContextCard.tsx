@@ -2,6 +2,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Gift, CheckCircle2 } from "lucide-react";
 import type { UIGift } from "./types";
+import { formatYmd } from "@/lib/date";
 
 export function GiftContextCard({ gift }: { gift: UIGift }) {
   return (
@@ -16,7 +17,7 @@ export function GiftContextCard({ gift }: { gift: UIGift }) {
           </h3>
           <div className="text-sm text-gray-600 break-words break-all">
             Received on{" "}
-            {new Date(gift.date).toLocaleDateString("en-US", {
+            {formatYmd(gift.date, {
               weekday: "long",
               year: "numeric",
               month: "long",

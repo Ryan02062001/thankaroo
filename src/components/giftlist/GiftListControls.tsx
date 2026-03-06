@@ -48,6 +48,7 @@ const TYPE_META: Record<
 export function GiftListControls({
   lists,
   currentListId,
+  listsDisabled = false,
   searchTerm,
   setSearchTerm,
   filterType,
@@ -60,13 +61,13 @@ export function GiftListControls({
   setSortMethod,
   resetFilters,
   openAddGift,
-  openAddReminder, // kept for compatibility
   onTriggerImport,
   onExportCSV,
   importBusy,
 }: {
   lists: List[];
   currentListId: string;
+  listsDisabled?: boolean;
   searchTerm: string;
   setSearchTerm: (v: string) => void;
   filterType: GiftType | null;
@@ -79,7 +80,6 @@ export function GiftListControls({
   setSortMethod: (v: string) => void;
   resetFilters: () => void;
   openAddGift: () => void;
-  openAddReminder: () => void;
   onTriggerImport: () => void;
   onExportCSV: () => void;
   importBusy: boolean;
@@ -122,8 +122,6 @@ export function GiftListControls({
   }, [sortMethod]);
 
   const hasFilters = !!filterType || filterThankYou !== null || filterHasNote !== null;
-
-  React.useEffect(() => {}, [openAddReminder]);
 
   const FilterChip = ({
     children,
@@ -209,6 +207,7 @@ export function GiftListControls({
                 [&_button:not(.brand-btn)]:px-4
               `}
               onPrimaryWidth={setPrimaryWidth}
+              disabled={listsDisabled}
             />
 
             {/* Row 2: Search full-width */}
@@ -398,6 +397,7 @@ export function GiftListControls({
                   [&_button:not(.brand-btn)]:px-4
                 `}
                 onPrimaryWidth={setPrimaryWidth}
+                disabled={listsDisabled}
               >
                 <Tooltip>
                   <TooltipTrigger asChild>
