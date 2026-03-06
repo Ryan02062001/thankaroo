@@ -1,3 +1,4 @@
+// path: /components/giftlist/GiftList.tsx
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ export function GiftList({
   onComposeThankYou,
   onDeleteGift,
   onToggleThankYou,
+  guestMode = false,
 }: {
   gifts: UIGift[];
   noteStatusMap: Map<string, "none" | "draft" | "sent">;
@@ -23,6 +25,7 @@ export function GiftList({
   onComposeThankYou: (g: UIGift) => void;
   onDeleteGift: (g: UIGift) => void;
   onToggleThankYou: (g: UIGift) => void;
+  guestMode?: boolean;
 }) {
   return gifts.length > 0 ? (
     <ul className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" role="list">
@@ -36,6 +39,7 @@ export function GiftList({
             onCompose={() => onComposeThankYou(gift)}
             onDelete={() => onDeleteGift(gift)}
             onToggleThankYou={() => onToggleThankYou(gift)}
+            guestMode={guestMode}
           />
         </li>
       ))}
