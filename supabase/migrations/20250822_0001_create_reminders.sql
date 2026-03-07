@@ -24,8 +24,9 @@ create table if not exists public.reminder_settings (
   updated_at timestamptz not null default now()
 );
 
--- Trigger to keep updated_at fresh
-create trigger if not exists trg_reminder_settings_updated_at
+-- CREATE TRIGGER does not support IF NOT EXISTS reliably across Postgres versions.
+drop trigger if exists trg_reminder_settings_updated_at on public.reminder_settings;
+create trigger trg_reminder_settings_updated_at
 before update on public.reminder_settings
 for each row execute function set_updated_at_timestamp();
 
@@ -164,5 +165,4 @@ do $$ begin
       );
   end if;
 end $$;
-
 
